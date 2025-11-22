@@ -3,6 +3,8 @@ import 'fake_data.dart';
 import 'animal_detail.dart';
 
 class UserHomePage extends StatelessWidget {
+  const UserHomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

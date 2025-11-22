@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'user_home.dart';
 
 class UserLoginPage extends StatelessWidget {
+  const UserLoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,7 +13,7 @@ class UserLoginPage extends StatelessWidget {
           child: const Text("Login (Mock)"),
           onPressed: () {
             Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (_) => UserHomePage()));
+                context, MaterialPageRoute(builder: (_) => const UserHomePage()));
           },
         ),
       ),

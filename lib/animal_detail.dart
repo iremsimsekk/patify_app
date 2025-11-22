@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AnimalDetailPage extends StatelessWidget {
   final Map<String, dynamic> animal;
 
-  const AnimalDetailPage({required this.animal});
+  const AnimalDetailPage({super.key, required this.animal});
 
   @override
   Widget build(BuildContext context) {

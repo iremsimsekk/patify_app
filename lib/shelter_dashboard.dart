@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'fake_data.dart';
 
 class ShelterDashboard extends StatelessWidget {
+  const ShelterDashboard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,10 +1,7 @@
+// Dosya: lib/main.dart
 import 'package:flutter/material.dart';
-import 'login_selection.dart';
-import 'user_login.dart';
-import 'shelter_login.dart';
-import 'user_home.dart';
-import 'animal_detail.dart';
-import 'shelter_dashboard.dart';
+import 'theme/patify_theme.dart';
+import 'screens/onboarding_screen.dart';
 
 void main() {
   runApp(const PatifyApp());
@@ -16,9 +13,13 @@ class PatifyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Patify Prototype',
+      title: 'Patify',
       debugShowCheckedModeBanner: false,
-      home: LoginSelectionPage(),
+      // Temalar artık tamamen güncel ve uyumlu
+      theme: PatifyTheme.lightTheme,
+      darkTheme: PatifyTheme.darkTheme,
+      themeMode: ThemeMode.system, 
+      home: const OnboardingScreen(), 
     );
   }
 }

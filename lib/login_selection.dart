@@ -3,6 +3,8 @@ import 'user_login.dart';
 import 'shelter_login.dart';
 
 class LoginSelectionPage extends StatelessWidget {
+  const LoginSelectionPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,14 +17,14 @@ class LoginSelectionPage extends StatelessWidget {
               child: const Text("User Login"),
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => UserLoginPage()));
+                    MaterialPageRoute(builder: (_) => const UserLoginPage()));
               },
             ),
             ElevatedButton(
               child: const Text("Shelter Login"),
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => ShelterLoginPage()));
+                    MaterialPageRoute(builder: (_) => const ShelterLoginPage()));
               },
             ),
           ],
