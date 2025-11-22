@@ -133,7 +133,7 @@ final List<Animal> mockAnimals = [
     color: 'Gri',
     healthStatus: 'İç-Dış Parazit Yapıldı',
     description: 'Duman biraz çekingen ama sevdikçe açılan bir kedi. Sakin bir ev arıyor.',
-    imagePath: 'assets/animals/dog.jpg',
+    imagePath: 'assets/animals/Duman.jpg',
   ),
   Animal(
     id: 'a3',
@@ -147,7 +147,7 @@ final List<Animal> mockAnimals = [
     color: 'Beyaz',
     healthStatus: 'Aşıları Tam',
     description: 'Enerjisi hiç bitmeyen, top oynamayı çok seven minik bir dost.',
-    imagePath: 'assets/animals/dog.jpg',
+    imagePath: 'assets/animals/Boncuk.jpg',
   ),
   Animal(
     id: 'a4',
@@ -161,7 +161,7 @@ final List<Animal> mockAnimals = [
     color: 'Sarı-Beyaz',
     healthStatus: 'Tedavisi Devam Ediyor',
     description: 'Limon sokakta bulundu, göz tedavisi görüyor ama çok neşeli.',
-    imagePath: 'assets/animals/dog.jpg',
+    imagePath: 'assets/animals/Limon.jpg',
   ),
   Animal(
     id: 'a5',
@@ -175,7 +175,7 @@ final List<Animal> mockAnimals = [
     color: 'Siyah-Sarı',
     healthStatus: 'Kısırlaştırılmış',
     description: 'Baron çok iyi eğitimli, komutları biliyor. Bahçeli ev tercih sebebidir.',
-    imagePath: 'assets/animals/dog.jpg',
+    imagePath: 'assets/animals/Baron.jpeg',
   ),
 ];
 
@@ -192,4 +192,54 @@ AppUser? authenticateUser(String email, String password) {
 
 List<Animal> getAnimalsByShelter(String shelterId) {
   return mockAnimals.where((animal) => animal.shelterId == shelterId).toList();
+}
+
+// Yeni: Mock Veteriner Kliniği Modeli
+class VeterinaryClinic {
+  final String id;
+  final String name;
+  final String address;
+  final String phoneNumber;
+  final String workingHours;
+  final String about;
+
+  VeterinaryClinic({
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.phoneNumber,
+    required this.workingHours,
+    required this.about,
+  });
+}
+
+// Yeni: Mock Veteriner Verileri (Ankara gereksinimine uygun)
+final List<VeterinaryClinic> mockVeterinaries = [
+  VeterinaryClinic(
+    id: 'v1',
+    name: 'Çankaya Veteriner Kliniği',
+    address: 'Atakent, Çankaya/Ankara',
+    phoneNumber: '0312 111 22 33',
+    workingHours: 'Hafta içi: 09:00 - 19:00',
+    about: 'Yirmi yıllık tecrübemizle can dostlarınızın sağlığı için buradayız.',
+  ),
+  VeterinaryClinic(
+    id: 'v2',
+    name: 'Batıkent Pet Hospital',
+    address: 'Batıkent, Yenimahalle/Ankara',
+    phoneNumber: '0312 444 55 66',
+    workingHours: '7/24 Acil Hizmet',
+    about: 'Geniş kapsamlı hastane ortamında tam donanımlı hizmet.',
+  ),
+];
+
+// ... (mevcut mockUsers ve mockAnimals listeleri kalıyor)
+
+// Yeni: Yardımcı Fonksiyon (Opsiyonel: Detay ekranı için)
+VeterinaryClinic? getClinicById(String id) {
+  try {
+    return mockVeterinaries.firstWhere((clinic) => clinic.id == id);
+  } catch (e) {
+    return null;
+  }
 }

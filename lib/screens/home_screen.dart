@@ -5,6 +5,7 @@ import 'shelter_detail_screen.dart';
 import 'animal_detail_screen.dart'; // Hayvan detayına gitmek için
 import '../widgets/pet_card.dart';
 import '../widgets/category_card.dart';
+import 'veterinary_list_screen.dart'; // Yeni import
 
 class HomeScreen extends StatefulWidget {
   final AppUser currentUser;
@@ -143,7 +144,15 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
             children: [
-              CategoryCard(title: "Veteriner", icon: Icons.local_hospital_rounded, color: pastelBlue, onTap: () {}),
+              // GÜNCELLEME: Veteriner butonu yeni ekrana yönlendiriliyor
+              CategoryCard(
+                title: "Veteriner", 
+                icon: Icons.local_hospital_rounded, 
+                color: pastelBlue, 
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const VeterinaryListScreen()));
+                }
+              ),
               CategoryCard(title: "Mama & Ürün", icon: Icons.fastfood_rounded, color: pastelYellow, onTap: () {}),
             ],
           ),

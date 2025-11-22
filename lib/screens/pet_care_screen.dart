@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/category_card.dart';
+import 'veterinary_list_screen.dart'; // Yeni import
 
 class PetCareScreen extends StatelessWidget {
   const PetCareScreen({super.key});
@@ -32,7 +33,16 @@ class PetCareScreen extends StatelessWidget {
             title: cat["title"] as String,
             icon: cat["icon"] as IconData,
             color: cat["color"] as Color,
-            onTap: () {},
+            onTap: () {
+              if (cat["title"] == "Veterinary") {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const VeterinaryListScreen()));
+              } else {
+                // Diğerleri için mock SnackBar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("${cat["title"]} Sayfası (Yapım Aşamasında)")),
+                );
+              }
+            },
           );
         },
       ),
