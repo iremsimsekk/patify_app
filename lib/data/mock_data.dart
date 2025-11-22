@@ -3,7 +3,7 @@
 // Kullanıcı Tipleri
 enum UserType { petOwner, shelter }
 
-// Mock Kullanıcı Modeli (Barınak Detayları Eklendi)
+// Mock Kullanıcı Modeli (Barınak Detayları Genişletildi)
 class AppUser {
   final String id;
   final String email;
@@ -12,10 +12,12 @@ class AppUser {
   final UserType type;
   final String? photoUrl;
   final String? address;
-  final String? phoneNumber; // Yeni
-  final String? website;     // Yeni
-  final String? workingHours;// Yeni
-  final String? about;       // Yeni
+  final String? phoneNumber;
+  final String? website;
+  final String? workingHours;
+  final String? about;
+  final double? rating; // Puanlama eklendi (Google Maps simülasyonu)
+  final int? reviewCount; // Yorum sayısı
 
   AppUser({
     required this.id,
@@ -29,21 +31,23 @@ class AppUser {
     this.website,
     this.workingHours,
     this.about,
+    this.rating,
+    this.reviewCount,
   });
 }
 
-// Mock Hayvan Modeli (Detaylar Eklendi)
+// Mock Hayvan Modeli
 class Animal {
   final String id;
   final String shelterId;
   final String name;
-  final String type; // Köpek, Kedi, Kuş vb.
-  final String breed; // Cins (Golden, Tekir vb.) - YENİ
+  final String type; // Köpek, Kedi
+  final String breed; // Cins
   final String age;
   final String gender;
-  final double weight; // Kilo - YENİ
-  final String color;  // Renk - YENİ
-  final String healthStatus; // Sağlık (Aşılı, Kısır vb.) - YENİ
+  final double weight;
+  final String color;
+  final String healthStatus;
   final String description;
   final String imagePath;
 
@@ -66,7 +70,7 @@ class Animal {
 // --- VERİLER ---
 
 final List<AppUser> mockUsers = [
-  // Normal Kullanıcı
+  // 1. Normal Kullanıcı
   AppUser(
     id: 'u1',
     email: 'user@patify.com',
@@ -75,107 +79,137 @@ final List<AppUser> mockUsers = [
     type: UserType.petOwner,
     photoUrl: 'assets/user_placeholder.png',
   ),
-  // Barınak 1
+
+  // --- ANKARA GERÇEK BARINAK VERİLERİ (SİMÜLASYON) ---
+  
+  // 2. Barınak: Çankaya Belediyesi
   AppUser(
     id: 's1',
-    email: 'shelter@patify.com',
+    email: 'cankaya@patify.com',
     password: '123',
-    name: 'Ankara Sevgi Barınağı',
+    name: 'Çankaya Belediyesi Sahipsiz Hayvan Barınağı',
     type: UserType.shelter,
-    address: 'Çankaya, Ankara',
-    phoneNumber: '+90 312 123 45 67',
-    website: 'www.sevgibarinagi.org',
-    workingHours: 'Hafta içi: 09:00 - 18:00',
-    about: '2010 yılından beri Ankara\'daki sokak hayvanlarına yuva bulmak için çalışıyoruz. Bağışlarınızla yüzlerce cana dokunduk.',
+    address: 'Mühye Köyü, Yeşilkent Mahallesi, 06550 Çankaya/Ankara',
+    phoneNumber: '0312 442 37 18',
+    website: 'www.cankaya.bel.tr',
+    workingHours: 'Hafta içi: 10:00 - 16:00',
+    about: 'Çankaya Belediyesi olarak binlerce dostumuza geçici ev sahipliği yapıyoruz. Modern tesislerimizde veteriner hekimlerimiz gözetiminde rehabilitasyon çalışmaları yürütülmektedir.',
+    rating: 4.2,
+    reviewCount: 1250,
     photoUrl: 'assets/shelter_placeholder.png',
   ),
-  // Barınak 2 (Yeni Eklendi - Çeşitlilik olsun diye)
+
+  // 3. Barınak: Gölbaşı Belediyesi
   AppUser(
     id: 's2',
-    email: 'umut@patify.com',
+    email: 'golbasi@patify.com',
     password: '123',
-    name: 'Umut Patiler Derneği',
+    name: 'Gölbaşı Belediyesi Hayvan Barınağı',
     type: UserType.shelter,
-    address: 'Etimesgut, Ankara',
-    phoneNumber: '+90 555 987 65 43',
-    website: 'www.umutpatiler.com',
-    workingHours: 'Her gün: 10:00 - 17:00',
-    about: 'Hasta ve bakıma muhtaç sokak hayvanlarının tedavilerini üstlenen gönüllü bir kuruluşuz.',
+    address: 'Ballıkpınar, 06830 Gölbaşı/Ankara',
+    phoneNumber: '0312 485 55 55',
+    website: 'www.ankaragolbasi.bel.tr',
+    workingHours: 'Her gün: 09:00 - 17:00',
+    about: 'Gölbaşı\'nın doğal ortamında, geniş arazimizde sokak hayvanlarını misafir ediyoruz. Sahiplendirme odaklı çalışmalarımızla her yıl yüzlerce canı sıcak yuvalara kavuşturuyoruz.',
+    rating: 3.8,
+    reviewCount: 840,
+    photoUrl: 'assets/shelter_placeholder.png',
+  ),
+
+  // 4. Barınak: Keçiören Belediyesi
+  AppUser(
+    id: 's3',
+    email: 'kecioren@patify.com',
+    password: '123',
+    name: 'Keçiören Belediyesi Hayvan Bakım Merkezi',
+    type: UserType.shelter,
+    address: 'Uyanış, Aşık Veysel Cd., 06300 Keçiören/Ankara',
+    phoneNumber: '0312 361 10 65',
+    website: 'www.kecioren.bel.tr',
+    workingHours: 'Hafta içi: 08:30 - 17:30',
+    about: 'Keçiören\'deki patili dostlarımızın sağlık kontrolleri, aşıları ve bakımları merkezimizde titizlikle yapılmaktadır. Satın alma sahiplen!',
+    rating: 4.0,
+    reviewCount: 560,
     photoUrl: 'assets/shelter_placeholder.png',
   ),
 ];
 
-// Hazır Hayvanlar (Sayı ve Detay Artırıldı)
-final List<Animal> mockAnimals = [
+// --- HAYVANLAR (Barınaklara Dağıtılmış) ---
+List<Animal> mockAnimals = [
+  // Çankaya Barınağı (s1) Hayvanları
   Animal(
     id: 'a1',
     shelterId: 's1',
     name: 'Pamuk',
     type: 'Köpek',
-    breed: 'Golden Retriever',
+    breed: 'Golden Retriever Melezi',
     age: '2 Yaşında',
     gender: 'Dişi',
     weight: 24.5,
-    color: 'Sarı',
+    color: 'Krem',
     healthStatus: 'Aşıları Tam, Kısırlaştırılmış',
-    description: 'Pamuk çok oyuncu ve insan canlısı. Çocuklarla arası harika.',
+    description: 'Pamuk çok sakin ve insan canlısı bir köpek. Parkta gezmeyi çok seviyor, tasmayla yürümeye alışkın.',
     imagePath: 'assets/animals/dog.jpg',
   ),
   Animal(
     id: 'a2',
     shelterId: 's1',
-    name: 'Duman',
+    name: 'Zeytin',
     type: 'Kedi',
-    breed: 'British Shorthair',
-    age: '6 Aylık',
+    breed: 'Bombay (Siyah)',
+    age: '8 Aylık',
     gender: 'Erkek',
-    weight: 3.2,
-    color: 'Gri',
-    healthStatus: 'İç-Dış Parazit Yapıldı',
-    description: 'Duman biraz çekingen ama sevdikçe açılan bir kedi. Sakin bir ev arıyor.',
-    imagePath: 'assets/animals/dog.jpg',
+    weight: 3.5,
+    color: 'Siyah',
+    healthStatus: 'Göz Tedavisi Gördü (İyileşti)',
+    description: 'Zeytin tam bir oyun canavarı! Lazer ışığına bayılıyor. Diğer kedilerle arası çok iyi.',
+    imagePath: 'assets/animals/dog.jpg', // Kedi fotosu varsa değiştirin
   ),
+
+  // Gölbaşı Barınağı (s2) Hayvanları
   Animal(
     id: 'a3',
-    shelterId: 's1',
-    name: 'Boncuk',
+    shelterId: 's2',
+    name: 'Herkül',
     type: 'Köpek',
-    breed: 'Terrier',
-    age: '1 Yaşında',
+    breed: 'Kangal',
+    age: '3 Yaşında',
     gender: 'Erkek',
-    weight: 6.5,
-    color: 'Beyaz',
-    healthStatus: 'Aşıları Tam',
-    description: 'Enerjisi hiç bitmeyen, top oynamayı çok seven minik bir dost.',
+    weight: 45.0,
+    color: 'Boz',
+    healthStatus: 'Sağlıklı, Çip Takılı',
+    description: 'Herkül isminin hakkını veren güçlü bir dostumuz. Geniş bahçeli bir ev veya çiftlik ortamı için ideal.',
     imagePath: 'assets/animals/dog.jpg',
   ),
   Animal(
     id: 'a4',
     shelterId: 's2',
-    name: 'Limon',
-    type: 'Kedi',
-    breed: 'Tekir',
-    age: '3 Aylık',
+    name: 'Benek',
+    type: 'Köpek',
+    breed: 'Dalmaçyalı Kırması',
+    age: '1.5 Yaşında',
     gender: 'Dişi',
-    weight: 1.1,
-    color: 'Sarı-Beyaz',
-    healthStatus: 'Tedavisi Devam Ediyor',
-    description: 'Limon sokakta bulundu, göz tedavisi görüyor ama çok neşeli.',
+    weight: 18.0,
+    color: 'Beyaz-Siyah',
+    healthStatus: 'Aşıları Tam',
+    description: 'Benek çok enerjik ve koşmayı seviyor. Aktif bir aile arıyor.',
     imagePath: 'assets/animals/dog.jpg',
   ),
+
+  // Keçiören Barınağı (s3) Hayvanları
   Animal(
     id: 'a5',
-    shelterId: 's2',
-    name: 'Baron',
-    type: 'Köpek',
-    breed: 'Alman Kurdu',
-    age: '4 Yaşında',
-    gender: 'Erkek',
-    weight: 32.0,
-    color: 'Siyah-Sarı',
+    shelterId: 's3',
+    name: 'Mırmır',
+    type: 'Kedi',
+    breed: 'Tekir',
+    age: '2 Yaşında',
+    gender: 'Dişi',
+    weight: 4.0,
+    color: 'Kahve-Siyah',
     healthStatus: 'Kısırlaştırılmış',
-    description: 'Baron çok iyi eğitimli, komutları biliyor. Bahçeli ev tercih sebebidir.',
-    imagePath: 'assets/animals/dog.jpg',
+    description: 'Mırmır kucak kedisi tanımının tam karşılığı. Sürekli ilgi ve sevgi istiyor.',
+    imagePath: 'assets/animals/dog.jpg', // Kedi fotosu
   ),
 ];
 
