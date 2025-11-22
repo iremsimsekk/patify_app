@@ -15,7 +15,7 @@ class ShelterDetailScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(shelter.name)),
+      appBar: AppBar(title: Text(shelter.name, style: const TextStyle(fontSize: 18))),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,17 +32,40 @@ class ShelterDetailScreen extends StatelessWidget {
                 children: [
                   const CircleAvatar(radius: 40, backgroundColor: Colors.white, child: Icon(Icons.store, size: 40, color: Colors.black54)),
                   const SizedBox(height: 16),
-                  Text(shelter.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-                  Text(shelter.address ?? "", style: const TextStyle(fontSize: 16, color: Colors.black54)),
+                  Text(shelter.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                  const SizedBox(height: 8),
+                  
+                  // Google Maps Tarzı Rating Gösterimi
+                  if (shelter.rating != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(shelter.rating.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.star, color: Colors.orange, size: 16),
+                        const Icon(Icons.star, color: Colors.orange, size: 16),
+                        const Icon(Icons.star, color: Colors.orange, size: 16),
+                        const Icon(Icons.star, color: Colors.orange, size: 16),
+                        const Icon(Icons.star_half, color: Colors.orange, size: 16),
+                        Text(" (${shelter.reviewCount})", style: const TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  
+                  const SizedBox(height: 8),
+                  Text(shelter.address ?? "", textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: Colors.black54)),
                   const SizedBox(height: 20),
                   
-                  // İletişim Bilgileri (Yeni)
-                  if (shelter.phoneNumber != null)
-                    _buildContactRow(Icons.phone, shelter.phoneNumber!),
-                  if (shelter.workingHours != null)
-                    _buildContactRow(Icons.access_time, shelter.workingHours!),
-                  if (shelter.website != null)
-                    _buildContactRow(Icons.language, shelter.website!),
+                  // İletişim Butonları
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildActionButton(Icons.call, "Ara", theme.colorScheme.primary),
+                      const SizedBox(width: 16),
+                      _buildActionButton(Icons.map, "Yol Tarifi", theme.colorScheme.primary),
+                      const SizedBox(width: 16),
+                      _buildActionButton(Icons.language, "Web", theme.colorScheme.primary),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -53,9 +76,18 @@ class ShelterDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Hakkımızda", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text("Kurum Hakkında", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Text(shelter.about ?? "Bilgi yok.", style: const TextStyle(color: Colors.black87, height: 1.5)),
+                  const SizedBox(height: 16),
+                  if (shelter.workingHours != null)
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time, size: 18, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Text("Çalışma Saatleri: ${shelter.workingHours}", style: const TextStyle(fontWeight: FontWeight.w500)),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -85,7 +117,7 @@ class ShelterDetailScreen extends StatelessWidget {
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AnimalDetailScreen(animal: animal))),
                   child: PetCard(
                     name: animal.name,
-                    age: animal.breed, // Yaş yerine Cins yazalım burada
+                    age: animal.breed, 
                     imagePath: animal.imagePath,
                     backgroundColor: theme.cardTheme.color ?? Colors.white,
                   ),
@@ -99,17 +131,17 @@ class ShelterDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContactRow(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: Colors.black54),
-          const SizedBox(width: 8),
-          Text(text, style: const TextStyle(fontWeight: FontWeight.w500)),
-        ],
-      ),
+  Widget _buildActionButton(IconData icon, String label, Color color) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 24,
+          backgroundColor: color,
+          child: Icon(icon, color: Colors.white, size: 22),
+        ),
+        const SizedBox(height: 4),
+        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+      ],
     );
   }
 }
