@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import '../data/mock_data.dart'; // Mock veriler
 import 'shelter_detail_screen.dart'; // Barınak detayına gitmek için
 import 'animal_detail_screen.dart'; // Hayvan detayına gitmek için
-import '../widgets/pet_card.dart'; // Evcil hayvan kartı bileşeni
-import '../widgets/category_card.dart'; // Kategori kartı bileşeni
+
+import '../widgets/pet_card.dart';
+import '../widgets/category_card.dart';
+import 'veterinary_list_screen.dart'; // Yeni import
+
 
 class HomeScreen extends StatefulWidget {
   final AppUser currentUser;
@@ -189,10 +192,30 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           const SizedBox(height: 24),
 
-          // 5. ANLAŞMALI BARINAKLAR - KARTLAR PASTEL PEMBE
-          Text(
-            "Barınaklar",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: darkTextSecondary),
+          
+          // 4. HIZLI ERİŞİM (Sabit)
+          Text("Hızlı Erişim", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.colorScheme.onPrimary)),
+          const SizedBox(height: 16),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            childAspectRatio: 1.6,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            children: [
+              // GÜNCELLEME: Veteriner butonu yeni ekrana yönlendiriliyor
+              CategoryCard(
+                title: "Veteriner", 
+                icon: Icons.local_hospital_rounded, 
+                color: pastelBlue, 
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const VeterinaryListScreen()));
+                }
+              ),
+              CategoryCard(title: "Mama & Ürün", icon: Icons.fastfood_rounded, color: pastelYellow, onTap: () {}),
+            ],
+
           ),
           const SizedBox(height: 12),
           ListView.builder(
