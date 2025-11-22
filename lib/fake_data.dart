@@ -4,7 +4,7 @@ final List<Map<String, dynamic>> animals = [
     "type": "Cat",
     "age": "2 years",
     "gender": "Female",
-    "image": "assets/animals/cat1.jpg"
+    "image": "assets/animals/dog.jpg"
   },
   {
     "name": "Buddy",
