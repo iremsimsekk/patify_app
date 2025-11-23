@@ -114,7 +114,7 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
               ),
               child: DropdownButtonFormField<String>(
                 decoration: const InputDecoration(border: InputBorder.none, hintText: "Hizmet Seçiniz"),
-                value: _selectedType,
+                initialValue: _selectedType,
                 items: _appointmentTypes.map((type) {
                   return DropdownMenuItem(value: type, child: Text(type));
                 }).toList(),

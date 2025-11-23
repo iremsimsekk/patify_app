@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:patify_app/screens/veterinary_list_screen.dart';
 import '../data/mock_data.dart';
 import 'shelter_detail_screen.dart';
 import 'animal_detail_screen.dart'; // Hayvan detayına gitmek için
@@ -175,7 +176,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: "Veteriner",
                   icon: Icons.local_hospital_rounded,
                   color: pastelBlue,
-                  onTap: () {}),
+                  onTap: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const VeterinaryListScreen()),
+                  );
+                  }),
               CategoryCard(
                   title: "Mama & Ürün",
                   icon: Icons.fastfood_rounded,

@@ -142,7 +142,7 @@ final List<Animal> mockAnimals = [
     healthStatus: 'İç-Dış Parazit Yapıldı',
     description:
         'Duman biraz çekingen ama sevdikçe açılan bir kedi. Sakin bir ev arıyor.',
-    imagePath: 'assets/animals/dog.jpg',
+    imagePath: 'assets/animals/Duman.jpg',
   ),
   Animal(
     id: 'a3',
@@ -157,7 +157,7 @@ final List<Animal> mockAnimals = [
     healthStatus: 'Aşıları Tam',
     description:
         'Enerjisi hiç bitmeyen, top oynamayı çok seven minik bir dost.',
-    imagePath: 'assets/animals/dog.jpg',
+    imagePath: 'assets/animals/Boncuk.jpg',
   ),
   Animal(
     id: 'a4',
@@ -171,7 +171,7 @@ final List<Animal> mockAnimals = [
     color: 'Sarı-Beyaz',
     healthStatus: 'Tedavisi Devam Ediyor',
     description: 'Limon sokakta bulundu, göz tedavisi görüyor ama çok neşeli.',
-    imagePath: 'assets/animals/dog.jpg',
+    imagePath: 'assets/animals/Limon.jpg',
   ),
   Animal(
     id: 'a5',
@@ -186,7 +186,7 @@ final List<Animal> mockAnimals = [
     healthStatus: 'Kısırlaştırılmış',
     description:
         'Baron çok iyi eğitimli, komutları biliyor. Bahçeli ev tercih sebebidir.',
-    imagePath: 'assets/animals/dog.jpg',
+    imagePath: 'assets/animals/Baron.jpeg',
   ),
 ];
 
