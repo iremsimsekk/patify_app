@@ -9,7 +9,7 @@ class VeterinaryListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(title: const Text("Ankara Veteriner Klinikler")),
       body: ListView.builder(
@@ -21,8 +21,12 @@ class VeterinaryListScreen extends StatelessWidget {
             color: theme.cardTheme.color,
             margin: const EdgeInsets.only(bottom: 12),
             child: ListTile(
-              leading: const CircleAvatar(backgroundColor: Colors.white54, child: Icon(Icons.local_hospital_rounded, color: Colors.blue)),
-              title: Text(clinic.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              leading: const CircleAvatar(
+                  backgroundColor: Colors.white54,
+                  child:
+                      Icon(Icons.local_hospital_rounded, color: Colors.blue)),
+              title: Text(clinic.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text(clinic.address),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
