@@ -1,4 +1,6 @@
+// Dosya: lib/screens/settings_screen.dart
 import 'package:flutter/material.dart';
+import '../theme/patify_theme.dart'; // ThemeManager'a erişmek için
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -8,15 +10,24 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Mock State'ler
   bool _isNotificationsEnabled = true;
-  String _selectedTheme = 'System Default'; // 'System Default', 'Light', 'Dark'
 
-  // Kullanıcı tarafından yapılan değişiklikleri kaydetmek için mock bir fonksiyon
-  void _saveSettings() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Ayarlar başarıyla kaydedildi!")),
-    );
+  // Tema modunu String'e çevirme yardımcısı
+  String _getThemeString(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system: return 'System Default';
+      case ThemeMode.light: return 'Light';
+      case ThemeMode.dark: return 'Dark';
+    }
+  }
+
+  // String'i Tema moduna çevirme yardımcısı
+  ThemeMode _getThemeMode(String selection) {
+    switch (selection) {
+      case 'Light': return ThemeMode.light;
+      case 'Dark': return ThemeMode.dark;
+      default: return ThemeMode.system;
+    }
   }
 
   @override
@@ -26,13 +37,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Settings"),
-        // Kaydet butonu
         actions: [
           TextButton(
-            onPressed: _saveSettings,
+            onPressed: () {
+               ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Ayarlar kaydedildi (Simülasyon)")),
+              );
+            },
             child: Text("Save",
                 style: TextStyle(
-                    color: theme.colorScheme.onSecondary,
+                    color: theme.colorScheme.onSurface, // Dark mod uyumlu renk
                     fontWeight: FontWeight.bold)),
           ),
         ],
@@ -40,35 +54,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          // 1. Hesap Ayarları Grubu
           _buildSettingsHeader(theme, "Account Settings"),
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text("Edit Profile"),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {
-              // TODO: Profil düzenleme sayfasına yönlendir
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Profil Düzenleme (TBD)")));
-            },
+            onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.lock),
             title: const Text("Change Password"),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {
-              // TODO: Şifre değiştirme sayfasına yönlendir
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Şifre Değiştirme (TBD)")));
-            },
+            onTap: () {},
           ),
 
           const Divider(height: 30),
 
-          // 2. Uygulama Ayarları Grubu
           _buildSettingsHeader(theme, "App Preferences"),
 
-          // Bildirim Ayarı (Switch)
           SwitchListTile(
             secondary: const Icon(Icons.notifications),
             title: const Text("Enable Notifications"),
@@ -80,50 +83,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
 
-          // Tema Seçimi (Dropdown)
+          // TEMA SEÇİMİ (GÜNCELLENDİ)
           ListTile(
             leading: const Icon(Icons.palette),
             title: const Text("App Theme"),
-            trailing: DropdownButton<String>(
-              value: _selectedTheme,
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    _selectedTheme = newValue;
-                    // TODO: Gerçekte temayı main.dart içinde değiştirmeniz gerekir.
-                  });
-                }
-              },
-              items: <String>['System Default', 'Light', 'Dark']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
+            trailing: ValueListenableBuilder<ThemeMode>(
+              valueListenable: ThemeManager.themeNotifier,
+              builder: (context, currentMode, _) {
+                return DropdownButton<String>(
+                  value: _getThemeString(currentMode),
+                  underline: Container(), // Alt çizgiyi kaldır
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      // Tema Yöneticisi üzerinden tüm uygulamayı güncelle
+                      ThemeManager.setTheme(_getThemeMode(newValue));
+                    }
+                  },
+                  items: <String>['System Default', 'Light', 'Dark']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
                 );
-              }).toList(),
+              },
             ),
           ),
 
           const Divider(height: 30),
 
-          // 3. Bilgi Grubu
           _buildSettingsHeader(theme, "Information"),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text("About Patify"),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {
-              // TODO: Hakkında sayfasına yönlendir
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Uygulama Hakkında (TBD)")));
-            },
+            onTap: () {},
           ),
         ],
       ),
     );
   }
 
-  // Ayarlar başlık stilini oluşturan yardımcı fonksiyon
   Widget _buildSettingsHeader(ThemeData theme, String title) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),

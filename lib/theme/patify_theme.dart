@@ -2,105 +2,118 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class PatifyTheme {
-  // --- RENK PALETİ ---
-  // İstenen Pastel Renkler
-  static const Color pastelGreen = Color(0xFFBDE3C3); // Ana Arka Plan
-  static const Color pastelPink = Color(0xFFF5D2D2);  // Kartlar / Widgetlar
-  static const Color pastelYellow = Color(0xFFF8F7BA); // İkincil Vurgular
-  static const Color pastelBlue = Color(0xFFA3CCDA);   // İkincil Vurgular / Butonlar
-  
-  // Yazı Renkleri (Okunabilirlik için koyu tonlar)
-  static const Color darkTextPrimary = Color(0xFF1B4242); // Ana metin rengi (Koyu Yeşilimsi)
-  static const Color darkTextSecondary = Color(0xFF3A0519); // İkincil metin rengi (Koyu Bordo)
+class ThemeManager {
+  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.system);
 
-  // Ortak Tema Ayarları (Hem Light hem Dark modda aynı görünsün diye)
-  static ThemeData get _baseTheme {
+  static void setTheme(ThemeMode mode) {
+    themeNotifier.value = mode;
+  }
+}
+
+// YENİ: Resimleri Dark Modda Bozmamak İçin Düzeltici Widget
+class DarkImageFixer extends StatelessWidget {
+  final Widget child;
+  const DarkImageFixer({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeManager.themeNotifier,
+      builder: (context, currentMode, _) {
+        if (currentMode == ThemeMode.dark) {
+          // Global filtre zaten tersine çevirdi.
+          // Resmi tekrar tersine çevirerek (Negatifin negatifi = Pozitif) orijinalini gösteriyoruz.
+          return ColorFiltered(
+            colorFilter: const ColorFilter.matrix(PatifyTheme.inversionMatrix),
+            child: child,
+          );
+        }
+        return child;
+      },
+    );
+  }
+}
+
+class PatifyTheme {
+  // --- RENK TERSİNE ÇEVİRME MATRİSİ (Negatif Efekti) ---
+  static const List<double> inversionMatrix = [
+    -1,  0,  0, 0, 255,
+     0, -1,  0, 0, 255,
+     0,  0, -1, 0, 255,
+     0,  0,  0, 1,   0,
+  ];
+
+  // --- ORTAK RENKLER ---
+  static const Color lightBackground = Color(0xFFBDE3C3);
+  static const Color lightTextPrimary = Color(0xFF1B4242);
+  static const Color lightTextSecondary = Color(0xFF3A0519);
+  static const Color pastelPink = Color(0xFFF5D2D2);
+  static const Color pastelBlue = Color(0xFFA3CCDA);
+  static const Color pastelYellow = Color(0xFFF8F7BA);
+
+  // --- LIGHT TEMA AYARLARI ---
+  static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: lightBackground,
       
-      // Renk Şeması
-      colorScheme: const ColorScheme(
-        brightness: Brightness.light,
-        primary: pastelPink,          // Ana vurgu rengi (Widgetlar)
-        onPrimary: darkTextSecondary, // Pembe üzerindeki yazı rengi
-        secondary: pastelBlue,        // İkincil vurgu
-        onSecondary: darkTextPrimary, // Mavi üzerindeki yazı rengi
-        error: Colors.redAccent,
-        onError: Colors.white,
-        surface: pastelGreen,         // ARKA PLAN RENGİ (Scaffold)
-        onSurface: darkTextPrimary,   // Arka plan üzerindeki yazı rengi
+      colorScheme: const ColorScheme.light(
+        primary: pastelPink,
+        onPrimary: lightTextSecondary,
+        secondary: pastelBlue,
+        onSecondary: lightTextPrimary,
+        surface: lightBackground,
+        onSurface: lightTextPrimary,
       ),
 
-      // Arka Plan Rengi (Kesinlikle Yeşil olsun)
-      scaffoldBackgroundColor: pastelGreen,
-
-      // AppBar Teması
       appBarTheme: const AppBarTheme(
-        backgroundColor: pastelGreen, // AppBar da yeşil olsun, bütünlük sağlasın
+        backgroundColor: lightBackground,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: darkTextPrimary),
-        titleTextStyle: TextStyle(
-          color: darkTextPrimary,
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-        ),
+        iconTheme: IconThemeData(color: lightTextPrimary),
+        titleTextStyle: TextStyle(color: lightTextPrimary, fontSize: 22, fontWeight: FontWeight.bold),
       ),
 
-      // Kart Teması (Widgetlar Pastel Pembe)
       cardTheme: CardThemeData(
-        color: pastelPink, // Kartların arka planı pembe
-        elevation: 4, // Biraz gölge
+        color: pastelPink,
+        elevation: 4,
         shadowColor: Colors.black26,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         margin: const EdgeInsets.only(bottom: 12),
       ),
 
-      // Buton Teması
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: pastelBlue, // Butonlar Mavi
-          foregroundColor: darkTextPrimary, // Yazısı Koyu
-          elevation: 2,
+          backgroundColor: pastelBlue,
+          foregroundColor: lightTextPrimary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
 
-      // Yazı Tipi ve Renkleri
       textTheme: GoogleFonts.poppinsTextTheme().apply(
-        bodyColor: darkTextPrimary,      // Genel yazılar
-        displayColor: darkTextSecondary, // Başlıklar
+        bodyColor: lightTextPrimary,
+        displayColor: lightTextSecondary,
       ),
-      
-      // Bottom Navigation Bar Teması
+
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: pastelGreen, // Alt bar da yeşil zeminli olsun
-        indicatorColor: pastelYellow, // Seçili öğe arkası sarı olsun
-        labelTextStyle: WidgetStateProperty.all(
-          const TextStyle(color: darkTextPrimary, fontWeight: FontWeight.w600),
-        ),
-        iconTheme: WidgetStateProperty.all(
-          const IconThemeData(color: darkTextSecondary),
-        ),
+        backgroundColor: lightBackground,
+        indicatorColor: pastelYellow,
+        labelTextStyle: WidgetStateProperty.all(const TextStyle(color: lightTextPrimary, fontWeight: FontWeight.w600)),
+        iconTheme: WidgetStateProperty.all(const IconThemeData(color: lightTextSecondary)),
       ),
       
-      // Input (Arama Çubuğu vb.) Teması
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white.withOpacity(0.7), // Hafif transparan beyaz
-        hintStyle: TextStyle(color: darkTextPrimary.withOpacity(0.6)),
-        prefixIconColor: darkTextPrimary,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
+        fillColor: Colors.white.withValues(alpha: 0.7),
+        hintStyle: TextStyle(color: lightTextPrimary.withValues(alpha: 0.6)),
+        prefixIconColor: lightTextPrimary,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
       ),
     );
   }
 
-  // Telefonun ayarı ne olursa olsun aynı temayı döndürüyoruz
-  static ThemeData get lightTheme => _baseTheme;
-  static ThemeData get darkTheme => _baseTheme;
+  // Dark tema için de Light temayı kullanıyoruz, main.dart içinde filtre ile çevireceğiz.
+  static ThemeData get darkTheme => lightTheme;
 }

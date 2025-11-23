@@ -16,9 +16,8 @@ class ShelterDashboardScreen extends StatefulWidget {
 }
 
 class _ShelterDashboardScreenState extends State<ShelterDashboardScreen> {
-  int _currentIndex = 0; // 0: Dashboard, 1: Profil
+  int _currentIndex = 0; 
 
-  // Sayfayı yenilemek için (Yeni hayvan eklenince liste güncellensin diye)
   void _refreshList() {
     setState(() {});
   }
@@ -28,40 +27,28 @@ class _ShelterDashboardScreenState extends State<ShelterDashboardScreen> {
     final myAnimals = getAnimalsByShelter(widget.shelterUser.id);
     final theme = Theme.of(context);
 
-    // Ana Sayfa İçeriği (Dashboard)
     final dashboardContent = Scaffold(
       appBar: AppBar(
         title: Text(widget.shelterUser.name, style: const TextStyle(fontSize: 18)),
-        automaticallyImplyLeading: false, // Geri butonunu kaldır
+        automaticallyImplyLeading: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          // İstatistikler
+          // İstatistikler (Aynı Kalıyor)
           Row(
             children: [
               Expanded(
-                child: _buildStatCard(
-                  "${myAnimals.length}", 
-                  "Sahiplendirme\nBekleyen", 
-                  Colors.orangeAccent, 
-                  Icons.pets
-                ),
+                child: _buildStatCard("${myAnimals.length}", "Sahiplendirme\nBekleyen", Colors.orangeAccent, Icons.pets),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: _buildStatCard(
-                  "12", 
-                  "Başarıyla\nYuvalanan", 
-                  Colors.green, 
-                  Icons.home_filled
-                ),
+                child: _buildStatCard("12", "Başarıyla\nYuvalanan", Colors.green, Icons.home_filled),
               ),
             ],
           ),
           const SizedBox(height: 24),
 
-          // Başlık + Ekle Butonu (TextButton olarak da)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -72,7 +59,7 @@ class _ShelterDashboardScreenState extends State<ShelterDashboardScreen> {
                     context,
                     MaterialPageRoute(builder: (_) => AddAnimalScreen(shelterUser: widget.shelterUser)),
                   );
-                  if (result == true) _refreshList(); // Ekleme yapıldıysa listeyi yenile
+                  if (result == true) _refreshList();
                 },
                 icon: const Icon(Icons.add_circle_outline),
                 label: const Text("Yeni İlan"),
@@ -81,7 +68,6 @@ class _ShelterDashboardScreenState extends State<ShelterDashboardScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Liste
           myAnimals.isEmpty 
             ? const Center(child: Padding(padding: EdgeInsets.all(30), child: Text("Henüz ilanınız yok.")))
             : GridView.builder(
@@ -97,7 +83,22 @@ class _ShelterDashboardScreenState extends State<ShelterDashboardScreen> {
                 itemBuilder: (context, index) {
                   final animal = myAnimals[index];
                   return GestureDetector(
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AnimalDetailScreen(animal: animal))),
+                    // GÜNCELLEME: Detay sayfasına "isOwner: true" ile git ve dönüşte yenile
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context, 
+                        MaterialPageRoute(
+                          builder: (_) => AnimalDetailScreen(
+                            animal: animal, 
+                            isOwner: true, // Barınak sahibi kendi ilanına bakıyor
+                          )
+                        )
+                      );
+                      // Eğer detay sayfasından silme/güncelleme işlemi yapılıp dönüldüyse listeyi yenile
+                      if (result == true) {
+                        _refreshList();
+                      }
+                    },
                     child: Stack(
                       children: [
                         PetCard(
@@ -106,20 +107,14 @@ class _ShelterDashboardScreenState extends State<ShelterDashboardScreen> {
                           imagePath: animal.imagePath,
                           backgroundColor: theme.cardTheme.color ?? Colors.white,
                         ),
-                        // Düzenle Butonu (Sağ üst)
+                        // Düzenle ikonu dekoratif olarak kalabilir, işlevi detay sayfasında
                         Positioned(
                           right: 12,
                           top: 8,
                           child: CircleAvatar(
                             radius: 14,
                             backgroundColor: Colors.white,
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              icon: const Icon(Icons.edit, size: 16, color: Colors.blue),
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Düzenleme özelliği eklenecek")));
-                              },
-                            ),
+                            child: Icon(Icons.edit, size: 16, color: Colors.grey[400]),
                           ),
                         ),
                       ],
@@ -144,7 +139,6 @@ class _ShelterDashboardScreenState extends State<ShelterDashboardScreen> {
       ),
     );
 
-    // Profil Ekranı
     final profileContent = ShelterProfileScreen(shelterUser: widget.shelterUser);
 
     return Scaffold(
@@ -161,6 +155,7 @@ class _ShelterDashboardScreenState extends State<ShelterDashboardScreen> {
   }
 
   Widget _buildStatCard(String count, String label, Color color, IconData icon) {
+    // (Bu kısım aynı kalıyor, yukarıdaki kodun devamı...)
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

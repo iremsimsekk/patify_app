@@ -12,14 +12,29 @@ class PatifyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Patify',
-      debugShowCheckedModeBanner: false,
-      // Temalar artık tamamen güncel ve uyumlu
-      theme: PatifyTheme.lightTheme,
-      darkTheme: PatifyTheme.darkTheme,
-      themeMode: ThemeMode.system, 
-      home: const OnboardingScreen(), 
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeManager.themeNotifier,
+      builder: (context, currentMode, child) {
+        return MaterialApp(
+          title: 'Patify',
+          debugShowCheckedModeBanner: false,
+          theme: PatifyTheme.lightTheme,
+          darkTheme: PatifyTheme.lightTheme, // Dark mod kontrolünü biz yapıyoruz
+          themeMode: currentMode,
+          builder: (context, child) {
+            // Eğer Dark Mode ise tüm uygulamayı tersine çevir
+            if (currentMode == ThemeMode.dark) {
+              return ColorFiltered(
+                // PatifyTheme içinde tanımladığımız matrisi kullanıyoruz
+                colorFilter: const ColorFilter.matrix(PatifyTheme.inversionMatrix),
+                child: child!,
+              );
+            }
+            return child!;
+          },
+          home: const OnboardingScreen(), 
+        );
+      },
     );
   }
 }
