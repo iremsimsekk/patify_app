@@ -16,6 +16,10 @@ class AppUser {
   final String? website; // Yeni
   final String? workingHours; // Yeni
   final String? about; // Yeni
+  final double?
+      rating; // YENİ EKLENDİ (Hata: The getter 'rating' isn't defined)
+  final int?
+      reviewCount; // YENİ EKLENDİ (Hata: The getter 'reviewCount' isn't defined)
 
   AppUser({
     required this.id,
@@ -29,6 +33,8 @@ class AppUser {
     this.website,
     this.workingHours,
     this.about,
+    this.rating, // YENİ
+    this.reviewCount, // YENİ
   });
 }
 
@@ -78,7 +84,7 @@ final List<AppUser> mockUsers = [
   // Barınak 1
   AppUser(
     id: 's1',
-    email: 'shelter@patify.com',
+    email: 'cankaya@patify.com',
     password: '123',
     name: 'Ankara Sevgi Barınağı',
     type: UserType.shelter,
@@ -93,7 +99,7 @@ final List<AppUser> mockUsers = [
   // Barınak 2 (Yeni Eklendi - Çeşitlilik olsun diye)
   AppUser(
     id: 's2',
-    email: 'umut@patify.com',
+    email: 'golbasi@patify.com',
     password: '123',
     name: 'Umut Patiler Derneği',
     type: UserType.shelter,
@@ -198,3 +204,44 @@ AppUser? authenticateUser(String email, String password) {
 List<Animal> getAnimalsByShelter(String shelterId) {
   return mockAnimals.where((animal) => animal.shelterId == shelterId).toList();
 }
+
+// Mock Veteriner Kliniği Modeli
+class VeterinaryClinic {
+  final String id;
+  final String name;
+  final String address;
+  final String phoneNumber;
+  final String workingHours;
+  final String about;
+
+  VeterinaryClinic({
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.phoneNumber,
+    required this.workingHours,
+    required this.about,
+  });
+}
+
+// Mock Veteriner Klinik Listesi
+final List<VeterinaryClinic> mockVeterinaries = [
+  VeterinaryClinic(
+    id: 'v1',
+    name: 'Ankara Pet Tıp Merkezi',
+    address: 'Kızılay, Çankaya/Ankara',
+    phoneNumber: '+90 312 999 88 77',
+    workingHours: 'Hafta içi: 09:00 - 19:00, Cmt: 09:00 - 16:00',
+    about:
+        'Tecrübeli kadromuzla 7/24 hizmetinizdeyiz. Amacımız can dostlarımızın sağlığı ve mutluluğu.',
+  ),
+  VeterinaryClinic(
+    id: 'v2',
+    name: 'Gölbaşı Pati Hastanesi',
+    address: 'Gölbaşı, Ankara',
+    phoneNumber: '+90 530 111 22 33',
+    workingHours: 'Pazartesi-Pazar: 09:00 - 21:00',
+    about:
+        'Acil durumlara hızlı müdahale, uzman hekim kadrosu ve modern cihazlarla tam donanımlı hayvan hastanesi.',
+  ),
+];
