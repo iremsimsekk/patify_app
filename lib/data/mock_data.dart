@@ -81,7 +81,7 @@ final List<AppUser> mockUsers = [
   ),
 
   // --- ANKARA GERÇEK BARINAK VERİLERİ (SİMÜLASYON) ---
-  
+
   // 2. Barınak: Çankaya Belediyesi
   AppUser(
     id: 's1',
@@ -93,7 +93,8 @@ final List<AppUser> mockUsers = [
     phoneNumber: '0312 442 37 18',
     website: 'www.cankaya.bel.tr',
     workingHours: 'Hafta içi: 10:00 - 16:00',
-    about: 'Çankaya Belediyesi olarak binlerce dostumuza geçici ev sahipliği yapıyoruz. Modern tesislerimizde veteriner hekimlerimiz gözetiminde rehabilitasyon çalışmaları yürütülmektedir.',
+    about:
+        'Çankaya Belediyesi olarak binlerce dostumuza geçici ev sahipliği yapıyoruz. Modern tesislerimizde veteriner hekimlerimiz gözetiminde rehabilitasyon çalışmaları yürütülmektedir.',
     rating: 4.2,
     reviewCount: 1250,
     photoUrl: 'assets/shelter_placeholder.png',
@@ -110,7 +111,8 @@ final List<AppUser> mockUsers = [
     phoneNumber: '0312 485 55 55',
     website: 'www.ankaragolbasi.bel.tr',
     workingHours: 'Her gün: 09:00 - 17:00',
-    about: 'Gölbaşı\'nın doğal ortamında, geniş arazimizde sokak hayvanlarını misafir ediyoruz. Sahiplendirme odaklı çalışmalarımızla her yıl yüzlerce canı sıcak yuvalara kavuşturuyoruz.',
+    about:
+        'Gölbaşı\'nın doğal ortamında, geniş arazimizde sokak hayvanlarını misafir ediyoruz. Sahiplendirme odaklı çalışmalarımızla her yıl yüzlerce canı sıcak yuvalara kavuşturuyoruz.',
     rating: 3.8,
     reviewCount: 840,
     photoUrl: 'assets/shelter_placeholder.png',
@@ -127,7 +129,8 @@ final List<AppUser> mockUsers = [
     phoneNumber: '0312 361 10 65',
     website: 'www.kecioren.bel.tr',
     workingHours: 'Hafta içi: 08:30 - 17:30',
-    about: 'Keçiören\'deki patili dostlarımızın sağlık kontrolleri, aşıları ve bakımları merkezimizde titizlikle yapılmaktadır. Satın alma sahiplen!',
+    about:
+        'Keçiören\'deki patili dostlarımızın sağlık kontrolleri, aşıları ve bakımları merkezimizde titizlikle yapılmaktadır. Satın alma sahiplen!',
     rating: 4.0,
     reviewCount: 560,
     photoUrl: 'assets/shelter_placeholder.png',
@@ -148,7 +151,8 @@ List<Animal> mockAnimals = [
     weight: 24.5,
     color: 'Krem',
     healthStatus: 'Aşıları Tam, Kısırlaştırılmış',
-    description: 'Pamuk çok sakin ve insan canlısı bir köpek. Parkta gezmeyi çok seviyor, tasmayla yürümeye alışkın.',
+    description:
+        'Pamuk çok sakin ve insan canlısı bir köpek. Parkta gezmeyi çok seviyor, tasmayla yürümeye alışkın.',
     imagePath: 'assets/animals/dog.jpg',
   ),
   Animal(
@@ -159,13 +163,12 @@ List<Animal> mockAnimals = [
     breed: 'Bombay (Siyah)',
     age: '8 Aylık',
     gender: 'Erkek',
-
     weight: 3.2,
     color: 'Gri',
     healthStatus: 'İç-Dış Parazit Yapıldı',
-    description: 'Duman biraz çekingen ama sevdikçe açılan bir kedi. Sakin bir ev arıyor.',
+    description:
+        'Duman biraz çekingen ama sevdikçe açılan bir kedi. Sakin bir ev arıyor.',
     imagePath: 'assets/animals/Duman.jpg',
-
   ),
 
   // Gölbaşı Barınağı (s2) Hayvanları
@@ -177,11 +180,11 @@ List<Animal> mockAnimals = [
     breed: 'Kangal',
     age: '3 Yaşında',
     gender: 'Erkek',
-
     weight: 6.5,
     color: 'Beyaz',
     healthStatus: 'Aşıları Tam',
-    description: 'Enerjisi hiç bitmeyen, top oynamayı çok seven minik bir dost.',
+    description:
+        'Enerjisi hiç bitmeyen, top oynamayı çok seven minik bir dost.',
     imagePath: 'assets/animals/Boncuk.jpg',
   ),
   Animal(
@@ -192,14 +195,12 @@ List<Animal> mockAnimals = [
     breed: 'Dalmaçyalı Kırması',
     age: '1.5 Yaşında',
     gender: 'Dişi',
-
     weight: 1.1,
     color: 'Sarı-Beyaz',
     healthStatus: 'Tedavisi Devam Ediyor',
     description: 'Limon sokakta bulundu, göz tedavisi görüyor ama çok neşeli.',
     imagePath: 'assets/animals/Limon.jpg',
-
-
+  ),
   // Keçiören Barınağı (s3) Hayvanları
   Animal(
     id: 'a5',
@@ -212,10 +213,9 @@ List<Animal> mockAnimals = [
     weight: 4.0,
     color: 'Kahve-Siyah',
     healthStatus: 'Kısırlaştırılmış',
-
-    description: 'Baron çok iyi eğitimli, komutları biliyor. Bahçeli ev tercih sebebidir.',
+    description:
+        'Baron çok iyi eğitimli, komutları biliyor. Bahçeli ev tercih sebebidir.',
     imagePath: 'assets/animals/Baron.jpeg',
-
   ),
 ];
 
@@ -261,7 +261,8 @@ final List<VeterinaryClinic> mockVeterinaries = [
     address: 'Atakent, Çankaya/Ankara',
     phoneNumber: '0312 111 22 33',
     workingHours: 'Hafta içi: 09:00 - 19:00',
-    about: 'Yirmi yıllık tecrübemizle can dostlarınızın sağlığı için buradayız.',
+    about:
+        'Yirmi yıllık tecrübemizle can dostlarınızın sağlığı için buradayız.',
   ),
   VeterinaryClinic(
     id: 'v2',
@@ -280,6 +281,15 @@ VeterinaryClinic? getClinicById(String id) {
   try {
     return mockVeterinaries.firstWhere((clinic) => clinic.id == id);
   } catch (e) {
+    return null;
+  }
+}
+
+AppUser? getMockUserByEmail(String email) {
+  final e = email.trim().toLowerCase();
+  try {
+    return mockUsers.firstWhere((u) => u.email.toLowerCase() == e);
+  } catch (_) {
     return null;
   }
 }

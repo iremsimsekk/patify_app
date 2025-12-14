@@ -1,3 +1,14 @@
+# Spring / Maven
+backend/target/
+backend/.mvn/
+backend/.idea/
+backend/*.iml
+backend/.classpath
+backend/.project
+backend/.settings/
+
+
+
 # Miscellaneous
 *.class
 *.log

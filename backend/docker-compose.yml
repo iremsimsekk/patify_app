@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: patify_db
+    environment:
+      POSTGRES_DB: patify
+      POSTGRES_USER: patify
+      POSTGRES_PASSWORD: patify
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
