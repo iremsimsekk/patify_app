@@ -1,4 +1,3 @@
-// Dosya: lib/screens/login_screen.dart
 import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 
@@ -17,11 +16,20 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   String? _errorMessage;
   bool _loading = false;
+  bool _submitted = false;
+
+  bool _isValidEmail(String email) {
+    final e = email.trim();
+    final re = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+    return re.hasMatch(e);
+  }
 
   void _guestLogin() {
     final guestUser = AppUser(
@@ -46,31 +54,30 @@ class _LoginScreenState extends State<LoginScreen> {
   String _friendlyError(Object e) {
     final s = e.toString();
 
-    // Backend RuntimeException mesajları burada yakalanabilir (EMAIL_EXISTS / INVALID)
     if (s.contains('EMAIL_EXISTS')) return 'Bu email zaten kayıtlı.';
     if (s.contains('INVALID')) return 'Email veya şifre hatalı.';
     if (s.contains('SocketException') || s.contains('Connection refused')) {
-      return 'Backend’e bağlanılamadı. API baseUrl/port ve backend çalışıyor mu kontrol et.';
+      return 'Backend’e bağlanılamadı. Backend çalışıyor mu ve baseUrl doğru mu kontrol et.';
     }
-    return 'Giriş başarısız: $s';
+    if (s.contains('TimeoutException')) {
+      return 'İstek zaman aşımına uğradı. İnternet bağlantını kontrol edip tekrar dene.';
+    }
+    return 'Giriş başarısız. Lütfen tekrar dene.';
   }
 
   Future<void> _login() async {
     setState(() {
+      _submitted = true;
       _errorMessage = null;
-      _loading = true;
     });
+
+    final ok = _formKey.currentState?.validate() ?? false;
+    if (!ok) return;
+
+    setState(() => _loading = true);
 
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        _loading = false;
-        _errorMessage = "Email ve şifre boş olamaz!";
-      });
-      return;
-    }
 
     try {
       final auth = await AuthService.login(email: email, password: password);
@@ -96,10 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else {
-        // ADMIN'i barınak paneline yönlendiriyoruz (senin eski mantığın)
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => ShelterDashboardScreen(shelterUser: user)),
+          MaterialPageRoute(
+              builder: (_) => ShelterDashboardScreen(shelterUser: user)),
         );
       }
     } catch (e) {
@@ -110,9 +117,38 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.onSecondary;
+
+    InputDecoration _inputDecoration(String label, IconData icon) {
+      return InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+            color: theme.colorScheme.onSecondary.withValues(alpha: 0.7)),
+        prefixIcon: Icon(icon, color: theme.colorScheme.onSecondary),
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: 0.7),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide:
+              BorderSide(color: theme.colorScheme.onSecondary, width: 1.5),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -120,131 +156,154 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.pets, size: 80, color: primaryColor),
-                const SizedBox(height: 20),
-                Text(
-                  "Patify",
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: primaryColor,
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // Email
-                TextField(
-                  controller: _emailController,
-                  decoration: _inputDecoration("Email", Icons.email, theme),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-
-                // Şifre
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: _inputDecoration("Şifre", Icons.lock, theme),
-                ),
-
-                // Hata Mesajı
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 10),
+            child: Form(
+              key: _formKey,
+              autovalidateMode: _submitted
+                  ? AutovalidateMode.onUserInteraction
+                  : AutovalidateMode.disabled,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.pets, size: 80, color: primaryColor),
+                  const SizedBox(height: 20),
                   Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
+                    "Patify",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Email
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: _inputDecoration("Email", Icons.email),
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    validator: (v) {
+                      final email = (v ?? '').trim();
+                      if (email.isEmpty) return "Email boş olamaz.";
+                      if (!_isValidEmail(email))
+                        return "Lütfen geçerli bir email gir.";
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Şifre
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: _inputDecoration("Şifre", Icons.lock),
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _loading ? null : _login(),
+                    validator: (v) {
+                      final p = (v ?? '').trim();
+                      if (p.isEmpty) return "Şifre boş olamaz.";
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // ✅ Giriş Yap
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _loading ? null : _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primary,
+                        foregroundColor: theme.colorScheme.onPrimary,
+                      ),
+                      child: _loading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text(
+                              "Giriş Yap",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ✅ Misafir Girişi
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: OutlinedButton.icon(
+                      onPressed: _loading ? null : _guestLogin,
+                      icon: const Icon(Icons.person_outline),
+                      label: const Text(
+                        "Misafir Girişi",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: theme.colorScheme.onSecondary,
+                        side: BorderSide(
+                            color: theme.colorScheme.onSecondary
+                                .withValues(alpha: 0.6)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
+                  ),
+
+                  // ✅ Hata mesajı EN ALTTA
+                  if (_errorMessage != null) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.35)),
+                      ),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 10),
+
+                  // ✅ Kayıt Ol linki
+                  TextButton(
+                    onPressed: _loading
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const SignupScreen()),
+                            );
+                          },
+                    child: Text(
+                      "Hesabın yok mu? Kayıt Ol",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSecondary,
+                      ),
+                    ),
                   ),
                 ],
-
-                const SizedBox(height: 24),
-
-                // ✅ Giriş Yap
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _loading ? null : _login,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: theme.colorScheme.onPrimary,
-                    ),
-                    child: _loading
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text(
-                            "Giriş Yap",
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // ✅ Misafir Girişi
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: OutlinedButton.icon(
-                    onPressed: _loading ? null : _guestLogin,
-                    icon: const Icon(Icons.person_outline),
-                    label: const Text(
-                      "Misafir Girişi",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: theme.colorScheme.onSecondary,
-                      side: BorderSide(color: theme.colorScheme.onSecondary.withValues(alpha: 0.6)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                  ),
-                ),
-
-                // ✅ Kayıt Ol linki
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: _loading
-                      ? null
-                      : () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const SignupScreen()),
-                          );
-                        },
-                  child: Text(
-                    "Hesabın yok mu? Kayıt Ol",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSecondary,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label, IconData icon, ThemeData theme) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: TextStyle(color: theme.colorScheme.onSecondary.withValues(alpha: 0.7)),
-      prefixIcon: Icon(icon, color: theme.colorScheme.onSecondary),
-      filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.7),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: theme.colorScheme.onSecondary, width: 1.5),
       ),
     );
   }
