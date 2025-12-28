@@ -60,3 +60,4 @@ app.*.map.json
 /ios/
 /android/.gradle/
 /android/.idea/
+.vscode/

@@ -8,7 +8,14 @@ class AppUser {
   final String id;
   final String email;
   final String password;
+
+  // ✅ Yeni alanlar (opsiyonel)
+  final String? firstName;
+  final String? lastName;
+
+  // ✅ Eski alan (kalsın, projede çok yerde kullanıyorsun)
   final String name;
+
   final UserType type;
   final String? photoUrl;
   final String? address;
@@ -16,8 +23,8 @@ class AppUser {
   final String? website;
   final String? workingHours;
   final String? about;
-  final double? rating; // Puanlama eklendi (Google Maps simülasyonu)
-  final int? reviewCount; // Yorum sayısı
+  final double? rating;
+  final int? reviewCount;
 
   AppUser({
     required this.id,
@@ -25,6 +32,8 @@ class AppUser {
     required this.password,
     required this.name,
     required this.type,
+    this.firstName,
+    this.lastName,
     this.photoUrl,
     this.address,
     this.phoneNumber,
@@ -34,7 +43,16 @@ class AppUser {
     this.rating,
     this.reviewCount,
   });
+
+  // ✅ Profilde tek yerden kullan diye
+  String get displayName {
+    final fn = (firstName ?? '').trim();
+    final ln = (lastName ?? '').trim();
+    final full = ('$fn $ln').trim();
+    return full.isNotEmpty ? full : name;
+  }
 }
+
 
 // Mock Hayvan Modeli
 class Animal {

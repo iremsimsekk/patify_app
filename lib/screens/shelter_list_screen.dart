@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
 import '../services/google_places_service.dart';
 import '../services/places_repository.dart';
-import '../constants/ankara_districts.dart'; // <-- sende neredeyse ona göre path düzelt
-import 'veterinary_detail_screen.dart';
+import '../constants/ankara_districts.dart'; // <-- path sende farklıysa düzelt
+import 'shelter_detail_screen.dart';
 
 class _StarRange {
   final String label;
   final double minInclusive;
-  final double maxExclusive; // son aralık için 5.000001 gibi kullanacağız
+  final double maxExclusive;
   const _StarRange(this.label, this.minInclusive, this.maxExclusive);
 }
 
-class VeterinaryListScreen extends StatefulWidget {
-  const VeterinaryListScreen({super.key, required this.apiKey});
+class ShelterListScreen extends StatefulWidget {
+  const ShelterListScreen({super.key, required this.apiKey});
   final String apiKey;
 
   @override
-  State<VeterinaryListScreen> createState() => _VeterinaryListScreenState();
+  State<ShelterListScreen> createState() => _ShelterListScreenState();
 }
 
-class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
+class _ShelterListScreenState extends State<ShelterListScreen> {
   late final GooglePlacesService _places;
   late final PlacesRepository _repo;
   late Future<List<PlaceSummary>> _future;
 
   String _selectedDistrict = "Tümü";
-  _StarRange? _selectedStarRange; // null = tümü
+  _StarRange? _selectedStarRange;
 
   List<String> get _districtOptions => ["Tümü", ...ankaraDistricts];
 
@@ -35,7 +35,7 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
     _StarRange("1 - 2", 1, 2),
     _StarRange("2 - 3", 2, 3),
     _StarRange("3 - 4", 3, 4),
-    _StarRange("4 - 5", 4, 5.000001), // 5 dahil
+    _StarRange("4 - 5", 4, 5.000001),
   ];
 
   @override
@@ -43,8 +43,8 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
     super.initState();
     _places = GooglePlacesService(apiKey: widget.apiKey);
     _repo = PlacesRepository(places: _places, ttl: const Duration(days: 7));
-    _future = _repo.getAnkaraVets(radiusMeters: 35000);
-    _selectedStarRange = _starRanges.first; // "Tümü"
+    _future = _repo.getAnkaraShelters(radiusMeters: 35000);
+    _selectedStarRange = _starRanges.first;
   }
 
   String _districtLabelOf(PlaceSummary p) {
@@ -53,10 +53,7 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
     return extractAnkaraDistrict(addr) ?? "Bilinmiyor";
   }
 
-  String _districtCityLine(PlaceSummary p) {
-    final d = _districtLabelOf(p);
-    return "$d / Ankara";
-  }
+  String _districtCityLine(PlaceSummary p) => "${_districtLabelOf(p)} / Ankara";
 
   bool _matchesDistrict(PlaceSummary p) {
     if (_selectedDistrict == "Tümü") return true;
@@ -67,15 +64,11 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
   bool _matchesStars(PlaceSummary p) {
     final range = _selectedStarRange;
     if (range == null || range.label == "Tümü") return true;
-
     final r = (p.rating ?? 0.0);
-    // alt sınır dahil, üst sınır hariç (son aralıkta 5 dahil)
     return r >= range.minInclusive && r < range.maxExclusive;
   }
 
   void _openFilterSheet() {
-    final theme = Theme.of(context);
-
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -148,9 +141,6 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: theme.colorScheme.primary,
-                          ),
                           onPressed: () {
                             setState(() {
                               _selectedDistrict = tempDistrict;
@@ -174,7 +164,8 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
 
   Future<void> _forceRefresh() async {
     setState(() {
-      _future = _repo.getAnkaraVets(radiusMeters: 35000, forceRefresh: true);
+      _future =
+          _repo.getAnkaraShelters(radiusMeters: 35000, forceRefresh: true);
     });
   }
 
@@ -184,7 +175,7 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Ankara Veteriner Klinikler"),
+        title: const Text("Ankara Barınaklar"),
         actions: [
           IconButton(
             tooltip: "Filtre",
@@ -207,13 +198,11 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
           if (snap.hasError) {
             return Padding(
               padding: const EdgeInsets.all(20),
-              child: Text('Veterinerler alınamadı: ${snap.error}'),
+              child: Text('Barınaklar alınamadı: ${snap.error}'),
             );
           }
 
           final raw = snap.data ?? [];
-
-          // ✅ filtreler BAĞIMSIZ uygulanır
           final filtered = raw.where((p) {
             return _matchesDistrict(p) && _matchesStars(p);
           }).toList();
@@ -226,24 +215,23 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
             padding: const EdgeInsets.all(16),
             itemCount: filtered.length,
             itemBuilder: (context, index) {
-              final clinic = filtered[index];
-              final rating = clinic.rating;
+              final shelter = filtered[index];
+              final rating = shelter.rating;
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: Colors.white54,
-                    child: Icon(Icons.local_hospital_rounded,
-                        color: Colors.blue),
+                    child: Icon(Icons.store, color: Colors.teal),
                   ),
                   title: Text(
-                    clinic.name,
+                    shelter.name,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Row(
                     children: [
-                      Text(_districtCityLine(clinic)),
+                      Text(_districtCityLine(shelter)),
                       const SizedBox(width: 10),
                       const Text("•"),
                       const SizedBox(width: 10),
@@ -257,10 +245,10 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => VeterinaryDetailScreen(
+                        builder: (_) => ShelterDetailScreen(
                           apiKey: widget.apiKey,
-                          placeId: clinic.placeId,
-                          title: clinic.name,
+                          placeId: shelter.placeId,
+                          title: shelter.name,
                         ),
                       ),
                     );

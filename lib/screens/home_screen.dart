@@ -1,17 +1,25 @@
 // Dosya: lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
-import '../data/mock_data.dart'; // Mock veriler
-import 'shelter_detail_screen.dart'; // Barınak detayına gitmek için
-import 'animal_detail_screen.dart'; // Hayvan detayına gitmek için
+import '../data/mock_data.dart'; // Mock animals hâlâ burada
+import 'animal_detail_screen.dart';
 
 import '../widgets/pet_card.dart';
 import '../widgets/category_card.dart';
-import 'veterinary_list_screen.dart'; // Yeni import
+
+import '../services/google_places_service.dart';
+import 'veterinary_list_screen.dart';
+import 'shelter_list_screen.dart';
+import 'shelter_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final AppUser currentUser;
+  final String apiKey;
 
-  const HomeScreen({super.key, required this.currentUser});
+  const HomeScreen({
+    super.key,
+    required this.currentUser,
+    required this.apiKey,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -22,38 +30,64 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedType = 'Tümü';
   String _searchQuery = '';
 
+  // Google Shelters
+  late final GooglePlacesService _places;
+  late Future<List<PlaceSummary>> _sheltersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _places = GooglePlacesService(apiKey: widget.apiKey);
+    _sheltersFuture = _places.fetchAnkaraShelters(radiusMeters: 35000);
+  }
+
+  String _districtCity(String? address) {
+    if (address == null || address.trim().isEmpty) return 'Bilinmiyor / Ankara';
+    final a = address.trim();
+
+    final slash = RegExp(r'([^,/]+)\s*/\s*([^,]+)').firstMatch(a);
+    if (slash != null) {
+      final district = slash.group(1)!.trim();
+      final city = slash.group(2)!.trim();
+      return '$district / $city';
+    }
+
+    final parts = a.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    if (parts.length >= 2) {
+      final city = parts.last;
+      final district = parts[parts.length - 2];
+      return '$district / $city';
+    }
+
+    return '$a / Ankara';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // Mock verilerden barınakları çek
-    final shelters =
-        mockUsers.where((u) => u.type == UserType.shelter).toList();
 
-    // --- RENK PALETİ (Görselden ve İsteğinizden) ---
-    const Color pastelGreen = Color(0xFFBDE3C3); // Arka Plan
-    const Color pastelPink = Color(0xFFF5D2D2); // Kartlar (Widgetlar)
-    const Color pastelYellow = Color(0xFFF8F7BA); // Hızlı Erişim 1
-    const Color pastelBlue = Color(0xFFA3CCDA); // Hızlı Erişim 2
+    // --- RENK PALETİ ---
+    const Color pastelGreen = Color(0xFFBDE3C3);
+    const Color pastelPink = Color(0xFFF5D2D2);
+    const Color pastelYellow = Color(0xFFF8F7BA);
+    const Color pastelBlue = Color(0xFFA3CCDA);
 
-    // Yazı Renkleri (Koyu Tonlar)
-    const Color darkTextPrimary =
-        Color(0xFF1B4242); // Koyu Yeşilimsi (Ana Metin)
-    const Color darkTextSecondary = Color(0xFF3A0519); // Koyu Bordo (Başlıklar)
+    const Color darkTextPrimary = Color(0xFF1B4242);
+    const Color darkTextSecondary = Color(0xFF3A0519);
 
-    // Filtreleme Mantığı
+    // Filtreleme Mantığı (mockAnimals aynı)
     final filteredAnimals = mockAnimals.where((animal) {
-      final matchesType =
-          _selectedType == 'Tümü' || animal.type == _selectedType;
+      final matchesType = _selectedType == 'Tümü' || animal.type == _selectedType;
       final matchesSearch =
           animal.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              animal.breed.toLowerCase().contains(_searchQuery.toLowerCase());
+          animal.breed.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesType && matchesSearch;
     }).toList();
 
     return Scaffold(
-      backgroundColor: pastelGreen, // Arka planı zorla Pastel Yeşil yapıyoruz
+      backgroundColor: pastelGreen,
       appBar: AppBar(
-        backgroundColor: pastelGreen, // AppBar da yeşil
+        backgroundColor: pastelGreen,
         elevation: 0,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,16 +99,16 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               widget.currentUser.name,
               style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: darkTextSecondary),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: darkTextSecondary,
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_rounded,
-                color: darkTextPrimary),
+            icon: const Icon(Icons.notifications_none_rounded, color: darkTextPrimary),
             onPressed: () {},
           ),
         ],
@@ -88,12 +122,10 @@ class _HomeScreenState extends State<HomeScreen> {
             onChanged: (value) => setState(() => _searchQuery = value),
             decoration: InputDecoration(
               hintText: "İsim veya cins ara...",
-              hintStyle:
-                  TextStyle(color: darkTextPrimary.withValues(alpha: 0.6)),
+              hintStyle: TextStyle(color: darkTextPrimary.withValues(alpha: 0.6)),
               prefixIcon: const Icon(Icons.search, color: darkTextPrimary),
               filled: true,
-              fillColor:
-                  Colors.white.withValues(alpha: 0.6), // Hafif transparan beyaz
+              fillColor: Colors.white.withValues(alpha: 0.6),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide.none,
@@ -103,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 16),
 
-          // 2. KATEGORİ FİLTRELERİ (Chips)
+          // 2. KATEGORİ FİLTRELERİ
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -116,13 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 24),
 
-          // 3. HIZLI ERİŞİM (Mavi ve Sarı)
-          Text(
+          // 3. HIZLI ERİŞİM
+          const Text(
             "Hızlı Erişim",
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: darkTextSecondary),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: darkTextSecondary),
           ),
           const SizedBox(height: 16),
           GridView.count(
@@ -136,58 +165,71 @@ class _HomeScreenState extends State<HomeScreen> {
               CategoryCard(
                 title: "Veteriner",
                 icon: Icons.local_hospital_rounded,
-                color: pastelBlue, // Mavi
-                onTap: () {},
+                color: pastelBlue,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => VeterinaryListScreen(apiKey: widget.apiKey),
+                    ),
+                  );
+                },
               ),
               CategoryCard(
-                title: "Mama & Ürün",
-                icon: Icons.fastfood_rounded,
-                color: pastelYellow, // Sarı
-                onTap: () {},
+                title: "Barınaklar",
+                icon: Icons.store,
+                color: pastelYellow,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ShelterListScreen(apiKey: widget.apiKey),
+                    ),
+                  );
+                },
               ),
               CategoryCard(
                 title: "Yürüyüş",
                 icon: Icons.directions_walk_rounded,
-                color: pastelBlue, // Mavi
+                color: pastelBlue,
                 onTap: () {},
               ),
               CategoryCard(
                 title: "Eğitim",
                 icon: Icons.sports_baseball_rounded,
-                color: pastelYellow, // Sarı
+                color: pastelYellow,
                 onTap: () {},
               ),
             ],
           ),
           const SizedBox(height: 24),
 
-          // 4. YUVA ARAYANLAR (Pet Cards) - PASTEL PEMBE
+          // 4. YUVA ARAYANLAR
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Yuva Arayanlar (${filteredAnimals.length})",
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: darkTextSecondary),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: darkTextSecondary),
               ),
               TextButton(
-                  onPressed: () {},
-                  child: Text("Tümünü Gör",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: darkTextPrimary))),
+                onPressed: () {},
+                child: const Text(
+                  "Tümünü Gör",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: darkTextPrimary),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
 
           filteredAnimals.isEmpty
-              ? Center(
+              ? const Center(
                   child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text("Sonuç bulunamadı.",
-                          style: TextStyle(color: darkTextPrimary))))
+                    padding: EdgeInsets.all(20),
+                    child: Text("Sonuç bulunamadı.", style: TextStyle(color: darkTextPrimary)),
+                  ),
+                )
               : SizedBox(
                   height: 210,
                   child: ListView.builder(
@@ -199,16 +241,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    AnimalDetailScreen(animal: animal)),
+                            MaterialPageRoute(builder: (_) => AnimalDetailScreen(animal: animal)),
                           );
                         },
                         child: PetCard(
                           name: animal.name,
                           age: "${animal.breed}\n${animal.age}",
                           imagePath: animal.imagePath,
-                          backgroundColor: pastelPink, // İstenilen Pembe Renk
+                          backgroundColor: pastelPink,
                         ),
                       );
                     },
@@ -216,93 +256,115 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
           const SizedBox(height: 24),
 
-          // 4. HIZLI ERİŞİM (Sabit)
-          Text("Hızlı Erişim",
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onPrimary)),
-          const SizedBox(height: 16),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            childAspectRatio: 1.6,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+          // 5) BARINAKLAR (Google Places)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // GÜNCELLEME: Veteriner butonu yeni ekrana yönlendiriliyor
-              CategoryCard(
-                  title: "Veteriner",
-                  icon: Icons.local_hospital_rounded,
-                  color: pastelBlue,
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const VeterinaryListScreen()));
-                  }),
-              CategoryCard(
-                  title: "Mama & Ürün",
-                  icon: Icons.fastfood_rounded,
-                  color: pastelYellow,
-                  onTap: () {}),
+              const Text(
+                "Barınaklar",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: darkTextSecondary),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ShelterListScreen(apiKey: widget.apiKey)),
+                  );
+                },
+                child: const Text(
+                  "Tümünü Gör",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: darkTextPrimary),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: shelters.length,
-            itemBuilder: (context, index) {
-              final shelter = shelters[index];
-              return Card(
-                color: pastelPink, // İstenilen Pembe Renk
-                margin: const EdgeInsets.only(bottom: 12),
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(12),
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Colors.white54,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.store, color: darkTextPrimary),
-                  ),
-                  title: Text(
-                    shelter.name,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: darkTextSecondary),
-                  ),
-                  subtitle: Row(
-                    children: [
-                      Icon(Icons.location_on, size: 14, color: darkTextPrimary),
-                      const SizedBox(width: 4),
-                      Expanded(
-                          child: Text(shelter.address ?? "Adres Yok",
-                              style: TextStyle(color: darkTextPrimary),
-                              overflow: TextOverflow.ellipsis)),
-                    ],
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios,
-                      size: 16, color: darkTextPrimary),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ShelterDetailScreen(shelter: shelter),
+
+          FutureBuilder<List<PlaceSummary>>(
+            future: _sheltersFuture,
+            builder: (context, snap) {
+              if (snap.connectionState != ConnectionState.done) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (snap.hasError) {
+                return Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text("Barınaklar yüklenemedi: ${snap.error}", style: const TextStyle(color: darkTextPrimary)),
+                );
+              }
+
+              final shelters = (snap.data ?? []);
+              final preview = shelters.take(6).toList(); // Home’da kısa gösterelim
+
+              if (preview.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text("Barınak bulunamadı.", style: TextStyle(color: darkTextPrimary)),
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: preview.length,
+                itemBuilder: (context, index) {
+                  final shelter = preview[index];
+                  return Card(
+                    color: pastelPink,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(12),
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(color: Colors.white54, shape: BoxShape.circle),
+                        child: const Icon(Icons.store, color: darkTextPrimary),
                       ),
-                    );
-                  },
-                ),
+                      title: Text(
+                        shelter.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: darkTextSecondary,
+                        ),
+                      ),
+                      subtitle: Row(
+                        children: [
+                          const Icon(Icons.location_on, size: 14, color: darkTextPrimary),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              _districtCity(shelter.address),
+                              style: const TextStyle(color: darkTextPrimary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: darkTextPrimary),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ShelterDetailScreen(
+                              apiKey: widget.apiKey,
+                              placeId: shelter.placeId,
+                              title: shelter.name,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
               );
             },
           ),
+
           const SizedBox(height: 20),
         ],
       ),
@@ -316,12 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ChoiceChip(
         label: Text(label),
         selected: isSelected,
-        onSelected: (selected) {
-          setState(() {
-            _selectedType = label;
-          });
-        },
-        // Seçiliyken Koyu Bordo, değilken Beyaz
+        onSelected: (selected) => setState(() => _selectedType = label),
         selectedColor: selectedColor.withValues(alpha: 0.2),
         backgroundColor: Colors.white,
         labelStyle: TextStyle(

@@ -17,9 +17,12 @@ public class AuthController {
     this.jwt = jwt;
   }
 
-  public record RegisterReq(String email, String password) {}
+  // ✅ Register artık ad/soyad da alıyor
+  public record RegisterReq(String email, String password, String firstName, String lastName) {}
   public record LoginReq(String email, String password) {}
-  public record AuthRes(String token, String role) {}
+
+  // ✅ Response artık profil bilgilerini de döndürüyor
+  public record AuthRes(String token, String role, String email, String firstName, String lastName) {}
 
   @PostMapping("/register")
   public AuthRes register(@RequestBody RegisterReq req) {
@@ -30,9 +33,20 @@ public class AuthController {
     u.email = email;
     u.passwordHash = encoder.encode(req.password());
     u.role = Role.USER;
+
+    // boşlukları temizleyelim
+    u.firstName = req.firstName() != null ? req.firstName().trim() : null;
+    u.lastName  = req.lastName()  != null ? req.lastName().trim()  : null;
+
     users.save(u);
 
-    return new AuthRes(jwt.createToken(u.email, u.role), u.role.name());
+    return new AuthRes(
+      jwt.createToken(u.email, u.role),
+      u.role.name(),
+      u.email,
+      u.firstName,
+      u.lastName
+    );
   }
 
   @PostMapping("/login")
@@ -42,12 +56,22 @@ public class AuthController {
 
     if (!encoder.matches(req.password(), u.passwordHash)) throw new RuntimeException("INVALID");
 
-    return new AuthRes(jwt.createToken(u.email, u.role), u.role.name());
+    return new AuthRes(
+      jwt.createToken(u.email, u.role),
+      u.role.name(),
+      u.email,
+      u.firstName,
+      u.lastName
+    );
   }
 
   @PostMapping("/seed-admin")
-  public String seedAdmin(@RequestParam(defaultValue = "admin@patify.com") String email,
-                          @RequestParam(defaultValue = "Admin123!") String password) {
+  public String seedAdmin(
+      @RequestParam(defaultValue = "admin@patify.com") String email,
+      @RequestParam(defaultValue = "Admin123!") String password,
+      @RequestParam(defaultValue = "Admin") String firstName,
+      @RequestParam(defaultValue = "User") String lastName
+  ) {
     String e = email.toLowerCase().trim();
     if (users.findByEmail(e).isPresent()) return "admin exists";
 
@@ -55,6 +79,10 @@ public class AuthController {
     u.email = e;
     u.passwordHash = encoder.encode(password);
     u.role = Role.ADMIN;
+
+    u.firstName = firstName != null ? firstName.trim() : null;
+    u.lastName  = lastName  != null ? lastName.trim()  : null;
+
     users.save(u);
     return "admin seeded";
   }
