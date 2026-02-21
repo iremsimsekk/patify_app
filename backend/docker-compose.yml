@@ -1,30 +1,13 @@
 services:
-  db:
-    image: postgres:16
-    container_name: patify_db
-    environment:
-      POSTGRES_DB: patify
-      POSTGRES_USER: patify
-      POSTGRES_PASSWORD: patify
-    ports:
-      - "5433:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
   api:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: patify_api
-    depends_on:
-      - db
     ports:
-      - "8080:8080"
+      - "${API_HOST_PORT:-8080}:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/patify
-      SPRING_DATASOURCE_USERNAME: patify
-      SPRING_DATASOURCE_PASSWORD: patify
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-
-volumes:
-  pgdata:
