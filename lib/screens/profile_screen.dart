@@ -1,16 +1,14 @@
 // Dosya: lib/screens/profile_screen.dart
 import 'package:flutter/material.dart';
-import '../data/mock_data.dart'; // AppUser için
-import 'login_screen.dart';
-import 'my_pets_screen.dart';
-import 'history_screen.dart';
-import 'settings_screen.dart';
+import 'login_screen.dart'; // Giriş ekranına dönmek için gerekli
+import 'my_pets_screen.dart'; // YENİ EKLENDİ
+import 'history_screen.dart'; // YENİ EKLENDİ
+import 'settings_screen.dart'; // YENİ EKLENDİ
 
 class ProfileScreen extends StatelessWidget {
-  final AppUser currentUser;
+  const ProfileScreen({super.key});
 
-  const ProfileScreen({super.key, required this.currentUser});
-
+  // Navigasyon fonksiyonunu genel olarak tanımlayalım
   void _navigateToScreen(BuildContext context, Widget screen) {
     Navigator.push(
       context,
@@ -20,14 +18,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Ad Soyad (yoksa name’i göster)
-    final fullName = (currentUser.firstName != null && currentUser.lastName != null)
-        ? "${currentUser.firstName} ${currentUser.lastName}"
-        : currentUser.name;
-
-    // ✅ Email
-    final email = currentUser.email;
-
     return Scaffold(
       body: Center(
         child: Column(
@@ -38,76 +28,79 @@ class ProfileScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 4,
-                ),
+                    color: Theme.of(context).colorScheme.primary, width: 4),
               ),
               child: const CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.grey,
-                backgroundImage: AssetImage('assets/user_placeholder.png'),
+                backgroundImage: AssetImage(
+                    'assets/user_placeholder.png'), // Varsa asset kullanın yoksa Icon kalabilir
                 child: Icon(Icons.person, size: 50, color: Colors.white),
               ),
             ),
             const SizedBox(height: 16),
-
-            // ✅ Dinamik isim/email
-            Text(
-              fullName,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            Text(email, style: const TextStyle(color: Colors.grey)),
-
+            const Text("Merve Nair",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            const Text("merve@example.com",
+                style: TextStyle(color: Colors.grey)),
             const SizedBox(height: 30),
 
+            // Menü Listesi
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
+                  // --- Tıklanabilir hale getirilen öğeler ---
                   _buildProfileItem(
                     context,
                     Icons.pets,
                     "My Pets",
                     Colors.blue,
-                    () => _navigateToScreen(context, const MyPetsScreen()),
+                    () => _navigateToScreen(
+                        context, const MyPetsScreen()), // NAVİGASYON EKLENDİ
                   ),
                   _buildProfileItem(
                     context,
                     Icons.history,
                     "Adoption History",
                     Colors.orange,
-                    () => _navigateToScreen(context, const HistoryScreen()),
+                    () => _navigateToScreen(
+                        context, const HistoryScreen()), // NAVİGASYON EKLENDİ
                   ),
                   _buildProfileItem(
                     context,
                     Icons.settings,
                     "Settings",
                     Colors.grey,
-                    () => _navigateToScreen(context, const SettingsScreen()),
+                    () => _navigateToScreen(
+                        context, const SettingsScreen()), // NAVİGASYON EKLENDİ
                   ),
+                  // ----------------------------------------
+
                   const Divider(height: 30),
 
-                  // LOGOUT
+                  // LOGOUT BUTONU (Zaten çalışıyordu)
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.red
+                            .withOpacity(0.1), // withValues yerine withOpacity
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.logout, color: Colors.red),
                     ),
-                    title: const Text(
-                      "Log Out",
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                    ),
+                    title: const Text("Log Out",
+                        style: TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.bold)),
                     onTap: () {
+                      // Çıkış Yapma Diyaloğu (Mevcut kod)
                       showDialog(
                         context: context,
                         builder: (ctx) => AlertDialog(
                           title: const Text("Çıkış Yap"),
-                          content: const Text("Hesabınızdan çıkmak istediğinize emin misiniz?"),
+                          content: const Text(
+                              "Hesabınızdan çıkmak istediğinize emin misiniz?"),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(ctx),
@@ -115,14 +108,18 @@ class ProfileScreen extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () {
+                                // Diyaloğu kapat
                                 Navigator.pop(ctx);
+                                // Giriş sayfasına yönlendir ve geçmişi sil
                                 Navigator.pushAndRemoveUntil(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                                  (route) => false,
+                                  MaterialPageRoute(
+                                      builder: (_) => const LoginScreen()),
+                                  (route) => false, // Geri tuşunu iptal eder
                                 );
                               },
-                              child: const Text("Çıkış Yap", style: TextStyle(color: Colors.red)),
+                              child: const Text("Çıkış Yap",
+                                  style: TextStyle(color: Colors.red)),
                             ),
                           ],
                         ),
@@ -138,25 +135,22 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileItem(
-    BuildContext context,
-    IconData icon,
-    String title,
-    Color color,
-    VoidCallback onTap,
-  ) {
+  // _buildProfileItem fonksiyonu onTap parametresini kabul edecek şekilde güncellendi
+  Widget _buildProfileItem(BuildContext context, IconData icon, String title,
+      Color color, VoidCallback onTap) {
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withOpacity(0.1), // withValues yerine withOpacity
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: color),
       ),
       title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-      onTap: onTap,
+      trailing:
+          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+      onTap: onTap, // BURADA YENİ ONTAP KULLANILDI
     );
   }
 }

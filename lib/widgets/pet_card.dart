@@ -1,4 +1,6 @@
+// Dosya: lib/widgets/pet_card.dart
 import 'package:flutter/material.dart';
+import '../theme/patify_theme.dart'; // DarkImageFixer için gerekli
 
 class PetCard extends StatelessWidget {
   final String name;
@@ -24,7 +26,7 @@ class PetCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -38,12 +40,15 @@ class PetCard extends StatelessWidget {
             CircleAvatar(
               radius: 40,
               backgroundColor: Colors.white,
-              child: CircleAvatar(
-                radius: 38,
-                backgroundImage: AssetImage(imagePath),
-                onBackgroundImageError: (_, __) {},
-                backgroundColor: Colors.grey[200],
-                child: imagePath.isEmpty ? const Icon(Icons.pets, size: 30) : null,
+              // GÜNCELLEME: Resmi DarkImageFixer ile sarıyoruz
+              child: DarkImageFixer(
+                child: CircleAvatar(
+                  radius: 38,
+                  backgroundImage: AssetImage(imagePath),
+                  onBackgroundImageError: (_, __) {},
+                  backgroundColor: Colors.grey[200],
+                  child: imagePath.isEmpty ? const Icon(Icons.pets, size: 30) : null,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -61,11 +66,11 @@ class PetCard extends StatelessWidget {
                 fontSize: 14,
                 color: Colors.grey[600],
               ),
+              textAlign: TextAlign.center, // Çok satırlı olursa ortalasın
             ),
           ],
         ),
       ),
     );
-    
   }
 }

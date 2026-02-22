@@ -21,12 +21,39 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
   String _age = '';
   String _gender = 'Erkek';
   double _weight = 0.0;
-  String _color = '';
-  String _healthStatus = '';
+  
+  // GÜNCELLEME: Varsayılan değerler atandı ve listeler oluşturuldu
+  String _color = 'Siyah'; 
+  String _healthStatus = 'Sağlıklı';
   String _description = '';
   
-  // Resim Seçimi (Mock - Gerçek dosya seçimi yerine simülasyon)
+  // Resim Seçimi (Mock)
   bool _imageSelected = false;
+
+  // GÜNCELLEME: Renk Seçenekleri
+  final List<String> _colors = [
+    "Siyah",
+    "Beyaz",
+    "Kahverengi",
+    "Gri",
+    "Sarı (Golden)",
+    "Krem",
+    "Siyah & Beyaz",
+    "Üç Renkli (Tricolor)",
+    "Benekli",
+    "Kızıl"
+  ];
+
+  // GÜNCELLEME: Sağlık Durumu Seçenekleri
+  final List<String> _healthStatuses = [
+    "Sağlıklı",
+    "Aşıları Tam",
+    "Kısırlaştırılmış",
+    "Aşıları Tam & Kısırlaştırılmış",
+    "Tedavisi Devam Ediyor",
+    "Engelli / Özel Bakım",
+    "Yaşlı / Düşük Enerjili"
+  ];
 
   void _saveAnimal() {
     if (_formKey.currentState!.validate()) {
@@ -34,7 +61,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
 
       // Yeni Hayvan Nesnesi Oluştur
       final newAnimal = Animal(
-        id: 'temp_${DateTime.now().millisecondsSinceEpoch}', // Benzersiz ID
+        id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
         shelterId: widget.shelterUser.id,
         name: _name,
         type: _type,
@@ -45,16 +72,13 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
         color: _color,
         healthStatus: _healthStatus,
         description: _description,
-        // Resim seçildiyse varsayılan köpek fotosunu, seçilmediyse placeholder kullan
         imagePath: 'assets/animals/dog.jpg', 
       );
 
-      // Listeye Ekle (RAM üzerinde)
       setState(() {
-        mockAnimals.insert(0, newAnimal); // En başa ekle
+        mockAnimals.insert(0, newAnimal);
       });
 
-      // Başarı Mesajı ve Geri Dönüş
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Dostumuz başarıyla eklendi! 🐾"),
@@ -62,7 +86,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      Navigator.pop(context, true); // true: liste güncellensin diye
+      Navigator.pop(context, true);
     }
   }
 
@@ -79,7 +103,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Fotoğraf Yükleme Alanı (Mock)
+              // Fotoğraf Yükleme Alanı (Aynı kalıyor)
               Center(
                 child: GestureDetector(
                   onTap: () {
@@ -130,9 +154,8 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    // DÜZELTME: 'value' yerine 'initialValue' kullanıldı.
                     child: DropdownButtonFormField<String>(
-                      initialValue: _type,
+                      value: _type,
                       decoration: _inputDeco("Tür"),
                       items: ["Köpek", "Kedi", "Kuş", "Diğer"].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                       onChanged: (v) => setState(() => _type = v!),
@@ -159,9 +182,8 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    // DÜZELTME: 'value' yerine 'initialValue' kullanıldı.
                     child: DropdownButtonFormField<String>(
-                      initialValue: _gender,
+                      value: _gender,
                       decoration: _inputDeco("Cinsiyet"),
                       items: ["Erkek", "Dişi"].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                       onChanged: (v) => setState(() => _gender = v!),
@@ -185,19 +207,29 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
                     ),
                   ),
                   const SizedBox(width: 16),
+                  // GÜNCELLEME: Renk Seçimi Dropdown Oldu
                   Expanded(
-                    child: TextFormField(
+                    child: DropdownButtonFormField<String>(
+                      value: _color,
+                      isExpanded: true, // Metin uzunsa sığsın diye
                       decoration: _inputDeco("Renk"),
-                      onSaved: (v) => _color = v!,
+                      items: _colors.map((c) => DropdownMenuItem(value: c, child: Text(c, overflow: TextOverflow.ellipsis))).toList(),
+                      onChanged: (v) => setState(() => _color = v!),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                decoration: _inputDeco("Sağlık Durumu (Aşılar vb.)"),
-                onSaved: (v) => _healthStatus = v!,
+              
+              // GÜNCELLEME: Sağlık Durumu Seçimi Dropdown Oldu
+              DropdownButtonFormField<String>(
+                value: _healthStatus,
+                isExpanded: true,
+                decoration: _inputDeco("Sağlık Durumu"),
+                items: _healthStatuses.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                onChanged: (v) => setState(() => _healthStatus = v!),
               ),
+              
               const SizedBox(height: 24),
 
               // Hikaye
