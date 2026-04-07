@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import '../data/mock_data.dart';
 
 import '../config/api_keys.dart';
+import '../data/mock_data.dart';
 import '../services/auth_service.dart';
-
 import 'main_wrapper.dart';
 import 'shelter_dashboard_screen.dart';
 import 'signup_screen.dart';
@@ -17,7 +16,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -26,9 +24,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _submitted = false;
 
   bool _isValidEmail(String email) {
-    final e = email.trim();
+    final normalized = email.trim();
     final re = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    return re.hasMatch(e);
+    return re.hasMatch(normalized);
   }
 
   void _guestLogin() {
@@ -51,18 +49,40 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  String _friendlyError(Object e) {
-    final s = e.toString();
+  AppUser _buildUserFromAuth(AuthResponse auth, String fallbackEmail) {
+    final resolvedEmail =
+        auth.email.isNotEmpty ? auth.email.toLowerCase() : fallbackEmail.toLowerCase();
+    final firstName = auth.firstName?.trim();
+    final lastName = auth.lastName?.trim();
+    final fullName = [firstName, lastName]
+        .where((part) => part != null && part!.isNotEmpty)
+        .map((part) => part!)
+        .join(' ')
+        .trim();
 
-    if (s.contains('EMAIL_EXISTS')) return 'Bu email zaten kayıtlı.';
-    if (s.contains('INVALID')) return 'Email veya şifre hatalı.';
-    if (s.contains('SocketException') || s.contains('Connection refused')) {
-      return 'Backend’e bağlanılamadı. Backend çalışıyor mu ve baseUrl doğru mu kontrol et.';
+    return AppUser(
+      id: 'u_${DateTime.now().millisecondsSinceEpoch}',
+      email: resolvedEmail,
+      password: '',
+      firstName: firstName?.isEmpty == true ? null : firstName,
+      lastName: lastName?.isEmpty == true ? null : lastName,
+      name: fullName.isNotEmpty ? fullName : resolvedEmail.split('@').first,
+      type: auth.role == 'ADMIN' ? UserType.shelter : UserType.petOwner,
+    );
+  }
+
+  String _friendlyError(Object error) {
+    final message = error.toString();
+
+    if (message.contains('EMAIL_EXISTS')) return 'Bu email zaten kayitli.';
+    if (message.contains('INVALID')) return 'Email veya sifre hatali.';
+    if (message.contains('SocketException') || message.contains('Connection refused')) {
+      return 'Backend baglantisi kurulamadi. Sunucu ve baseUrl ayarlarini kontrol et.';
     }
-    if (s.contains('TimeoutException')) {
-      return 'İstek zaman aşımına uğradı. İnternet bağlantını kontrol edip tekrar dene.';
+    if (message.contains('TimeoutException')) {
+      return 'Istek zaman asimina ugradi. Baglantiyi kontrol edip tekrar dene.';
     }
-    return 'Giriş başarısız. Lütfen tekrar dene.';
+    return 'Giris basarisiz. Lutfen tekrar dene.';
   }
 
   Future<void> _login() async {
@@ -71,8 +91,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    final ok = _formKey.currentState?.validate() ?? false;
-    if (!ok) return;
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) return;
 
     setState(() => _loading = true);
 
@@ -81,18 +101,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final auth = await AuthService.login(email: email, password: password);
-
-      final user = AppUser(
-        id: 'u_${DateTime.now().millisecondsSinceEpoch}',
-        email: email.toLowerCase(),
-        password: '',
-        name: email.split('@').first,
-        type: auth.role == "ADMIN" ? UserType.shelter : UserType.petOwner,
-      );
+      final user = _buildUserFromAuth(auth, email);
 
       if (!mounted) return;
 
-      if (auth.role == "USER") {
+      if (auth.role == 'USER') {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -106,13 +119,16 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (_) => ShelterDashboardScreen(shelterUser: user)),
+            builder: (_) => ShelterDashboardScreen(shelterUser: user),
+          ),
         );
       }
-    } catch (e) {
-      setState(() => _errorMessage = _friendlyError(e));
+    } catch (error) {
+      setState(() => _errorMessage = _friendlyError(error));
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -128,24 +144,29 @@ class _LoginScreenState extends State<LoginScreen> {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.onSecondary;
 
-    InputDecoration _inputDecoration(String label, IconData icon) {
+    InputDecoration inputDecoration(String label, IconData icon) {
       return InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-            color: theme.colorScheme.onSecondary.withValues(alpha: 0.7)),
+          color: theme.colorScheme.onSecondary.withValues(alpha: 0.7),
+        ),
         prefixIcon: Icon(icon, color: theme.colorScheme.onSecondary),
         filled: true,
         fillColor: Colors.white.withValues(alpha: 0.7),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide:
-              BorderSide(color: theme.colorScheme.onSecondary, width: 1.5),
+          borderSide: BorderSide(
+            color: theme.colorScheme.onSecondary,
+            width: 1.5,
+          ),
         ),
       );
     }
@@ -155,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(24),
             child: Form(
               key: _formKey,
               autovalidateMode: _submitted
@@ -167,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Icon(Icons.pets, size: 80, color: primaryColor),
                   const SizedBox(height: 20),
                   Text(
-                    "Patify",
+                    'Patify',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -175,40 +196,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-
-                  // Email
                   TextFormField(
                     controller: _emailController,
-                    decoration: _inputDecoration("Email", Icons.email),
+                    decoration: inputDecoration('Email', Icons.email),
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
-                    validator: (v) {
-                      final email = (v ?? '').trim();
-                      if (email.isEmpty) return "Email boş olamaz.";
-                      if (!_isValidEmail(email))
-                        return "Lütfen geçerli bir email gir.";
+                    validator: (value) {
+                      final email = (value ?? '').trim();
+                      if (email.isEmpty) return 'Email bos olamaz.';
+                      if (!_isValidEmail(email)) return 'Lutfen gecerli bir email gir.';
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
-
-                  // Şifre
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
-                    decoration: _inputDecoration("Şifre", Icons.lock),
+                    decoration: inputDecoration('Sifre', Icons.lock),
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _loading ? null : _login(),
-                    validator: (v) {
-                      final p = (v ?? '').trim();
-                      if (p.isEmpty) return "Şifre boş olamaz.";
+                    validator: (value) {
+                      final password = (value ?? '').trim();
+                      if (password.isEmpty) return 'Sifre bos olamaz.';
                       return null;
                     },
                   ),
-
                   const SizedBox(height: 24),
-
-                  // ✅ Giriş Yap
                   SizedBox(
                     width: double.infinity,
                     height: 56,
@@ -225,16 +238,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text(
-                              "Giriş Yap",
+                              'Giris Yap',
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
-                  // ✅ Misafir Girişi
                   SizedBox(
                     width: double.infinity,
                     height: 56,
@@ -242,22 +254,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: _loading ? null : _guestLogin,
                       icon: const Icon(Icons.person_outline),
                       label: const Text(
-                        "Misafir Girişi",
+                        'Misafir Girisi',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: theme.colorScheme.onSecondary,
                         side: BorderSide(
-                            color: theme.colorScheme.onSecondary
-                                .withValues(alpha: 0.6)),
+                          color: theme.colorScheme.onSecondary.withValues(alpha: 0.6),
+                        ),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                     ),
                   ),
-
-                  // ✅ Hata mesajı EN ALTTA
                   if (_errorMessage != null) ...[
                     const SizedBox(height: 14),
                     Container(
@@ -267,20 +280,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.red.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: Colors.red.withValues(alpha: 0.35)),
+                          color: Colors.red.withValues(alpha: 0.35),
+                        ),
                       ),
                       child: Text(
                         _errorMessage!,
                         style: const TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.bold),
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
                   ],
-
                   const SizedBox(height: 10),
-
-                  // ✅ Kayıt Ol linki
                   TextButton(
                     onPressed: _loading
                         ? null
@@ -288,11 +301,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const SignupScreen()),
+                                builder: (_) => const SignupScreen(),
+                              ),
                             );
                           },
                     child: Text(
-                      "Hesabın yok mu? Kayıt Ol",
+                      'Hesabin yok mu? Kayit Ol',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.onSecondary,

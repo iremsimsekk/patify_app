@@ -51,6 +51,9 @@ class AppUser {
     final full = ('$fn $ln').trim();
     return full.isNotEmpty ? full : name;
   }
+
+  bool get isGuest =>
+      id.startsWith('guest_') || email.trim().toLowerCase() == 'guest@patify.com';
 }
 
 

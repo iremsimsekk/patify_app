@@ -1,5 +1,10 @@
-// lib/config/api_keys.dart
 class ApiKeys {
-  // TODO: Buraya kendi Google API Key'ini yaz
-  static const String googleMaps = "AIzaSyBF6oYuVqjQjJJvlg6p9vVnHohloBFuYMQ";
+  ApiKeys._();
+
+  // Override example:
+  // --dart-define=GOOGLE_MAPS_API_KEY=your_key_here
+  static const String googleMaps = String.fromEnvironment(
+    'GOOGLE_MAPS_API_KEY',
+    defaultValue: 'AIzaSyBF6oYuVqjQjJJvlg6p9vVnHohloBFuYMQ',
+  );
 }

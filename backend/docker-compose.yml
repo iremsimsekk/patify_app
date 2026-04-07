@@ -10,6 +10,12 @@ services:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U patify -d patify"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   api:
     build:
@@ -17,14 +23,16 @@ services:
       dockerfile: Dockerfile
     container_name: patify_api
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/patify
       SPRING_DATASOURCE_USERNAME: patify
       SPRING_DATASOURCE_PASSWORD: patify
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
 
 volumes:
   pgdata:
