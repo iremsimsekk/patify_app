@@ -143,57 +143,67 @@ class GooglePlacesService {
 
   static const ankaraLat = 39.92077;
   static const ankaraLng = 32.85411;
+  static const _ankaraDistricts = [
+    'cankaya',
+    'yenimahalle',
+    'kecioren',
+    'mamak',
+    'etimesgut',
+    'sincan',
+    'golbasi',
+    'altindag',
+    'pursaklar',
+    'akyurt',
+    'cubuk',
+    'kahramankazan',
+    'elmadag',
+    'bala',
+    'haymana',
+    'polatli',
+    'beypazari',
+    'nallihan',
+    'ayas',
+    'gudul',
+    'kalecik',
+    'kizilcahamam',
+    'camlidere',
+    'evren',
+    'sereflikochisar',
+  ];
 
   Future<List<PlaceSummary>> fetchAnkaraVets({int radiusMeters = 35000}) async {
-    final tr = await _pagedTextSearch(
-      query: 'veteriner ankara',
+    return _fetchAcrossQueries(
+      queries: [
+        'veteriner ankara',
+        'veterinary clinic ankara',
+        ..._ankaraDistricts.map((district) => 'veteriner $district ankara'),
+        ..._ankaraDistricts
+            .map((district) => 'veterinary clinic $district ankara'),
+      ],
       lat: ankaraLat,
       lng: ankaraLng,
       radiusMeters: radiusMeters,
       category: PlaceCategory.vet,
     );
-    final en = await _pagedTextSearch(
-      query: 'veterinary clinic ankara',
-      lat: ankaraLat,
-      lng: ankaraLng,
-      radiusMeters: radiusMeters,
-      category: PlaceCategory.vet,
-    );
-
-    final map = <String, PlaceSummary>{};
-    for (final place in [...tr, ...en]) {
-      if (place.placeId.isNotEmpty) {
-        map[place.placeId] = place;
-      }
-    }
-    return map.values.toList();
   }
 
   Future<List<PlaceSummary>> fetchAnkaraShelters({
     int radiusMeters = 35000,
   }) async {
-    final tr = await _pagedTextSearch(
-      query: 'hayvan barınağı ankara',
+    return _fetchAcrossQueries(
+      queries: [
+        'hayvan barinagi ankara',
+        'animal shelter ankara',
+        ..._ankaraDistricts
+            .map((district) => 'hayvan barinagi $district ankara'),
+        ..._ankaraDistricts
+            .map((district) => 'animal shelter $district ankara'),
+      ],
       lat: ankaraLat,
       lng: ankaraLng,
       radiusMeters: radiusMeters,
       category: PlaceCategory.shelter,
     );
-    final en = await _pagedTextSearch(
-      query: 'animal shelter ankara',
-      lat: ankaraLat,
-      lng: ankaraLng,
-      radiusMeters: radiusMeters,
-      category: PlaceCategory.shelter,
-    );
-
-    final map = <String, PlaceSummary>{};
-    for (final place in [...tr, ...en]) {
-      if (place.placeId.isNotEmpty) {
-        map[place.placeId] = place;
-      }
-    }
-    return map.values.toList();
   }
 
   Future<PlaceDetails> fetchDetails(String placeId) async {
@@ -217,7 +227,9 @@ class GooglePlacesService {
 
     final response = await _client.get(uri);
     if (response.statusCode != 200) {
-      throw Exception('Place Details HTTP ${response.statusCode}: ${response.body}');
+      throw Exception(
+        'Place Details HTTP ${response.statusCode}: ${response.body}',
+      );
     }
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -239,33 +251,21 @@ class GooglePlacesService {
     String? nextToken;
 
     for (int page = 0; page < 3; page++) {
-      if (nextToken != null) {
-        await Future.delayed(const Duration(seconds: 2));
-      }
-
-      final uri = Uri.parse(_nearbyUrl).replace(
-        queryParameters: {
-          if (nextToken != null) 'pagetoken': nextToken,
-          if (nextToken == null) 'location': '$lat,$lng',
-          if (nextToken == null) 'radius': '$radiusMeters',
-          if (nextToken == null) 'type': type,
+      final json = await _fetchPagedPlacesResponse(
+        baseUrl: _nearbyUrl,
+        pageToken: nextToken,
+        firstPageParams: {
+          'location': '$lat,$lng',
+          'radius': '$radiusMeters',
+          'type': type,
           'language': 'tr',
           'key': apiKey,
         },
+        requestLabel: 'Nearby',
       );
 
-      final response = await _client.get(uri);
-      if (response.statusCode != 200) {
-        throw Exception('Nearby HTTP ${response.statusCode}: ${response.body}');
-      }
-
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      final status = json['status'] as String?;
-      if (status != 'OK' && status != 'ZERO_RESULTS') {
-        throw Exception('Nearby status=$status body=${response.body}');
-      }
-
-      final results = (json['results'] as List? ?? []).cast<Map<String, dynamic>>();
+      final results =
+          (json['results'] as List? ?? []).cast<Map<String, dynamic>>();
       out.addAll(
         results.map(
           (entry) => PlaceSummary.fromPlacesJson(entry, category: category),
@@ -290,34 +290,22 @@ class GooglePlacesService {
     String? nextToken;
 
     for (int page = 0; page < 3; page++) {
-      if (nextToken != null) {
-        await Future.delayed(const Duration(seconds: 2));
-      }
-
-      final uri = Uri.parse(_textUrl).replace(
-        queryParameters: {
-          if (nextToken != null) 'pagetoken': nextToken,
-          if (nextToken == null) 'query': query,
-          if (nextToken == null) 'location': '$lat,$lng',
-          if (nextToken == null) 'radius': '$radiusMeters',
+      final json = await _fetchPagedPlacesResponse(
+        baseUrl: _textUrl,
+        pageToken: nextToken,
+        firstPageParams: {
+          'query': query,
+          'location': '$lat,$lng',
+          'radius': '$radiusMeters',
           'language': 'tr',
           'region': 'tr',
           'key': apiKey,
         },
+        requestLabel: 'TextSearch',
       );
 
-      final response = await _client.get(uri);
-      if (response.statusCode != 200) {
-        throw Exception('TextSearch HTTP ${response.statusCode}: ${response.body}');
-      }
-
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      final status = json['status'] as String?;
-      if (status != 'OK' && status != 'ZERO_RESULTS') {
-        throw Exception('TextSearch status=$status body=${response.body}');
-      }
-
-      final results = (json['results'] as List? ?? []).cast<Map<String, dynamic>>();
+      final results =
+          (json['results'] as List? ?? []).cast<Map<String, dynamic>>();
       out.addAll(
         results.map(
           (entry) => PlaceSummary.fromPlacesJson(entry, category: category),
@@ -329,5 +317,136 @@ class GooglePlacesService {
     }
 
     return out.where((entry) => entry.placeId.isNotEmpty).toList();
+  }
+
+  Future<List<PlaceSummary>> _fetchAcrossQueries({
+    required List<String> queries,
+    required double lat,
+    required double lng,
+    required int radiusMeters,
+    required PlaceCategory category,
+  }) async {
+    final merged = <String, PlaceSummary>{};
+
+    for (final query in queries) {
+      final results = await _singlePageTextSearch(
+        query: query,
+        lat: lat,
+        lng: lng,
+        radiusMeters: radiusMeters,
+        category: category,
+      );
+
+      for (final place in results) {
+        if (place.placeId.isNotEmpty) {
+          merged[place.placeId] = place;
+        }
+      }
+    }
+
+    final values = merged.values.toList();
+    values.sort((a, b) {
+      final aRating = a.rating ?? -1;
+      final bRating = b.rating ?? -1;
+      final ratingCompare = bRating.compareTo(aRating);
+      if (ratingCompare != 0) return ratingCompare;
+      return a.name.compareTo(b.name);
+    });
+    return values;
+  }
+
+  Future<List<PlaceSummary>> _singlePageTextSearch({
+    required String query,
+    required double lat,
+    required double lng,
+    required int radiusMeters,
+    required PlaceCategory category,
+  }) async {
+    final uri = Uri.parse(_textUrl).replace(
+      queryParameters: {
+        'query': query,
+        'location': '$lat,$lng',
+        'radius': '$radiusMeters',
+        'language': 'tr',
+        'region': 'tr',
+        'key': apiKey,
+      },
+    );
+
+    final response = await _client.get(uri);
+    if (response.statusCode != 200) {
+      throw Exception(
+          'TextSearch HTTP ${response.statusCode}: ${response.body}');
+    }
+
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    final status = json['status'] as String?;
+    if (status != 'OK' && status != 'ZERO_RESULTS') {
+      throw Exception('TextSearch status=$status body=${response.body}');
+    }
+
+    final results =
+        (json['results'] as List? ?? []).cast<Map<String, dynamic>>();
+    return results
+        .map((entry) => PlaceSummary.fromPlacesJson(entry, category: category))
+        .where((entry) => entry.placeId.isNotEmpty)
+        .toList();
+  }
+
+  Future<Map<String, dynamic>> _fetchPagedPlacesResponse({
+    required String baseUrl,
+    required String? pageToken,
+    required Map<String, String> firstPageParams,
+    required String requestLabel,
+  }) async {
+    String? lastStatus;
+
+    for (int attempt = 0; attempt < 5; attempt++) {
+      if (pageToken != null) {
+        await Future.delayed(Duration(seconds: attempt == 0 ? 2 : 1));
+      }
+
+      final uri = Uri.parse(baseUrl).replace(
+        queryParameters: {
+          if (pageToken != null) 'pagetoken': pageToken,
+          if (pageToken != null) 'key': firstPageParams['key']!,
+          if (pageToken == null) ...firstPageParams,
+        },
+      );
+
+      final response = await _client.get(uri);
+      if (response.statusCode != 200) {
+        throw Exception(
+          '$requestLabel HTTP ${response.statusCode}: ${response.body}',
+        );
+      }
+
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      final status = json['status'] as String?;
+      lastStatus = status;
+      final waitingForToken = pageToken != null && status == 'INVALID_REQUEST';
+
+      if (waitingForToken && attempt < 4) {
+        continue;
+      }
+
+      if (status != 'OK' && status != 'ZERO_RESULTS') {
+        throw Exception('$requestLabel status=$status body=${response.body}');
+      }
+
+      return json;
+    }
+
+    if (pageToken != null && lastStatus == 'INVALID_REQUEST') {
+      // Google may keep next_page_token invalid for a while. Keep the first page
+      // results instead of failing the whole screen because a follow-up page
+      // was not ready yet.
+      return {
+        'status': 'ZERO_RESULTS',
+        'results': <Map<String, dynamic>>[],
+      };
+    }
+
+    throw Exception('$requestLabel failed after retries.');
   }
 }

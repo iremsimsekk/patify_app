@@ -12,11 +12,11 @@ class PlacesRepository {
   final GooglePlacesService _places;
   final Duration _ttl;
 
-  static const _vetsKey = "cache_vets_ankara_v1";
-  static const _vetsTimeKey = "cache_vets_ankara_v1_time";
+  static const _vetsKey = "cache_vets_ankara_v2";
+  static const _vetsTimeKey = "cache_vets_ankara_v2_time";
 
-  static const _sheltersKey = "cache_shelters_ankara_v1";
-  static const _sheltersTimeKey = "cache_shelters_ankara_v1_time";
+  static const _sheltersKey = "cache_shelters_ankara_v2";
+  static const _sheltersTimeKey = "cache_shelters_ankara_v2_time";
 
   Future<List<PlaceSummary>> getAnkaraVets({
     int radiusMeters = 35000,
