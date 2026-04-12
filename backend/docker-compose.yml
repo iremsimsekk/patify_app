@@ -28,9 +28,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/patify
-      SPRING_DATASOURCE_USERNAME: patify
-      SPRING_DATASOURCE_PASSWORD: patify
+      SPRING_DATASOURCE_URL: jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=require
+      SPRING_DATASOURCE_USERNAME: postgres.ymyowwtzavkiklowchtd
+      SPRING_DATASOURCE_PASSWORD: patifyappTeamasko
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_FLYWAY_ENABLED: "true"
 
