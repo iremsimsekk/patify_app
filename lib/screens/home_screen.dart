@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:patify_app/screens/ai_chat_screen.dart';
 
 import '../data/mock_data.dart';
 import '../services/google_places_service.dart';
@@ -87,10 +88,11 @@ class _HomeScreenState extends State<HomeScreen> {
     const Color darkTextSecondary = Color(0xFF3A0519);
 
     final filteredAnimals = mockAnimals.where((animal) {
-      final matchesType = _selectedType == 'Tumu' || animal.type == _selectedType;
+      final matchesType =
+          _selectedType == 'Tumu' || animal.type == _selectedType;
       final matchesSearch =
           animal.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          animal.breed.toLowerCase().contains(_searchQuery.toLowerCase());
+              animal.breed.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesType && matchesSearch;
     }).toList();
 
@@ -204,7 +206,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => VeterinaryListScreen(apiKey: widget.apiKey),
+                      builder: (_) =>
+                          VeterinaryListScreen(apiKey: widget.apiKey),
                     ),
                   );
                 },
@@ -238,6 +241,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: pastelYellow,
                 onTap: () {},
               ),
+              CategoryCard(
+                title: 'AI Asistan',
+                icon: Icons.smart_toy_rounded,
+                color: pastelPink,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AiChatScreen(),
+                    ),
+                  );
+                },
+              )
             ],
           ),
           const SizedBox(height: 24),
@@ -287,7 +303,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => AnimalDetailScreen(animal: animal),
+                              builder: (_) =>
+                                  AnimalDetailScreen(animal: animal),
                             ),
                           );
                         },
@@ -320,7 +337,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ShelterListScreen(apiKey: widget.apiKey),
+                            builder: (_) =>
+                                ShelterListScreen(apiKey: widget.apiKey),
                           ),
                         );
                       },
@@ -397,7 +415,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.white54,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.store, color: darkTextPrimary),
+                          child:
+                              const Icon(Icons.store, color: darkTextPrimary),
                         ),
                         title: Text(
                           shelter.name,
