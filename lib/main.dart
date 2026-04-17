@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'screens/onboarding_screen.dart';
+import 'package:patify_app/screens/onboarding_screen.dart';
 import 'theme/patify_theme.dart';
 
 Future<void> main() async {
