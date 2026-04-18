@@ -4,6 +4,7 @@ import '../data/mock_data.dart';
 import 'appointments_screen.dart';
 import 'home_screen.dart';
 import 'map_screen.dart';
+import 'pati_dunyasi_screen.dart';
 import 'pet_care_screen.dart';
 import 'profile_screen.dart';
 
@@ -28,7 +29,7 @@ class _MainWrapperState extends State<MainWrapper> {
   @override
   void initState() {
     super.initState();
-    _loadedPages = List<Widget?>.filled(5, null);
+    _loadedPages = List<Widget?>.filled(6, null);
     _loadedPages[0] = _buildPage(0);
   }
 
@@ -40,12 +41,14 @@ class _MainWrapperState extends State<MainWrapper> {
           apiKey: widget.apiKey,
         );
       case 1:
-        return PetCareScreen(apiKey: widget.apiKey);
+        return const PatiDunyasiScreen();
       case 2:
-        return MapScreen(apiKey: widget.apiKey);
+        return PetCareScreen(apiKey: widget.apiKey);
       case 3:
-        return const AppointmentsScreen();
+        return MapScreen(apiKey: widget.apiKey);
       case 4:
+        return const AppointmentsScreen();
+      case 5:
         return ProfileScreen(currentUser: widget.currentUser);
       default:
         return const SizedBox.shrink();
@@ -78,6 +81,10 @@ class _MainWrapperState extends State<MainWrapper> {
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             label: 'Ana Sayfa',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.pets_outlined),
+            label: 'Pati Dünyası',
           ),
           NavigationDestination(
             icon: Icon(Icons.health_and_safety_outlined),
