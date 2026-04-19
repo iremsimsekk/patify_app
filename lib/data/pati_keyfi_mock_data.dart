@@ -5,6 +5,7 @@ class FunArticle {
     required this.id,
     required this.title,
     required this.summary,
+    required this.petType,
     required this.intro,
     required this.icon,
     required this.moodIcon,
@@ -15,6 +16,7 @@ class FunArticle {
   final String id;
   final String title;
   final String summary;
+  final String petType;
   final String intro;
   final IconData icon;
   final IconData moodIcon;
@@ -27,6 +29,7 @@ const List<FunArticle> mockFunArticles = [
     id: 'cute-facts',
     title: 'Tatlı Bilgiler',
     summary: 'Patili dostlarla ilgili gülümseten kısa bilgiler.',
+    petType: 'general',
     intro:
         'Bazen en keyifli içerikler, kısa ama iç ısıtan notlardır. Bu bölümde patili dostlara dair sıcak ve zarif detaylar yer alır.',
     icon: Icons.favorite_rounded,
@@ -43,6 +46,7 @@ const List<FunArticle> mockFunArticles = [
     id: 'paw-of-the-day',
     title: 'Günün Patisi',
     summary: 'Güne enerji ve neşe katan sevimli bir içerik seçkisi.',
+    petType: 'dog',
     intro:
         'Her günün kendine özgü küçük bir yıldızı olabilir. Bu içerik, günün enerjisini yansıtan sıcak ve dikkat çekici notlar sunar.',
     icon: Icons.star_rounded,
@@ -59,6 +63,7 @@ const List<FunArticle> mockFunArticles = [
     id: 'mini-notes',
     title: 'Eğlenceli Mini Notlar',
     summary: 'Günlük hayata sıcak bir dokunuş katan kısa notlar.',
+    petType: 'cat',
     intro:
         'Her bilgi uzun olmak zorunda değil. Bazen kısa bir not bile güne keyifli bir dokunuş katmaya yeter.',
     icon: Icons.sticky_note_2_rounded,
@@ -75,6 +80,7 @@ const List<FunArticle> mockFunArticles = [
     id: 'interesting-animal-things',
     title: 'Hayvanlar Hakkında İlginç Şeyler',
     summary: 'Merak uyandıran, hafif ve keyifli bilgiler.',
+    petType: 'general',
     intro:
         'Doğa ve hayvan davranışlarına dair şaşırtıcı detaylar, bu bölüme merak uyandıran zarif bir tat katar.',
     icon: Icons.lightbulb_rounded,

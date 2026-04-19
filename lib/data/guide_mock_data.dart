@@ -5,6 +5,7 @@ class GuideArticle {
     required this.id,
     required this.title,
     required this.summary,
+    required this.petType,
     required this.intro,
     required this.icon,
     required this.bullets,
@@ -15,6 +16,7 @@ class GuideArticle {
   final String id;
   final String title;
   final String summary;
+  final String petType;
   final String intro;
   final IconData icon;
   final List<String> bullets;
@@ -28,6 +30,7 @@ const List<GuideArticle> mockGuideArticles = [
     title: 'İlk Kez Kedi Sahiplendim',
     summary:
         'Yeni kedinle ilk günleri daha huzurlu ve güvenli geçirmen için temel öneriler.',
+    petType: 'cat',
     intro:
         'Eve yeni gelen bir kedi, ilk günlerde çekingen davranabilir. Sakin bir alan sunmak ve rutini yavaş yavaş kurmak, uyum sürecini kolaylaştırır.',
     icon: Icons.pets_rounded,
@@ -46,6 +49,7 @@ const List<GuideArticle> mockGuideArticles = [
     title: 'İlk Veteriner Ziyareti',
     summary:
         'İlk muayeneyi daha sakin ve verimli geçirmen için kısa bir rehber.',
+    petType: 'general',
     intro:
         'Veteriner ziyareti, temel sağlık kontrolü ve sonraki takipler için önemli bir başlangıçtır. Hazırlıklı gitmek, süreci daha rahat hale getirir.',
     icon: Icons.medical_services_rounded,
@@ -64,6 +68,7 @@ const List<GuideArticle> mockGuideArticles = [
     title: 'Kedi Nasıl Beslenmeli?',
     summary:
         'Yaşına ve günlük rutinine uygun, daha dengeli bir beslenme için temel bilgiler.',
+    petType: 'cat',
     intro:
         'Kedilerde düzenli su tüketimi ve yaşına uygun mama seçimi büyük önem taşır. Tek seferde fazla vermek yerine planlı öğünler sunmak daha dengeli bir yaklaşım sağlar.',
     icon: Icons.restaurant_rounded,
@@ -82,6 +87,7 @@ const List<GuideArticle> mockGuideArticles = [
     title: 'Köpek Yürüyüş Rutini',
     summary:
         'Daha dengeli enerji ve davranış için uygulanabilir yürüyüş önerileri.',
+    petType: 'dog',
     intro:
         'Düzenli yürüyüş, köpeklerde yalnızca fiziksel değil zihinsel rahatlama da sağlar. Kısa ama düzenli bir rutin, uzun aralıklı yürüyüşlerden çoğu zaman daha verimlidir.',
     icon: Icons.directions_walk_rounded,
@@ -100,6 +106,7 @@ const List<GuideArticle> mockGuideArticles = [
     title: 'Acil Belirtiler',
     summary:
         'Hızlı destek alman gerekebilecek temel uyarı işaretlerini hatırlatır.',
+    petType: 'general',
     intro:
         'Bazı belirtiler, evde beklemek yerine hızlı destek almayı gerektirebilir. Erken fark etmek süreci daha güvenli ve kontrollü hale getirir.',
     icon: Icons.warning_amber_rounded,
