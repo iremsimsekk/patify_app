@@ -52,9 +52,9 @@ class AnimalDetailScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildInfoBadge(context, "Tür", animal.type, Colors.blue[50]!, Colors.blue),
-                      _buildInfoBadge(context, "Cinsiyet", animal.gender, Colors.pink[50]!, Colors.pink),
-                      _buildInfoBadge(context, "Yaş", animal.age, Colors.orange[50]!, Colors.orange),
+                      _buildInfoBadge(context, "Tür", animal.type, const Color(0xFF51BDC5)!, const Color(0xFF054B50)),
+                      _buildInfoBadge(context, "Cinsiyet", animal.gender, const Color(0xFF51BDC5)!, const Color(0xFF054B50)),
+                      _buildInfoBadge(context, "Yaş", animal.age, const Color(0xFF51BDC5)!, const Color(0xFF054B50)),
                     ],
                   ),
                   const SizedBox(height: 24),
