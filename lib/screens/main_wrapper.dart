@@ -5,6 +5,7 @@ import '../theme/patify_theme.dart';
 import 'ai_chat_screen.dart';
 import 'home_screen.dart';
 import 'map_screen.dart';
+import 'pati_dunyasi_screen.dart';
 import 'pet_care_screen.dart';
 import 'profile_screen.dart';
 
@@ -71,7 +72,7 @@ class _MainWrapperState extends State<MainWrapper> {
           apiKey: widget.apiKey,
         );
       case 1:
-        return PetCareScreen(apiKey: widget.apiKey);
+        return const PatiDunyasiScreen();
       case 2:
         return const AiChatScreen();
       case 3:
