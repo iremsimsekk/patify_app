@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/guide_mock_data.dart';
 import '../widgets/pati_module_ui.dart';
@@ -12,8 +13,44 @@ class RehberScreen extends StatefulWidget {
 }
 
 class _RehberScreenState extends State<RehberScreen> {
+  static const String _favoritePrefsKey = 'favorite_guide_article_ids';
+
   String _searchQuery = '';
   String _selectedPetType = 'all';
+  Set<String> _favoriteArticleIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favoriteIds = prefs.getStringList(_favoritePrefsKey) ?? [];
+
+    if (!mounted) return;
+    setState(() {
+      _favoriteArticleIds = favoriteIds.toSet();
+    });
+  }
+
+  Future<void> _toggleFavorite(String articleId) async {
+    final updatedFavoriteIds = Set<String>.from(_favoriteArticleIds);
+
+    if (updatedFavoriteIds.contains(articleId)) {
+      updatedFavoriteIds.remove(articleId);
+    } else {
+      updatedFavoriteIds.add(articleId);
+    }
+
+    setState(() {
+      _favoriteArticleIds = updatedFavoriteIds;
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_favoritePrefsKey, updatedFavoriteIds.toList());
+  }
 
   List<GuideArticle> get _filteredArticles {
     final query = _searchQuery.trim().toLowerCase();
@@ -92,7 +129,11 @@ class _RehberScreenState extends State<RehberScreen> {
             ...filteredArticles.map(
               (article) => Padding(
                 padding: const EdgeInsets.only(bottom: 16),
-                child: _GuideListCard(article: article),
+                child: _GuideListCard(
+                  article: article,
+                  isFavorite: _favoriteArticleIds.contains(article.id),
+                  onFavoriteTap: () => _toggleFavorite(article.id),
+                ),
               ),
             ),
         ],
@@ -240,9 +281,15 @@ class _EmptyResultCard extends StatelessWidget {
 }
 
 class _GuideListCard extends StatelessWidget {
-  const _GuideListCard({required this.article});
+  const _GuideListCard({
+    required this.article,
+    required this.isFavorite,
+    required this.onFavoriteTap,
+  });
 
   final GuideArticle article;
+  final bool isFavorite;
+  final VoidCallback onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
@@ -307,13 +354,65 @@ class _GuideListCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: PatiArrowChip(),
+              const SizedBox(width: 10),
+              Column(
+                children: [
+                  _FavoriteButton(
+                    isFavorite: isFavorite,
+                    onPressed: onFavoriteTap,
+                    activeColor: colorScheme.primary,
+                  ),
+                  const SizedBox(height: 8),
+                  const PatiArrowChip(),
+                ],
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FavoriteButton extends StatelessWidget {
+  const _FavoriteButton({
+    required this.isFavorite,
+    required this.onPressed,
+    required this.activeColor,
+  });
+
+  final bool isFavorite;
+  final VoidCallback onPressed;
+  final Color activeColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SizedBox(
+      width: 38,
+      height: 38,
+      child: IconButton(
+        onPressed: onPressed,
+        tooltip: isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle',
+        style: IconButton.styleFrom(
+          backgroundColor: Colors.white.withValues(alpha: 0.72),
+          foregroundColor: isFavorite
+              ? activeColor
+              : colorScheme.onSurface.withValues(alpha: 0.56),
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(13),
+            side: BorderSide(
+              color: isFavorite
+                  ? activeColor.withValues(alpha: 0.28)
+                  : colorScheme.onSurface.withValues(alpha: 0.06),
+            ),
+          ),
+        ),
+        icon: Icon(
+          isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+          size: 19,
         ),
       ),
     );

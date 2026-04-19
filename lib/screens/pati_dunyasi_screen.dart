@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'pati_favoriler_screen.dart';
 import 'pati_keyfi_screen.dart';
 import 'rehber_screen.dart';
 
@@ -79,6 +80,23 @@ class PatiDunyasiScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => const PatiKeyfiScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            _PatiDunyasiCard(
+              title: 'Favorilerim',
+              subtitle: 'Kaydettiğin içeriklere buradan hızlıca ulaşabilirsin.',
+              icon: Icons.favorite_rounded,
+              accentColor: colorScheme.tertiary,
+              backgroundColor: colorScheme.tertiary.withValues(alpha: 0.38),
+              illustrationIcon: Icons.bookmark_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PatiFavorilerScreen(),
                   ),
                 );
               },
