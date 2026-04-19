@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../data/mock_data.dart';
-import 'appointments_screen.dart';
+import '../theme/patify_theme.dart';
+import 'ai_chat_screen.dart';
 import 'home_screen.dart';
 import 'map_screen.dart';
 import 'pati_dunyasi_screen.dart';
@@ -25,11 +26,41 @@ class MainWrapper extends StatefulWidget {
 class _MainWrapperState extends State<MainWrapper> {
   int _currentIndex = 0;
   late final List<Widget?> _loadedPages;
+  late AppUser _currentUser;
+
+  final List<_NavItem> _destinations = const [
+    _NavItem(
+      label: 'Ana Sayfa',
+      icon: Icons.home_outlined,
+      selectedIcon: Icons.home_rounded,
+    ),
+    _NavItem(
+      label: 'Hizmetler',
+      icon: Icons.pets_outlined,
+      selectedIcon: Icons.pets_rounded,
+    ),
+    _NavItem(
+      label: 'AI',
+      icon: Icons.auto_awesome_outlined,
+      selectedIcon: Icons.auto_awesome_rounded,
+    ),
+    _NavItem(
+      label: 'Harita',
+      icon: Icons.map_outlined,
+      selectedIcon: Icons.map_rounded,
+    ),
+    _NavItem(
+      label: 'Profil',
+      icon: Icons.person_outline_rounded,
+      selectedIcon: Icons.person_rounded,
+    ),
+  ];
 
   @override
   void initState() {
     super.initState();
-    _loadedPages = List<Widget?>.filled(6, null);
+    _currentUser = widget.currentUser;
+    _loadedPages = List<Widget?>.filled(_destinations.length, null);
     _loadedPages[0] = _buildPage(0);
   }
 
@@ -37,19 +68,20 @@ class _MainWrapperState extends State<MainWrapper> {
     switch (index) {
       case 0:
         return HomeScreen(
-          currentUser: widget.currentUser,
+          currentUser: _currentUser,
           apiKey: widget.apiKey,
         );
       case 1:
         return const PatiDunyasiScreen();
       case 2:
-        return PetCareScreen(apiKey: widget.apiKey);
+        return const AiChatScreen();
       case 3:
         return MapScreen(apiKey: widget.apiKey);
       case 4:
-        return const AppointmentsScreen();
-      case 5:
-        return ProfileScreen(currentUser: widget.currentUser);
+        return ProfileScreen(
+          currentUser: _currentUser,
+          onUserUpdated: _handleUserUpdated,
+        );
       default:
         return const SizedBox.shrink();
     }
@@ -62,48 +94,188 @@ class _MainWrapperState extends State<MainWrapper> {
     });
   }
 
+  void _handleUserUpdated(AppUser user) {
+    setState(() {
+      _currentUser = user;
+      _loadedPages[0] = _buildPage(0);
+      _loadedPages[4] = _buildPage(4);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = isDark
+        ? Colors.black.withValues(alpha: 0.22)
+        : PatifyTheme.textPrimary.withValues(alpha: 0.10);
+
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _loadedPages
-            .map((page) => page ?? const SizedBox.shrink())
-            .toList(growable: false),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 240),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          );
+
+          return FadeTransition(
+            opacity: curved,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.015, 0),
+                end: Offset.zero,
+              ).animate(curved),
+              child: child,
+            ),
+          );
+        },
+        child: IndexedStack(
+          key: ValueKey(_currentIndex),
+          index: _currentIndex,
+          children: _loadedPages
+              .map((page) => page ?? const SizedBox.shrink())
+              .toList(growable: false),
+        ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: _onDestinationSelected,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 2,
-        indicatorColor: Theme.of(context).colorScheme.secondary,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            label: 'Ana Sayfa',
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(
+          PatifyTheme.space16,
+          0,
+          PatifyTheme.space16,
+          PatifyTheme.space12,
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: PatifyTheme.space8,
+            vertical: PatifyTheme.space8,
           ),
-          NavigationDestination(
-            icon: Icon(Icons.pets_outlined),
-            label: 'Pati Dünyası',
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor.withValues(alpha: 0.98),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: PatifyTheme.border),
+            boxShadow: [
+              BoxShadow(
+                color: shadowColor,
+                blurRadius: 30,
+                offset: const Offset(0, 16),
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.health_and_safety_outlined),
-            label: 'Bakim',
+          child: Row(
+            children: List.generate(
+              _destinations.length,
+              (index) => Expanded(
+                child: _BottomNavItem(
+                  item: _destinations[index],
+                  selected: _currentIndex == index,
+                  onTap: () => _onDestinationSelected(index),
+                ),
+              ),
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.map_outlined),
-            label: 'Harita',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Randevu',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            label: 'Profil',
-          ),
-        ],
+        ),
       ),
     );
   }
+}
+
+class _BottomNavItem extends StatelessWidget {
+  const _BottomNavItem({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final _NavItem item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final onSurface =
+        theme.textTheme.bodyMedium?.color ?? PatifyTheme.textSecondary;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(begin: selected ? 1 : 0, end: selected ? 1 : 0),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        builder: (context, value, child) {
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(20),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: PatifyTheme.space8,
+                  vertical: PatifyTheme.space8,
+                ),
+                decoration: BoxDecoration(
+                  color: Color.lerp(
+                    Colors.transparent,
+                    primary.withValues(alpha: 0.14),
+                    value,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOutCubic,
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? primary.withValues(alpha: 0.18)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        selected ? item.selectedIcon : item.icon,
+                        size: selected ? 22 : 21,
+                        color: selected ? primary : onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      item.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: selected ? primary : onSurface,
+                        fontWeight:
+                            selected ? FontWeight.w700 : FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _NavItem {
+  const _NavItem({
+    required this.label,
+    required this.icon,
+    required this.selectedIcon,
+  });
+
+  final String label;
+  final IconData icon;
+  final IconData selectedIcon;
 }

@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
+
+import '../constants/ankara_districts.dart';
 import '../services/google_places_service.dart';
 import '../services/places_repository.dart';
-import '../constants/ankara_districts.dart'; // <-- sende neredeyse ona göre path düzelt
+import '../theme/patify_theme.dart';
+import '../widgets/place_directory_widgets.dart';
 import 'veterinary_detail_screen.dart';
 
 class _StarRange {
   final String label;
   final double minInclusive;
-  final double maxExclusive; // son aralık için 5.000001 gibi kullanacağız
+  final double maxExclusive;
+
   const _StarRange(this.label, this.minInclusive, this.maxExclusive);
 }
 
 class VeterinaryListScreen extends StatefulWidget {
   const VeterinaryListScreen({super.key, required this.apiKey});
+
   final String apiKey;
 
   @override
@@ -25,7 +30,8 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
   late Future<List<PlaceSummary>> _future;
 
   String _selectedDistrict = "Tümü";
-  _StarRange? _selectedStarRange; // null = tümü
+  _StarRange? _selectedStarRange;
+  bool _isRefreshing = false;
 
   List<String> get _districtOptions => ["Tümü", ...ankaraDistricts];
 
@@ -35,7 +41,7 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
     _StarRange("1 - 2", 1, 2),
     _StarRange("2 - 3", 2, 3),
     _StarRange("3 - 4", 3, 4),
-    _StarRange("4 - 5", 4, 5.000001), // 5 dahil
+    _StarRange("4 - 5", 4, 5.000001),
   ];
 
   @override
@@ -44,126 +50,186 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
     _places = GooglePlacesService(apiKey: widget.apiKey);
     _repo = PlacesRepository(places: _places, ttl: const Duration(days: 7));
     _future = _repo.getAnkaraVets(radiusMeters: 35000);
-    _selectedStarRange = _starRanges.first; // "Tümü"
+    _selectedStarRange = _starRanges.first;
   }
 
-  String _districtLabelOf(PlaceSummary p) {
-    final addr = p.address;
-    if (addr == null || addr.trim().isEmpty) return "Bilinmiyor";
-    return extractAnkaraDistrict(addr) ?? "Bilinmiyor";
+  String _districtLabelOf(PlaceSummary place) {
+    final address = place.address;
+    if (address == null || address.trim().isEmpty) return "Konum bilinmiyor";
+    return extractAnkaraDistrict(address) ?? "Konum bilinmiyor";
   }
 
-  String _districtCityLine(PlaceSummary p) {
-    final d = _districtLabelOf(p);
-    return "$d / Ankara";
+  String _districtCityLine(PlaceSummary place) {
+    final district = _districtLabelOf(place);
+    if (district == "Konum bilinmiyor") return district;
+    return "$district / Ankara";
   }
 
-  bool _matchesDistrict(PlaceSummary p) {
+  bool _matchesDistrict(PlaceSummary place) {
     if (_selectedDistrict == "Tümü") return true;
-    final d = _districtLabelOf(p);
-    return d.toLowerCase() == _selectedDistrict.toLowerCase();
+    final district = _districtLabelOf(place);
+    return district.toLowerCase() == _selectedDistrict.toLowerCase();
   }
 
-  bool _matchesStars(PlaceSummary p) {
+  bool _matchesStars(PlaceSummary place) {
     final range = _selectedStarRange;
     if (range == null || range.label == "Tümü") return true;
 
-    final r = (p.rating ?? 0.0);
-    // alt sınır dahil, üst sınır hariç (son aralıkta 5 dahil)
-    return r >= range.minInclusive && r < range.maxExclusive;
+    final rating = place.rating ?? 0.0;
+    return rating >= range.minInclusive && rating < range.maxExclusive;
+  }
+
+  String get _selectedRatingLabel =>
+      _selectedStarRange == null || _selectedStarRange!.label == "Tümü"
+          ? "Tüm puanlar"
+          : "${_selectedStarRange!.label} yıldız";
+
+  Future<void> _forceRefresh() async {
+    if (_isRefreshing) return;
+
+    setState(() {
+      _isRefreshing = true;
+      _future = _repo.getAnkaraVets(radiusMeters: 35000, forceRefresh: true);
+    });
+
+    try {
+      final result = await _future;
+      if (!mounted) return;
+      RefreshFeedback.show(
+        context,
+        message: '${result.length} veteriner kliniği güncellendi.',
+        success: true,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      RefreshFeedback.show(
+        context,
+        message: 'Liste yenilenirken bir sorun oluştu.',
+        success: false,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isRefreshing = false);
+      }
+    }
   }
 
   void _openFilterSheet() {
-    final theme = Theme.of(context);
-
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (_) {
         String tempDistrict = _selectedDistrict;
         _StarRange tempStarRange = _selectedStarRange ?? _starRanges.first;
 
         return StatefulBuilder(
           builder: (ctx, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    "Filtreler",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-
-                  DropdownButtonFormField<String>(
-                    initialValue: tempDistrict,
-                    isExpanded: true,
-                    items: _districtOptions
-                        .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                        .toList(),
-                    onChanged: (v) =>
-                        setModalState(() => tempDistrict = v ?? "Tümü"),
-                    decoration: const InputDecoration(
-                      labelText: "İlçe",
-                      border: OutlineInputBorder(),
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              ),
+              child: SafeArea(
+                top: false,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: PatifyTheme.surfaceRaised,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(PatifyTheme.radius24),
                     ),
                   ),
-
-                  const SizedBox(height: 12),
-
-                  DropdownButtonFormField<_StarRange>(
-                    value: tempStarRange,
-                    isExpanded: true,
-                    items: _starRanges
-                        .map((r) => DropdownMenuItem(
-                              value: r,
-                              child: Text("Yıldız: ${r.label}"),
-                            ))
-                        .toList(),
-                    onChanged: (v) => setModalState(
-                        () => tempStarRange = v ?? _starRanges.first),
-                    decoration: const InputDecoration(
-                      labelText: "Yıldız Aralığı",
-                      border: OutlineInputBorder(),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      PatifyTheme.space20,
+                      PatifyTheme.space8,
+                      PatifyTheme.space20,
+                      PatifyTheme.space20,
                     ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectedDistrict = "Tümü";
-                              _selectedStarRange = _starRanges.first;
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: const Text("Temizle"),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Filtreleri düzenle",
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: theme.colorScheme.primary,
+                        const SizedBox(height: PatifyTheme.space20),
+                        DropdownButtonFormField<String>(
+                          initialValue: tempDistrict,
+                          isExpanded: true,
+                          items: _districtOptions
+                              .map(
+                                (district) => DropdownMenuItem(
+                                  value: district,
+                                  child: Text(district),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            setModalState(() => tempDistrict = value ?? "Tümü");
+                          },
+                          decoration: const InputDecoration(
+                            labelText: "İlçe",
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _selectedDistrict = tempDistrict;
-                              _selectedStarRange = tempStarRange;
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: const Text("Uygula"),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: PatifyTheme.space12),
+                        DropdownButtonFormField<_StarRange>(
+                          initialValue: tempStarRange,
+                          isExpanded: true,
+                          items: _starRanges
+                              .map(
+                                (range) => DropdownMenuItem(
+                                  value: range,
+                                  child: Text("Puan: ${range.label}"),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            setModalState(
+                              () => tempStarRange = value ?? _starRanges.first,
+                            );
+                          },
+                          decoration: const InputDecoration(
+                            labelText: "Puan aralığı",
+                          ),
+                        ),
+                        const SizedBox(height: PatifyTheme.space20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedDistrict = "Tümü";
+                                    _selectedStarRange = _starRanges.first;
+                                  });
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Temizle"),
+                              ),
+                            ),
+                            const SizedBox(width: PatifyTheme.space12),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedDistrict = tempDistrict;
+                                    _selectedStarRange = tempStarRange;
+                                  });
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Uygula"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
             );
           },
@@ -172,102 +238,131 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
     );
   }
 
-  Future<void> _forceRefresh() async {
-    setState(() {
-      _future = _repo.getAnkaraVets(radiusMeters: 35000, forceRefresh: true);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Ankara Veteriner Klinikler"),
-        actions: [
-          IconButton(
-            tooltip: "Filtre",
-            icon: const Icon(Icons.filter_alt_outlined),
-            onPressed: _openFilterSheet,
-          ),
-          IconButton(
-            tooltip: "Yenile",
-            icon: const Icon(Icons.refresh),
-            onPressed: _forceRefresh,
-          ),
-        ],
+        title: const Text("Veteriner Klinikleri"),
       ),
       body: FutureBuilder<List<PlaceSummary>>(
         future: _future,
-        builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snap.hasError) {
-            return Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text('Veterinerler alınamadı: ${snap.error}'),
+        builder: (context, snapshot) {
+          late final Widget content;
+          late final String stateKey;
+
+          if (snapshot.connectionState != ConnectionState.done) {
+            content = const DirectoryLoadingView(
+              label: "Ankara'daki veteriner klinikleri senin için yükleniyor.",
             );
-          }
+            stateKey = 'loading';
+          } else if (snapshot.hasError) {
+            content = DirectoryStateCard(
+              icon: Icons.error_outline_rounded,
+              title: "Liste yüklenemedi",
+              message:
+                  "Veteriner klinikleri alınırken bir sorun oluştu. Lütfen tekrar dene.\n\n${snapshot.error}",
+              actionLabel: "Tekrar dene",
+              onAction: _forceRefresh,
+            );
+            stateKey = 'error';
+          } else {
+            final raw = snapshot.data ?? [];
+            final filtered = raw.where((place) {
+              return _matchesDistrict(place) && _matchesStars(place);
+            }).toList();
 
-          final raw = snap.data ?? [];
-
-          // ✅ filtreler BAĞIMSIZ uygulanır
-          final filtered = raw.where((p) {
-            return _matchesDistrict(p) && _matchesStars(p);
-          }).toList();
-
-          if (filtered.isEmpty) {
-            return const Center(child: Text('Filtreye uygun sonuç bulunamadı.'));
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: filtered.length,
-            itemBuilder: (context, index) {
-              final clinic = filtered[index];
-              final rating = clinic.rating;
-
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.white54,
-                    child: Icon(Icons.local_hospital_rounded,
-                        color: Colors.blue),
+            if (filtered.isEmpty) {
+              content = DirectoryStateCard(
+                icon: Icons.search_off_rounded,
+                title: "Sonuç bulunamadı",
+                message:
+                    "Seçtiğin filtrelere uygun veteriner kliniği bulunamadı. Filtreleri değiştirip yeniden deneyebilirsin.",
+                actionLabel: "Filtreleri düzenle",
+                onAction: _openFilterSheet,
+              );
+              stateKey = 'empty';
+            } else {
+              content = RefreshIndicator(
+                onRefresh: _forceRefresh,
+                color: PatifyTheme.primary,
+                backgroundColor: PatifyTheme.surfaceRaised,
+                edgeOffset: 12,
+                displacement: 24,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
                   ),
-                  title: Text(
-                    clinic.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.fromLTRB(
+                    PatifyTheme.space20,
+                    PatifyTheme.space12,
+                    PatifyTheme.space20,
+                    PatifyTheme.space28,
                   ),
-                  subtitle: Row(
-                    children: [
-                      Text(_districtCityLine(clinic)),
-                      const SizedBox(width: 10),
-                      const Text("•"),
-                      const SizedBox(width: 10),
-                      const Icon(Icons.star, size: 16, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text(rating != null ? rating.toStringAsFixed(1) : "-"),
-                    ],
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => VeterinaryDetailScreen(
-                          apiKey: widget.apiKey,
-                          placeId: clinic.placeId,
-                          title: clinic.name,
+                  children: [
+                    DirectoryHero(
+                      icon: Icons.local_hospital_rounded,
+                      title: "Ankara'daki veterinerler",
+                      subtitle: "Veteriner klinikleri",
+                      resultCount: filtered.length,
+                      primaryActionLabel: "Filtrele",
+                      onPrimaryAction: _openFilterSheet,
+                      secondaryActionLabel: "Yenile",
+                      onSecondaryAction: _forceRefresh,
+                      isRefreshing: _isRefreshing,
+                    ),
+                    const SizedBox(height: PatifyTheme.space16),
+                    DirectoryFilterRow(
+                      districtLabel: _selectedDistrict == "Tümü"
+                          ? "Tüm ilçeler"
+                          : _selectedDistrict,
+                      ratingLabel: _selectedRatingLabel,
+                    ),
+                    const SizedBox(height: PatifyTheme.space20),
+                    Text(
+                      "Öne çıkan sonuçlar",
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: PatifyTheme.space16),
+                    ...filtered.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final clinic = entry.value;
+
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: PatifyTheme.space12),
+                        child: PlaceResultCard(
+                          place: clinic,
+                          index: index,
+                          categoryLabel: "Veteriner kliniği",
+                          locationLabel: _districtCityLine(clinic),
+                          icon: Icons.local_hospital_rounded,
+                          iconColor: PatifyTheme.info,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => VeterinaryDetailScreen(
+                                  apiKey: widget.apiKey,
+                                  placeId: clinic.placeId,
+                                  title: clinic.name,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    }),
+                  ],
                 ),
               );
-            },
+              stateKey =
+                  'list_${filtered.length}_${_selectedDistrict}_$_selectedRatingLabel';
+            }
+          }
+
+          return DirectoryStateSwitcher(
+            stateKey: stateKey,
+            child: content,
           );
         },
       ),

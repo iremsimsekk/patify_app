@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../config/api_keys.dart';
 import '../data/mock_data.dart';
 import '../services/auth_service.dart';
+import '../theme/patify_theme.dart';
 import 'main_wrapper.dart';
 import 'shelter_dashboard_screen.dart';
 import 'signup_screen.dart';
@@ -50,13 +51,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   AppUser _buildUserFromAuth(AuthResponse auth, String fallbackEmail) {
-    final resolvedEmail =
-        auth.email.isNotEmpty ? auth.email.toLowerCase() : fallbackEmail.toLowerCase();
+    final resolvedEmail = auth.email.isNotEmpty
+        ? auth.email.toLowerCase()
+        : fallbackEmail.toLowerCase();
     final firstName = auth.firstName?.trim();
     final lastName = auth.lastName?.trim();
     final fullName = [firstName, lastName]
-        .where((part) => part != null && part!.isNotEmpty)
-        .map((part) => part!)
+        .whereType<String>()
+        .where((part) => part.isNotEmpty)
         .join(' ')
         .trim();
 
@@ -76,7 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (message.contains('EMAIL_EXISTS')) return 'Bu email zaten kayitli.';
     if (message.contains('INVALID')) return 'Email veya sifre hatali.';
-    if (message.contains('SocketException') || message.contains('Connection refused')) {
+    if (message.contains('SocketException') ||
+        message.contains('Connection refused')) {
       return 'Backend baglantisi kurulamadi. Sunucu ve baseUrl ayarlarini kontrol et.';
     }
     if (message.contains('TimeoutException')) {
@@ -142,178 +145,150 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.onSecondary;
+    final textTheme = theme.textTheme;
+    final primaryColor = theme.colorScheme.primary;
 
     InputDecoration inputDecoration(String label, IconData icon) {
       return InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(
-          color: theme.colorScheme.onSecondary.withValues(alpha: 0.7),
-        ),
-        prefixIcon: Icon(icon, color: theme.colorScheme.onSecondary),
-        filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.7),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: theme.colorScheme.onSecondary,
-            width: 1.5,
-          ),
-        ),
+        prefixIcon: Icon(icon),
       );
     }
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              autovalidateMode: _submitted
-                  ? AutovalidateMode.onUserInteraction
-                  : AutovalidateMode.disabled,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.pets, size: 80, color: primaryColor),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Patify',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: primaryColor,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: inputDecoration('Email', Icons.email),
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    validator: (value) {
-                      final email = (value ?? '').trim();
-                      if (email.isEmpty) return 'Email bos olamaz.';
-                      if (!_isValidEmail(email)) return 'Lutfen gecerli bir email gir.';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: inputDecoration('Sifre', Icons.lock),
-                    textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) => _loading ? null : _login(),
-                    validator: (value) {
-                      final password = (value ?? '').trim();
-                      if (password.isEmpty) return 'Sifre bos olamaz.';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _loading ? null : _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.onPrimary,
-                      ),
-                      child: _loading
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text(
-                              'Giris Yap',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+            padding: const EdgeInsets.all(PatifyTheme.space24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 460),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(PatifyTheme.space24),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: _submitted
+                        ? AutovalidateMode.onUserInteraction
+                        : AutovalidateMode.disabled,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 88,
+                          height: 88,
+                          decoration: BoxDecoration(
+                            color: PatifyTheme.primarySoft,
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          child:
+                              Icon(Icons.pets, size: 42, color: primaryColor),
+                        ),
+                        const SizedBox(height: PatifyTheme.space20),
+                        Text('Patify', style: textTheme.displayMedium),
+                        const SizedBox(height: PatifyTheme.space8),
+                        Text(
+                          'Evcil dostlarin icin sakin, guvenli ve modern bir deneyim.',
+                          style: textTheme.bodyMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: PatifyTheme.space24),
+                        TextFormField(
+                          controller: _emailController,
+                          decoration:
+                              inputDecoration('Email', Icons.email_outlined),
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            final email = (value ?? '').trim();
+                            if (email.isEmpty) return 'Email bos olamaz.';
+                            if (!_isValidEmail(email)) {
+                              return 'Lutfen gecerli bir email gir.';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: PatifyTheme.space16),
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration:
+                              inputDecoration('Sifre', Icons.lock_outline),
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _loading ? null : _login(),
+                          validator: (value) {
+                            final password = (value ?? '').trim();
+                            if (password.isEmpty) return 'Sifre bos olamaz.';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: PatifyTheme.space20),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _loading ? null : _login,
+                            child: _loading
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text('Giris Yap'),
+                          ),
+                        ),
+                        const SizedBox(height: PatifyTheme.space12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: _loading ? null : _guestLogin,
+                            icon: const Icon(Icons.person_outline),
+                            label: const Text('Misafir Girisi'),
+                          ),
+                        ),
+                        if (_errorMessage != null) ...[
+                          const SizedBox(height: PatifyTheme.space16),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(PatifyTheme.space12),
+                            decoration: BoxDecoration(
+                              color: PatifyTheme.danger.withValues(alpha: 0.08),
+                              borderRadius:
+                                  BorderRadius.circular(PatifyTheme.radius12),
+                              border: Border.all(
+                                color:
+                                    PatifyTheme.danger.withValues(alpha: 0.22),
                               ),
                             ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: OutlinedButton.icon(
-                      onPressed: _loading ? null : _guestLogin,
-                      icon: const Icon(Icons.person_outline),
-                      label: const Text(
-                        'Misafir Girisi',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: theme.colorScheme.onSecondary,
-                        side: BorderSide(
-                          color: theme.colorScheme.onSecondary.withValues(alpha: 0.6),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (_errorMessage != null) ...[
-                    const SizedBox(height: 14),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.red.withValues(alpha: 0.35),
-                        ),
-                      ),
-                      child: Text(
-                        _errorMessage!,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: _loading
-                        ? null
-                        : () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const SignupScreen(),
+                            child: Text(
+                              _errorMessage!,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: PatifyTheme.danger,
+                                fontWeight: FontWeight.w700,
                               ),
-                            );
-                          },
-                    child: Text(
-                      'Hesabin yok mu? Kayit Ol',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSecondary,
-                      ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: PatifyTheme.space8),
+                        TextButton(
+                          onPressed: _loading
+                              ? null
+                              : () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const SignupScreen(),
+                                    ),
+                                  );
+                                },
+                          child: const Text('Hesabin yok mu? Kayit Ol'),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
