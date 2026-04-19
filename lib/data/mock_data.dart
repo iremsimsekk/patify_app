@@ -44,6 +44,42 @@ class AppUser {
     this.reviewCount,
   });
 
+  AppUser copyWith({
+    String? id,
+    String? email,
+    String? password,
+    String? firstName,
+    String? lastName,
+    String? name,
+    UserType? type,
+    String? photoUrl,
+    String? address,
+    String? phoneNumber,
+    String? website,
+    String? workingHours,
+    String? about,
+    double? rating,
+    int? reviewCount,
+  }) {
+    return AppUser(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      photoUrl: photoUrl ?? this.photoUrl,
+      address: address ?? this.address,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      website: website ?? this.website,
+      workingHours: workingHours ?? this.workingHours,
+      about: about ?? this.about,
+      rating: rating ?? this.rating,
+      reviewCount: reviewCount ?? this.reviewCount,
+    );
+  }
+
   // ✅ Profilde tek yerden kullan diye
   String get displayName {
     final fn = (firstName ?? '').trim();
@@ -53,9 +89,9 @@ class AppUser {
   }
 
   bool get isGuest =>
-      id.startsWith('guest_') || email.trim().toLowerCase() == 'guest@patify.com';
+      id.startsWith('guest_') ||
+      email.trim().toLowerCase() == 'guest@patify.com';
 }
-
 
 // Mock Hayvan Modeli
 class Animal {
