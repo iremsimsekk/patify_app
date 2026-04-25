@@ -1,6 +1,7 @@
 // Dosya: lib/screens/veterinary_detail_screen.dart (GÜNCELLENDİ - Google Places ile)
 import 'package:flutter/material.dart';
 import '../services/google_places_service.dart';
+import '../services/institution_api_service.dart';
 
 class VeterinaryDetailScreen extends StatefulWidget {
   final String apiKey;
@@ -19,7 +20,6 @@ class VeterinaryDetailScreen extends StatefulWidget {
 }
 
 class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
-  late final GooglePlacesService _places;
   late final Future<PlaceDetails> _detailsFuture;
 
   // Mock müsait zaman dilimleri (aynı kalıyor)
@@ -44,8 +44,8 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _places = GooglePlacesService(apiKey: widget.apiKey);
-    _detailsFuture = _places.fetchDetails(widget.placeId);
+    _detailsFuture =
+        InstitutionApiService.fetchInstitutionDetails(widget.placeId);
   }
 
   void _sendAppointmentRequest(String clinicName) {

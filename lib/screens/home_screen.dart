@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/mock_data.dart';
 import '../services/google_places_service.dart';
+import '../services/institution_api_service.dart';
 import '../theme/patify_theme.dart';
 import '../widgets/category_card.dart';
 import '../widgets/pet_card.dart';
@@ -31,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedType = 'Tümü';
   String _searchQuery = '';
 
-  late final GooglePlacesService _places;
   Future<List<PlaceSummary>>? _sheltersFuture;
 
   bool get _isGuest => widget.currentUser.isGuest;
@@ -39,9 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _places = GooglePlacesService(apiKey: widget.apiKey);
     if (!_isGuest) {
-      _sheltersFuture = _places.fetchAnkaraShelters(radiusMeters: 35000);
+      _sheltersFuture = InstitutionApiService.fetchShelters();
     }
   }
 

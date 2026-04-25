@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../widgets/pet_card.dart';
 import '../services/google_places_service.dart';
+import '../services/institution_api_service.dart';
 import 'animal_detail_screen.dart';
 
 class ShelterDetailScreen extends StatefulWidget {
@@ -22,14 +23,12 @@ class ShelterDetailScreen extends StatefulWidget {
 }
 
 class _ShelterDetailScreenState extends State<ShelterDetailScreen> {
-  late final GooglePlacesService _places;
   late final Future<PlaceDetails> _future;
 
   @override
   void initState() {
     super.initState();
-    _places = GooglePlacesService(apiKey: widget.apiKey);
-    _future = _places.fetchDetails(widget.placeId);
+    _future = InstitutionApiService.fetchInstitutionDetails(widget.placeId);
   }
 
   @override
