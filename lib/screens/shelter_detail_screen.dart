@@ -1,9 +1,9 @@
-// Dosya: lib/screens/shelter_detail_screen.dart (GÜNCELLENDİ - Google Places ile)
 import 'package:flutter/material.dart';
+
 import '../data/mock_data.dart';
-import '../widgets/pet_card.dart';
 import '../services/google_places_service.dart';
 import '../services/institution_api_service.dart';
+import '../widgets/pet_card.dart';
 import 'animal_detail_screen.dart';
 
 class ShelterDetailScreen extends StatefulWidget {
@@ -31,14 +31,34 @@ class _ShelterDetailScreenState extends State<ShelterDetailScreen> {
     _future = InstitutionApiService.fetchInstitutionDetails(widget.placeId);
   }
 
+  String _valueOrFallback(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "Bilgi yok";
+    }
+    return value;
+  }
+
+  String _ratingText(PlaceDetails details) {
+    final rating = details.rating;
+    if (rating == null) {
+      return "Bilgi yok";
+    }
+
+    final count = details.userRatingsTotal;
+    if (count == null) {
+      return rating.toStringAsFixed(1);
+    }
+    return "${rating.toStringAsFixed(1)} ($count değerlendirme)";
+  }
+
   @override
   Widget build(BuildContext context) {
-    // ✅ placeId ile ilanları çekiyoruz (şimdilik boş olabilir)
     final animals = getAnimalsByShelter(widget.placeId);
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title, style: const TextStyle(fontSize: 18))),
+      appBar: AppBar(
+          title: Text(widget.title, style: const TextStyle(fontSize: 18))),
       body: FutureBuilder<PlaceDetails>(
         future: _future,
         builder: (context, snap) {
@@ -53,13 +73,13 @@ class _ShelterDetailScreenState extends State<ShelterDetailScreen> {
             );
           }
 
-          final d = snap.data!;
+          final details = snap.data!;
+          final openingHours = details.weekdayText ?? const <String>[];
 
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Barınak Header (UI aynı)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
@@ -75,124 +95,114 @@ class _ShelterDetailScreenState extends State<ShelterDetailScreen> {
                       const CircleAvatar(
                         radius: 40,
                         backgroundColor: Colors.white,
-                        child: Icon(Icons.store, size: 40, color: Colors.black54),
+                        child:
+                            Icon(Icons.store, size: 40, color: Colors.black54),
                       ),
                       const SizedBox(height: 16),
-
                       Text(
-                        d.name,
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        details.name,
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-
-                      // Rating (Google’dan)
-                      if (d.rating != null)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              d.rating!.toStringAsFixed(1),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.star, color: Colors.orange, size: 16),
-                            Text(" (${d.userRatingsTotal ?? 0})", style: const TextStyle(color: Colors.grey)),
-                          ],
-                        ),
-
-                      const SizedBox(height: 8),
-
                       Text(
-                        d.formattedAddress ?? "",
+                        _ratingText(details),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 14, color: Colors.black54),
                       ),
-
+                      const SizedBox(height: 8),
+                      Text(
+                        _valueOrFallback(details.formattedAddress),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 14, color: Colors.black54),
+                      ),
                       const SizedBox(height: 20),
-
-                      // İletişim Butonları (şimdilik UI aynı, aksiyonları sonra bağlarız)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildActionButton(Icons.call, "Ara", theme.colorScheme.primary, onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Ara özelliği: sonraki adımda bağlayacağız.")),
-                            );
-                          }),
+                          _buildActionButton(
+                              Icons.call, "Ara", theme.colorScheme.primary),
                           const SizedBox(width: 16),
-                          _buildActionButton(Icons.map, "Yol Tarifi", theme.colorScheme.primary, onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Yol tarifi: sonraki adımda bağlayacağız.")),
-                            );
-                          }),
+                          _buildActionButton(Icons.map, "Yol Tarifi",
+                              theme.colorScheme.primary),
                           const SizedBox(width: 16),
-                          _buildActionButton(Icons.language, "Web", theme.colorScheme.primary, onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Web açma: sonraki adımda bağlayacağız.")),
-                            );
-                          }),
+                          _buildActionButton(
+                              Icons.language, "Web", theme.colorScheme.primary),
                         ],
                       ),
                     ],
                   ),
                 ),
-
-                // Hakkımızda
                 Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Kurum Hakkında", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Bu kurum bilgileri Google Places üzerinden alınır. Bazı alanlar işletmeye göre eksik olabilir.",
-                        style: TextStyle(color: Colors.black87, height: 1.5),
+                      _detailRow(Icons.phone, "Telefon",
+                          _valueOrFallback(details.phone)),
+                      if (details.website != null &&
+                          details.website!.trim().isNotEmpty)
+                        _detailRow(
+                            Icons.language, "Web Sitesi", details.website!),
+                      _detailRow(
+                          Icons.star_outline, "Puan", _ratingText(details)),
+                      _detailRow(
+                        Icons.map_outlined,
+                        "Google Maps",
+                        _valueOrFallback(details.googleMapsUrl),
                       ),
-                      const SizedBox(height: 16),
-
-                      // Çalışma saatleri (Google’dan)
-                      if (d.weekdayText != null && d.weekdayText!.isNotEmpty)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.access_time, size: 18, color: Colors.grey),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                "Çalışma Saatleri:\n${d.weekdayText!.join("\n")}",
-                                style: const TextStyle(fontWeight: FontWeight.w500),
-                              ),
+                      _detailRow(
+                        Icons.location_on_outlined,
+                        "Adres",
+                        _valueOrFallback(details.formattedAddress),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.access_time,
+                              size: 18, color: Colors.grey),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              openingHours.isEmpty
+                                  ? "Çalışma Saatleri: Bilgi yok"
+                                  : "Çalışma Saatleri:\n${openingHours.join("\n")}",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-
                 const Divider(indent: 20, endIndent: 20),
-
-                // Hayvan Listesi (placeId ile - şimdilik boş olabilir)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                   child: Text(
                     "Dostlarımız (${animals.length})",
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ),
-
                 if (animals.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: Text("Bu barınağa ait ilan bulunamadı.", style: TextStyle(color: Colors.grey)),
+                    child: Text(
+                      "Bu barınağa ait ilan bulunamadı.",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   )
                 else
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 0.75,
                       crossAxisSpacing: 16,
@@ -204,18 +214,20 @@ class _ShelterDetailScreenState extends State<ShelterDetailScreen> {
                       return GestureDetector(
                         onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => AnimalDetailScreen(animal: animal)),
+                          MaterialPageRoute(
+                            builder: (_) => AnimalDetailScreen(animal: animal),
+                          ),
                         ),
                         child: PetCard(
                           name: animal.name,
                           age: animal.breed,
                           imagePath: animal.imagePath,
-                          backgroundColor: theme.cardTheme.color ?? Colors.white,
+                          backgroundColor:
+                              theme.cardTheme.color ?? Colors.white,
                         ),
                       );
                     },
                   ),
-
                 const SizedBox(height: 40),
               ],
             ),
@@ -225,10 +237,34 @@ class _ShelterDetailScreenState extends State<ShelterDetailScreen> {
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, Color color, {VoidCallback? onTap}) {
+  Widget _detailRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: Colors.grey),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              "$label: $value",
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(IconData icon, String label, Color color) {
     return InkWell(
       borderRadius: BorderRadius.circular(30),
-      onTap: onTap,
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text("$label bilgisi detay kartında gösteriliyor.")),
+        );
+      },
       child: Column(
         children: [
           CircleAvatar(
@@ -237,7 +273,9 @@ class _ShelterDetailScreenState extends State<ShelterDetailScreen> {
             child: Icon(icon, color: Colors.white, size: 22),
           ),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(label,
+              style:
+                  const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         ],
       ),
     );

@@ -19,6 +19,15 @@ public class InstitutionImportRunner implements ApplicationRunner {
   @Value("${patify.import.exit-on-complete:true}")
   private boolean exitOnComplete;
 
+  @Value("${patify.import.source:google}")
+  private String importSource;
+
+  @Value("${patify.import.json.clinics:classpath:import-data/ankara_veterinary_google_legacy.json}")
+  private String clinicsJsonResource;
+
+  @Value("${patify.import.json.shelters:classpath:import-data/ankara_shelters_clean_google_legacy.json}")
+  private String sheltersJsonResource;
+
   public InstitutionImportRunner(InstitutionImportService institutionImportService) {
     this.institutionImportService = institutionImportService;
   }
@@ -31,11 +40,15 @@ public class InstitutionImportRunner implements ApplicationRunner {
 
     int exitCode = 0;
     try {
-      InstitutionImportService.ImportResult result = institutionImportService.importInstitutions();
+      InstitutionImportService.ImportResult result = "json".equalsIgnoreCase(importSource)
+          ? institutionImportService.importInstitutionsFromJson(clinicsJsonResource, sheltersJsonResource)
+          : institutionImportService.importInstitutions();
       log.info(
-          "IMPORT_SUCCESS clinicsFetched={} sheltersFetched={} inserted={} updated={}",
-          result.clinicsFetched(),
-          result.sheltersFetched(),
+          "IMPORT_SUCCESS source={} clinicsImported={} sheltersImported={} shelterRecordsSkipped={} inserted={} updated={}",
+          importSource,
+          result.clinicsImported(),
+          result.sheltersImported(),
+          result.shelterRecordsSkipped(),
           result.inserted(),
           result.updated()
       );

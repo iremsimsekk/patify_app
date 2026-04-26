@@ -1,12 +1,12 @@
-// Dosya: lib/screens/veterinary_detail_screen.dart (GÜNCELLENDİ - Google Places ile)
 import 'package:flutter/material.dart';
+
 import '../services/google_places_service.dart';
 import '../services/institution_api_service.dart';
 
 class VeterinaryDetailScreen extends StatefulWidget {
   final String apiKey;
   final String placeId;
-  final String title; // AppBar için (liste ekranından gönder)
+  final String title;
 
   const VeterinaryDetailScreen({
     super.key,
@@ -22,7 +22,6 @@ class VeterinaryDetailScreen extends StatefulWidget {
 class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
   late final Future<PlaceDetails> _detailsFuture;
 
-  // Mock müsait zaman dilimleri (aynı kalıyor)
   final Map<String, List<String>> _availableSlots = {
     "Pazartesi, 24/11": ["10:00", "11:00", "14:00", "15:00"],
     "Salı, 25/11": ["09:30", "11:30", "13:30", "16:00"],
@@ -36,7 +35,6 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
     "Acil Durum (Ön Bilgilendirme)",
   ];
 
-  // State değişkenleri
   String? _selectedDate;
   String? _selectedTime;
   String? _selectedType;
@@ -49,9 +47,12 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
   }
 
   void _sendAppointmentRequest(String clinicName) {
-    if (_selectedDate == null || _selectedTime == null || _selectedType == null) {
+    if (_selectedDate == null ||
+        _selectedTime == null ||
+        _selectedType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lütfen bir gün, saat ve randevu tipi seçiniz.")),
+        const SnackBar(
+            content: Text("Lütfen bir gün, saat ve randevu tipi seçiniz.")),
       );
       return;
     }
@@ -59,7 +60,7 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Randevu Başvurusu Alındı ❤️"),
+        title: const Text("Randevu Başvurusu Alındı"),
         content: Text(
           "Talebiniz başarıyla iletildi:\n\n"
           "Klinik: $clinicName\n"
@@ -83,27 +84,48 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
     );
   }
 
-  String _workingHoursText(PlaceDetails d) {
-    if (d.weekdayText == null || d.weekdayText!.isEmpty) return "Çalışma saatleri: Bilinmiyor";
-    // Çok uzun olmasın diye tek satırda birleştiriyoruz (istersen alt alta da yaparız)
-    return d.weekdayText!.join(" | ");
+  String _workingHoursText(PlaceDetails details) {
+    final hours = details.weekdayText;
+    if (hours == null || hours.isEmpty) {
+      return "Çalışma saatleri: Bilgi yok";
+    }
+    return hours.join(" | ");
+  }
+
+  String _valueOrFallback(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "Bilgi yok";
+    }
+    return value;
+  }
+
+  String _ratingText(PlaceDetails details) {
+    final rating = details.rating;
+    if (rating == null) {
+      return "Bilgi yok";
+    }
+
+    final count = details.userRatingsTotal;
+    if (count == null) {
+      return rating.toStringAsFixed(1);
+    }
+    return "${rating.toStringAsFixed(1)} ($count oy)";
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final currentTimes = _selectedDate != null ? _availableSlots[_selectedDate!]! : <String>[];
+    final currentTimes =
+        _selectedDate != null ? _availableSlots[_selectedDate!]! : <String>[];
 
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: FutureBuilder<PlaceDetails>(
         future: _detailsFuture,
         builder: (context, snap) {
-          // Detay yüklenirken bile randevu UI’ı kalsın diye tek builder içinde devam ediyoruz
           final isLoading = snap.connectionState != ConnectionState.done;
           final hasError = snap.hasError;
           final details = snap.data;
-
           final clinicName = details?.name ?? widget.title;
 
           return SingleChildScrollView(
@@ -111,18 +133,21 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Klinik Bilgileri (Google’dan)
                 Card(
-                  color: theme.colorScheme.primary.withOpacity(0.5),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.5),
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16),
                     child: Builder(
                       builder: (_) {
                         if (isLoading) {
-                          return Column(
+                          return const Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text("Bilgiler yükleniyor...", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            children: [
+                              Text(
+                                "Bilgiler yükleniyor...",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
                               SizedBox(height: 8),
                               LinearProgressIndicator(),
                             ],
@@ -133,7 +158,11 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(clinicName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                              Text(
+                                clinicName,
+                                style: const TextStyle(
+                                    fontSize: 22, fontWeight: FontWeight.bold),
+                              ),
                               const SizedBox(height: 8),
                               Text("Detay alınamadı: ${snap.error}"),
                             ],
@@ -143,25 +172,33 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(details.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 8),
-                            _buildInfoRow(Icons.location_on_outlined, details.formattedAddress ?? "Adres: Bilinmiyor"),
-                            _buildInfoRow(Icons.phone_outlined, details.phone ?? "Telefon: Bilinmiyor"),
-                            _buildInfoRow(Icons.access_time_outlined, _workingHoursText(details)),
-                            if (details.website != null) _buildInfoRow(Icons.language, details.website!),
-                            if (details.rating != null)
-                              _buildInfoRow(
-                                Icons.star_outline,
-                                "Puan: ${details.rating} (${details.userRatingsTotal ?? 0} oy)",
-                              ),
-                            const Divider(height: 24),
                             Text(
-                              "Hakkımızda:",
-                              style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+                              details.name,
+                              style: const TextStyle(
+                                  fontSize: 22, fontWeight: FontWeight.bold),
                             ),
-                            const Text(
-                              "Bu işletme bilgileri Google Places üzerinden alınır. Bazı alanlar işletmeye göre eksik olabilir.",
-                              style: TextStyle(height: 1.5),
+                            const SizedBox(height: 8),
+                            _buildInfoRow(
+                              Icons.location_on_outlined,
+                              "Adres: ${_valueOrFallback(details.formattedAddress)}",
+                            ),
+                            _buildInfoRow(
+                              Icons.phone_outlined,
+                              "Telefon: ${_valueOrFallback(details.phone)}",
+                            ),
+                            if (details.website != null &&
+                                details.website!.trim().isNotEmpty)
+                              _buildInfoRow(
+                                Icons.language,
+                                "Web Sitesi: ${details.website!}",
+                              ),
+                            _buildInfoRow(Icons.access_time_outlined,
+                                _workingHoursText(details)),
+                            _buildInfoRow(Icons.star_outline,
+                                "Puan: ${_ratingText(details)}"),
+                            _buildInfoRow(
+                              Icons.map_outlined,
+                              "Google Maps: ${_valueOrFallback(details.googleMapsUrl)}",
                             ),
                           ],
                         );
@@ -169,13 +206,14 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 30),
-
-                // 1. Randevu Tipi Seçimi (Aynı)
                 Text(
                   "1. Randevu Tipini Seçiniz",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Container(
@@ -185,25 +223,28 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(border: InputBorder.none, hintText: "Hizmet Seçiniz"),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Hizmet Seçiniz",
+                    ),
                     initialValue: _selectedType,
-                    items: _appointmentTypes.map((type) {
-                      return DropdownMenuItem(value: type, child: Text(type));
-                    }).toList(),
+                    items: _appointmentTypes
+                        .map((type) =>
+                            DropdownMenuItem(value: type, child: Text(type)))
+                        .toList(),
                     onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedType = newValue;
-                      });
+                      setState(() => _selectedType = newValue);
                     },
                   ),
                 ),
-
                 const SizedBox(height: 30),
-
-                // 2. Müsait Gün Seçimi (Aynı)
                 Text(
                   "2. Müsait Günü Seçiniz",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 SingleChildScrollView(
@@ -230,36 +271,43 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
                           selectedColor: theme.colorScheme.secondary,
                           backgroundColor: theme.cardTheme.color,
                           labelStyle: TextStyle(
-                            color: isSelected ? theme.colorScheme.onSecondary : theme.colorScheme.onSurface,
+                            color: isSelected
+                                ? theme.colorScheme.onSecondary
+                                : theme.colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
                           side: BorderSide.none,
                         ),
                       );
                     }).toList(),
                   ),
                 ),
-
                 const SizedBox(height: 30),
-
-                // 3. Müsait Saat Seçimi (Aynı)
                 Text(
                   "3. Müsait Saati Seçiniz",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
                 const SizedBox(height: 12),
-
                 if (_selectedDate == null)
                   const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text("Lütfen yukarıdan bir gün seçiniz.", style: TextStyle(color: Colors.grey)),
+                    padding: EdgeInsets.all(8),
+                    child: Text(
+                      "Lütfen yukarıdan bir gün seçiniz.",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   )
                 else
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
@@ -272,17 +320,19 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
 
                       return GestureDetector(
                         onTap: () {
-                          setState(() {
-                            _selectedTime = time;
-                          });
+                          setState(() => _selectedTime = time);
                         },
                         child: Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: isSelected ? theme.colorScheme.secondary : theme.cardTheme.color,
+                            color: isSelected
+                                ? theme.colorScheme.secondary
+                                : theme.cardTheme.color,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isSelected ? theme.colorScheme.onSecondary : Colors.transparent,
+                              color: isSelected
+                                  ? theme.colorScheme.onSecondary
+                                  : Colors.transparent,
                               width: isSelected ? 2 : 0,
                             ),
                           ),
@@ -292,28 +342,31 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
-                              color: isSelected ? theme.colorScheme.onSecondary : theme.colorScheme.onSurface,
+                              color: isSelected
+                                  ? theme.colorScheme.onSecondary
+                                  : theme.colorScheme.onSurface,
                             ),
                           ),
                         ),
                       );
                     },
                   ),
-
                 const SizedBox(height: 40),
-
-                // Randevu Al Butonu (Aynı)
                 SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton.icon(
-                    onPressed: (_selectedDate != null && _selectedTime != null && _selectedType != null)
+                    onPressed: (_selectedDate != null &&
+                            _selectedTime != null &&
+                            _selectedType != null)
                         ? () => _sendAppointmentRequest(clinicName)
                         : null,
                     icon: const Icon(Icons.add_task),
                     label: const Text("Randevu Talebi Gönder"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: (_selectedDate != null && _selectedTime != null && _selectedType != null)
+                      backgroundColor: (_selectedDate != null &&
+                              _selectedTime != null &&
+                              _selectedType != null)
                           ? theme.colorScheme.secondary
                           : Colors.grey,
                       foregroundColor: Colors.white,
@@ -330,7 +383,7 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
 
   Widget _buildInfoRow(IconData icon, String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

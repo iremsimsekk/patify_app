@@ -617,6 +617,21 @@ class _PlaceResultCardState extends State<PlaceResultCard> {
                         style: theme.textTheme.bodyLarge,
                       ),
                     ],
+                    if (widget.place.phone != null &&
+                        widget.place.phone!.trim().isNotEmpty) ...[
+                      const SizedBox(height: PatifyTheme.space12),
+                      Text(
+                        'Telefon',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: PatifyTheme.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: PatifyTheme.space4),
+                      Text(
+                        widget.place.phone!,
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ],
                   ],
                 ),
               ),

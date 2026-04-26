@@ -29,11 +29,29 @@ public class Institution {
   @Column
   private String phone;
 
+  @Column(name = "international_phone_number")
+  private String internationalPhoneNumber;
+
   @Column
   private String address;
 
   @Column
   private String district;
+
+  @Column
+  private String website;
+
+  @Column(name = "opening_hours")
+  private String openingHours;
+
+  @Column
+  private Double rating;
+
+  @Column(name = "user_rating_count")
+  private Integer userRatingCount;
+
+  @Column(name = "google_maps_url")
+  private String googleMapsUrl;
 
   @Column(name = "description")
   private String description;
@@ -95,6 +113,14 @@ public class Institution {
     this.phone = phone;
   }
 
+  public String getInternationalPhoneNumber() {
+    return internationalPhoneNumber;
+  }
+
+  public void setInternationalPhoneNumber(String internationalPhoneNumber) {
+    this.internationalPhoneNumber = internationalPhoneNumber;
+  }
+
   public String getAddress() {
     return address;
   }
@@ -109,6 +135,46 @@ public class Institution {
 
   public void setDistrict(String district) {
     this.district = district;
+  }
+
+  public String getWebsite() {
+    return website;
+  }
+
+  public void setWebsite(String website) {
+    this.website = website;
+  }
+
+  public String getOpeningHours() {
+    return openingHours;
+  }
+
+  public void setOpeningHours(String openingHours) {
+    this.openingHours = openingHours;
+  }
+
+  public Double getRating() {
+    return rating;
+  }
+
+  public void setRating(Double rating) {
+    this.rating = rating;
+  }
+
+  public Integer getUserRatingCount() {
+    return userRatingCount;
+  }
+
+  public void setUserRatingCount(Integer userRatingCount) {
+    this.userRatingCount = userRatingCount;
+  }
+
+  public String getGoogleMapsUrl() {
+    return googleMapsUrl;
+  }
+
+  public void setGoogleMapsUrl(String googleMapsUrl) {
+    this.googleMapsUrl = googleMapsUrl;
   }
 
   public String getDescription() {

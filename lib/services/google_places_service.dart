@@ -11,8 +11,13 @@ class PlaceSummary {
   final double lat;
   final double lng;
   final String? address;
+  final String? phone;
+  final String? internationalPhoneNumber;
+  final String? website;
   final double? rating;
   final int? userRatingsTotal;
+  final List<String>? openingHours;
+  final String? googleMapsUrl;
   final String? photoReference;
   final PlaceCategory category;
 
@@ -23,8 +28,13 @@ class PlaceSummary {
     required this.lng,
     required this.category,
     this.address,
+    this.phone,
+    this.internationalPhoneNumber,
+    this.website,
     this.rating,
     this.userRatingsTotal,
+    this.openingHours,
+    this.googleMapsUrl,
     this.photoReference,
   });
 
@@ -41,8 +51,15 @@ class PlaceSummary {
       lat: (loc['lat'] as num).toDouble(),
       lng: (loc['lng'] as num).toDouble(),
       address: (json['formatted_address'] ?? json['vicinity']) as String?,
+      phone: json['formatted_phone_number'] as String?,
+      internationalPhoneNumber: json['international_phone_number'] as String?,
+      website: json['website'] as String?,
       rating: (json['rating'] as num?)?.toDouble(),
       userRatingsTotal: json['user_ratings_total'] as int?,
+      openingHours: _readStringList(
+        json['opening_hours']?['weekday_text'] ?? json['opening_hours'],
+      ),
+      googleMapsUrl: (json['url'] ?? json['google_maps_url']) as String?,
       photoReference: photos?.isNotEmpty == true
           ? photos!.first['photo_reference'] as String?
           : null,
@@ -56,8 +73,13 @@ class PlaceSummary {
         'lat': lat,
         'lng': lng,
         'address': address,
+        'phone': phone,
+        'internationalPhoneNumber': internationalPhoneNumber,
+        'website': website,
         'rating': rating,
         'userRatingsTotal': userRatingsTotal,
+        'openingHours': openingHours,
+        'googleMapsUrl': googleMapsUrl,
         'photoReference': photoReference,
         'category': category.name,
       };
@@ -75,8 +97,24 @@ class PlaceSummary {
       lat: ((json['lat'] ?? 0) as num).toDouble(),
       lng: ((json['lng'] ?? 0) as num).toDouble(),
       address: json['address'] as String?,
-      rating: (json['rating'] as num?)?.toDouble(),
-      userRatingsTotal: json['userRatingsTotal'] as int?,
+      phone: _readString(json, ['phone']),
+      internationalPhoneNumber: _readString(
+        json,
+        ['internationalPhoneNumber', 'international_phone_number'],
+      ),
+      website: _readString(json, ['website']),
+      rating: _readDouble(json, ['rating']),
+      userRatingsTotal: _readInt(
+        json,
+        ['userRatingsTotal', 'user_rating_count', 'userRatingsTotal'],
+      ),
+      openingHours: _readStringList(
+        _readDynamic(json, ['openingHours', 'opening_hours']),
+      ),
+      googleMapsUrl: _readString(
+        json,
+        ['googleMapsUrl', 'google_maps_url'],
+      ),
       photoReference: json['photoReference'] as String?,
       category: cat,
     );
@@ -88,6 +126,7 @@ class PlaceDetails {
   final String name;
   final String? formattedAddress;
   final String? phone;
+  final String? internationalPhoneNumber;
   final String? website;
   final double? rating;
   final int? userRatingsTotal;
@@ -99,6 +138,7 @@ class PlaceDetails {
     required this.name,
     this.formattedAddress,
     this.phone,
+    this.internationalPhoneNumber,
     this.website,
     this.rating,
     this.userRatingsTotal,
@@ -116,6 +156,7 @@ class PlaceDetails {
       name: (result['name'] ?? '') as String,
       formattedAddress: result['formatted_address'] as String?,
       phone: result['formatted_phone_number'] as String?,
+      internationalPhoneNumber: result['international_phone_number'] as String?,
       website: result['website'] as String?,
       rating: (result['rating'] as num?)?.toDouble(),
       userRatingsTotal: result['user_ratings_total'] as int?,
@@ -123,6 +164,60 @@ class PlaceDetails {
       googleMapsUrl: result['url'] as String?,
     );
   }
+}
+
+String? _readString(Map<String, dynamic> json, List<String> keys) {
+  for (final key in keys) {
+    final value = json[key];
+    if (value is String && value.trim().isNotEmpty) {
+      return value;
+    }
+  }
+  return null;
+}
+
+dynamic _readDynamic(Map<String, dynamic> json, List<String> keys) {
+  for (final key in keys) {
+    if (json.containsKey(key)) {
+      return json[key];
+    }
+  }
+  return null;
+}
+
+double? _readDouble(Map<String, dynamic> json, List<String> keys) {
+  for (final key in keys) {
+    final value = json[key];
+    if (value is num) {
+      return value.toDouble();
+    }
+  }
+  return null;
+}
+
+int? _readInt(Map<String, dynamic> json, List<String> keys) {
+  for (final key in keys) {
+    final value = json[key];
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+  }
+  return null;
+}
+
+List<String>? _readStringList(dynamic value) {
+  if (value is List) {
+    final items =
+        value.map((entry) => entry?.toString()).whereType<String>().toList();
+    return items.isEmpty ? null : items;
+  }
+  if (value is String && value.trim().isNotEmpty) {
+    return [value];
+  }
+  return null;
 }
 
 class GooglePlacesService {
