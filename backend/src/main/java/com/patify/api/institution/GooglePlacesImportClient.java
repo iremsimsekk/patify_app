@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class GooglePlacesImportClient {
   private static final Logger log = LoggerFactory.getLogger(GooglePlacesImportClient.class);
-  private static final String FALLBACK_FRONTEND_GOOGLE_MAPS_KEY = "AIzaSyBF6oYuVqjQjJJvlg6p9vVnHohloBFuYMQ";
+  private static final String FALLBACK_FRONTEND_GOOGLE_MAPS_KEY = "PATIFY_GOOGLE_MAPS_API_KEY";
   private static final double ANKARA_LAT = 39.92077;
   private static final double ANKARA_LNG = 32.85411;
   private static final int DEFAULT_RADIUS_METERS = 35000;

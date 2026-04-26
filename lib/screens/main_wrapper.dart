@@ -6,7 +6,6 @@ import 'ai_chat_screen.dart';
 import 'home_screen.dart';
 import 'map_screen.dart';
 import 'pati_dunyasi_screen.dart';
-import 'pet_care_screen.dart';
 import 'profile_screen.dart';
 
 class MainWrapper extends StatefulWidget {
