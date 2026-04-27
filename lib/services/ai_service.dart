@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class AiService {
-  static const String baseUrl = 'http://localhost:8080';
+import '../config/api_config.dart';
 
+class AiService {
   Future<String> askQuestion(String question) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/ai/ask'),
+      Uri.parse('${ApiConfig.baseUrl}/api/ai/ask'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'question': question}),
     );

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/ankara_districts.dart';
 import '../services/google_places_service.dart';
-import '../services/places_repository.dart';
+import '../services/institution_repository.dart';
 import '../theme/patify_theme.dart';
 import '../widgets/place_directory_widgets.dart';
 import 'veterinary_detail_screen.dart';
@@ -25,8 +25,7 @@ class VeterinaryListScreen extends StatefulWidget {
 }
 
 class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
-  late final GooglePlacesService _places;
-  late final PlacesRepository _repo;
+  late final InstitutionRepository _repo;
   late Future<List<PlaceSummary>> _future;
 
   String _selectedDistrict = "Tümü";
@@ -47,8 +46,7 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
   @override
   void initState() {
     super.initState();
-    _places = GooglePlacesService(apiKey: widget.apiKey);
-    _repo = PlacesRepository(places: _places, ttl: const Duration(days: 7));
+    _repo = InstitutionRepository();
     _future = _repo.getAnkaraVets(radiusMeters: 35000);
     _selectedStarRange = _starRanges.first;
   }

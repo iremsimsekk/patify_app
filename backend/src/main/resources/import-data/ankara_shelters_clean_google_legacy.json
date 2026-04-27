@@ -1,0 +1,2905 @@
+[
+  {
+    "external_source_id": "ChIJLWVifh1b0xQRv8AeoTEnJrI",
+    "type": "shelter",
+    "name": "ANKARA BÜYÜKŞEHİR BELEDİYESİ KARATAŞ HAYVAN BAKIMEVİ VE REHABİLİTASYON MERKEZİ",
+    "address": "Yakupabdal, 06705 Çankaya/Ankara",
+    "district": null,
+    "phone": "(0312) 507 36 41",
+    "international_phone_number": "+90 312 507 36 41",
+    "website": null,
+    "opening_hours": [
+      "Pazartesi: 08:00–16:00",
+      "Salı: 08:00–16:00",
+      "Çarşamba: 08:00–16:00",
+      "Perşembe: 08:00–16:00",
+      "Cuma: 08:00–16:00",
+      "Cumartesi: 08:00–16:00",
+      "Pazar: 08:00–16:00"
+    ],
+    "rating": 2.8,
+    "user_rating_count": 46,
+    "latitude": 39.8656088,
+    "longitude": 32.9026671,
+    "google_maps_url": "https://maps.google.com/?cid=12836990881976205503",
+    "types": [
+      "establishment",
+      "health",
+      "point_of_interest",
+      "veterinary_care"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yakupabdal, 06705 Çankaya/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8656088,
+            "lng": 32.9026671
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.86696018029149,
+              "lng": 32.9040161302915
+            },
+            "southwest": {
+              "lat": 39.86426221970849,
+              "lng": 32.9013181697085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "ANKARA BÜYÜKŞEHİR BELEDİYESİ KARATAŞ HAYVAN BAKIMEVİ VE REHABİLİTASYON MERKEZİ",
+        "opening_hours": {
+          "open_now": true
+        },
+        "photos": [
+          {
+            "height": 1600,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/102915046189145058394\">ANKARA BÜYÜKŞEHİR BELEDİYESİ KARATAŞ HAYVAN BAKIMEVİ VE REHABİLİTASYON MERKEZİ</a>"
+            ],
+            "photo_reference": "AU_ZVEE-wMnlt5IrEacLHPk2en5GfZs75Oiw8wYIHKZt0EE1jaKf_2tGz0MG916vwGZ-S_f-6oh1uB4TKShhe-5jN8Cfu0xHoRlomfvyt22j8h54UqSV2yg1ZBFAnoDWu4iTJ3SmMRr0pumwzxxz6wQuyQFCn9z_cBLFSHZD0xwBcfUJigpLD4X_1YE2Ef9TOOn5arQqw27gofKhd63_zPjt6phMksyM7NbQwMiFzgsOCBOdzRgNoUaq7DHrx58JZ3MOJ8l5QCS70uTCjbFn1-edbYJQFl8-mIpepfwuXE9woRrPMw",
+            "width": 1124
+          }
+        ],
+        "place_id": "ChIJLWVifh1b0xQRv8AeoTEnJrI",
+        "plus_code": {
+          "compound_code": "VW83+63 Çankaya/Ankara",
+          "global_code": "8GFJVW83+63"
+        },
+        "rating": 2.8,
+        "reference": "ChIJLWVifh1b0xQRv8AeoTEnJrI",
+        "types": [
+          "establishment",
+          "health",
+          "point_of_interest",
+          "veterinary_care"
+        ],
+        "user_ratings_total": 46
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yakupabdal, 06705 Çankaya/Ankara",
+        "formatted_phone_number": "(0312) 507 36 41",
+        "geometry": {
+          "location": {
+            "lat": 39.8656088,
+            "lng": 32.9026671
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.86696018029149,
+              "lng": 32.9040161302915
+            },
+            "southwest": {
+              "lat": 39.86426221970849,
+              "lng": 32.9013181697085
+            }
+          }
+        },
+        "international_phone_number": "+90 312 507 36 41",
+        "name": "ANKARA BÜYÜKŞEHİR BELEDİYESİ KARATAŞ HAYVAN BAKIMEVİ VE REHABİLİTASYON MERKEZİ",
+        "opening_hours": {
+          "open_now": true,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1600"
+              },
+              "open": {
+                "day": 0,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 1,
+                "time": "1600"
+              },
+              "open": {
+                "day": 1,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1600"
+              },
+              "open": {
+                "day": 2,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1600"
+              },
+              "open": {
+                "day": 3,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1600"
+              },
+              "open": {
+                "day": 4,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "1600"
+              },
+              "open": {
+                "day": 5,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1600"
+              },
+              "open": {
+                "day": 6,
+                "time": "0800"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 08:00–16:00",
+            "Salı: 08:00–16:00",
+            "Çarşamba: 08:00–16:00",
+            "Perşembe: 08:00–16:00",
+            "Cuma: 08:00–16:00",
+            "Cumartesi: 08:00–16:00",
+            "Pazar: 08:00–16:00"
+          ]
+        },
+        "place_id": "ChIJLWVifh1b0xQRv8AeoTEnJrI",
+        "rating": 2.8,
+        "types": [
+          "establishment",
+          "health",
+          "point_of_interest",
+          "veterinary_care"
+        ],
+        "url": "https://maps.google.com/?cid=12836990881976205503",
+        "user_ratings_total": 46
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJ45x40b460xQR33yLAI942o0",
+    "type": "shelter",
+    "name": "ANKARA BÜYÜKŞEHİR BELEDİYESİ SİNCAN SOKAK HAYVANLARI BAKIMEVİ VE REHABİLİTASYON MERKEZİ",
+    "address": "Ahi Evran, 225. Cd. No:96, 06935 Sincan/Ankara",
+    "district": null,
+    "phone": "(0312) 507 42 32",
+    "international_phone_number": "+90 312 507 42 32",
+    "website": null,
+    "opening_hours": [
+      "Pazartesi: 08:00–16:00",
+      "Salı: 08:00–16:00",
+      "Çarşamba: 08:00–16:00",
+      "Perşembe: 08:00–16:00",
+      "Cuma: 08:00–16:00",
+      "Cumartesi: 08:00–16:00",
+      "Pazar: 08:00–16:00"
+    ],
+    "rating": 3.4,
+    "user_rating_count": 572,
+    "latitude": 39.9639074,
+    "longitude": 32.5546269,
+    "google_maps_url": "https://maps.google.com/?cid=10221614859855559903",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Ahi Evran, 225. Cd. No:96, 06935 Sincan/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.9639074,
+            "lng": 32.5546269
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.9652720802915,
+              "lng": 32.5559419802915
+            },
+            "southwest": {
+              "lat": 39.9625741197085,
+              "lng": 32.5532440197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "ANKARA BÜYÜKŞEHİR BELEDİYESİ SİNCAN SOKAK HAYVANLARI BAKIMEVİ VE REHABİLİTASYON MERKEZİ",
+        "opening_hours": {
+          "open_now": true
+        },
+        "photos": [
+          {
+            "height": 1200,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/116930880393742284598\">ANKARA BÜYÜKŞEHİR BELEDİYESİ SİNCAN SOKAK HAYVANLARI BAKIMEVİ VE REHABİLİTASYON MERKEZİ</a>"
+            ],
+            "photo_reference": "AU_ZVEEPI-uM9HcjFR_PT5Bb0LP6xf6SsaEPIpsJtprzjZ1uqO1wxYVvgPFl1qLWtP1CpLgHnXRMqLfWhrCPSo58MDFVEUvwH6RR_yPcjLLDbyE9F5dIaIG9XEkkCjbjtzIliN3MA23G3dLn0m5c9gEQYxsKGx4MFp0YFiODLbAJ7LIKgfHrphXT9fsz9_bwerSt8fPCdQLXsgyny_TnbxoXiRovhkxrFf8OBcPHCrdyzFXm7WhpmNuDR9veYubJ0g0jgBBpEMBp-UfWDlb7jAtzWrP29r8LVYvd2nwibu8wQSuLcA",
+            "width": 1600
+          }
+        ],
+        "place_id": "ChIJ45x40b460xQR33yLAI942o0",
+        "plus_code": {
+          "compound_code": "XH73+HV Sincan/Ankara",
+          "global_code": "8GFJXH73+HV"
+        },
+        "rating": 3.4,
+        "reference": "ChIJ45x40b460xQR33yLAI942o0",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 572
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Ahi Evran, 225. Cd. No:96, 06935 Sincan/Ankara",
+        "formatted_phone_number": "(0312) 507 42 32",
+        "geometry": {
+          "location": {
+            "lat": 39.9639074,
+            "lng": 32.5546269
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.9652720802915,
+              "lng": 32.5559419802915
+            },
+            "southwest": {
+              "lat": 39.9625741197085,
+              "lng": 32.5532440197085
+            }
+          }
+        },
+        "international_phone_number": "+90 312 507 42 32",
+        "name": "ANKARA BÜYÜKŞEHİR BELEDİYESİ SİNCAN SOKAK HAYVANLARI BAKIMEVİ VE REHABİLİTASYON MERKEZİ",
+        "opening_hours": {
+          "open_now": true,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1600"
+              },
+              "open": {
+                "day": 0,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 1,
+                "time": "1600"
+              },
+              "open": {
+                "day": 1,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1600"
+              },
+              "open": {
+                "day": 2,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1600"
+              },
+              "open": {
+                "day": 3,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1600"
+              },
+              "open": {
+                "day": 4,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "1600"
+              },
+              "open": {
+                "day": 5,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1600"
+              },
+              "open": {
+                "day": 6,
+                "time": "0800"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 08:00–16:00",
+            "Salı: 08:00–16:00",
+            "Çarşamba: 08:00–16:00",
+            "Perşembe: 08:00–16:00",
+            "Cuma: 08:00–16:00",
+            "Cumartesi: 08:00–16:00",
+            "Pazar: 08:00–16:00"
+          ]
+        },
+        "place_id": "ChIJ45x40b460xQR33yLAI942o0",
+        "rating": 3.4,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=10221614859855559903",
+        "user_ratings_total": 572
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJFc5g0x5F0xQR1Rx7Z4Y7rBk",
+    "type": "shelter",
+    "name": "Çankaya Belediyesi Sahipsiz Hayvan Rehabilitasyon Merkezi",
+    "address": "Yeşilkent, 06705 Çankaya/Ankara",
+    "district": null,
+    "phone": null,
+    "international_phone_number": null,
+    "website": null,
+    "opening_hours": [
+      "Pazartesi: 08:00–17:00",
+      "Salı: 08:00–17:00",
+      "Çarşamba: 08:00–17:00",
+      "Perşembe: 08:00–17:00",
+      "Cuma: 08:00–17:00",
+      "Cumartesi: 08:00–17:00",
+      "Pazar: 08:00–17:00"
+    ],
+    "rating": 3.9,
+    "user_rating_count": 229,
+    "latitude": 39.8472061,
+    "longitude": 32.8717803,
+    "google_maps_url": "https://maps.google.com/?cid=1849918995390209237",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yeşilkent, 06705 Çankaya/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8472061,
+            "lng": 32.8717803
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8486444302915,
+              "lng": 32.87274548029149
+            },
+            "southwest": {
+              "lat": 39.8459464697085,
+              "lng": 32.87004751970849
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Çankaya Belediyesi Sahipsiz Hayvan Rehabilitasyon Merkezi",
+        "opening_hours": {
+          "open_now": true
+        },
+        "photos": [
+          {
+            "height": 3120,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/114541736090435675672\">Hasancan Kandemir</a>"
+            ],
+            "photo_reference": "AU_ZVEER6UoaFG04NiGDmD9cqq1YsJPMYAFrJv7zHFrQVQ-4GZu4m9U9J_Nyj9ITeEtIkmIyrr1yxDFf59zf2Xl3z6_h2hxbtlibKmDc48i7B90KdI5tui1vlkCLTVKQRdUlQ7RwCiIbauSxI1xHGy41Wdcgfe5tG_8Q9obU9-lzJFwpq67baSkx8f_Of-MQpWr8Sb-jtoERKO7CF2t2VhOMDbW-ZokRtrSDxToKSFCA_ThYY97SU6tniOaJKr6gCjIm-kkukLdgXDFQv2Xppn1iwvV-qdr6jfudfBIDlm4kBHU24T1PtG6VqICKhxgIdsaRLMaCxlkgivdYGcDorTMvL0Ai7kLbLL3gV37UuHbm0grlJDBbGwinEk9WHEnAOPRMk5xUGiiZmmnaUK1SjDbTes-uJFGBdehYIKWL2II4wG-Odg",
+            "width": 4160
+          }
+        ],
+        "place_id": "ChIJFc5g0x5F0xQR1Rx7Z4Y7rBk",
+        "plus_code": {
+          "compound_code": "RVWC+VP Çankaya/Ankara",
+          "global_code": "8GFJRVWC+VP"
+        },
+        "rating": 3.9,
+        "reference": "ChIJFc5g0x5F0xQR1Rx7Z4Y7rBk",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 229
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yeşilkent, 06705 Çankaya/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8472061,
+            "lng": 32.8717803
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8486444302915,
+              "lng": 32.87274548029149
+            },
+            "southwest": {
+              "lat": 39.8459464697085,
+              "lng": 32.87004751970849
+            }
+          }
+        },
+        "name": "Çankaya Belediyesi Sahipsiz Hayvan Rehabilitasyon Merkezi",
+        "opening_hours": {
+          "open_now": true,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1700"
+              },
+              "open": {
+                "day": 0,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 1,
+                "time": "1700"
+              },
+              "open": {
+                "day": 1,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1700"
+              },
+              "open": {
+                "day": 2,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1700"
+              },
+              "open": {
+                "day": 3,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1700"
+              },
+              "open": {
+                "day": 4,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "1700"
+              },
+              "open": {
+                "day": 5,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1700"
+              },
+              "open": {
+                "day": 6,
+                "time": "0800"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 08:00–17:00",
+            "Salı: 08:00–17:00",
+            "Çarşamba: 08:00–17:00",
+            "Perşembe: 08:00–17:00",
+            "Cuma: 08:00–17:00",
+            "Cumartesi: 08:00–17:00",
+            "Pazar: 08:00–17:00"
+          ]
+        },
+        "place_id": "ChIJFc5g0x5F0xQR1Rx7Z4Y7rBk",
+        "rating": 3.9,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=1849918995390209237",
+        "user_ratings_total": 229
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  
+  {
+    "external_source_id": "ChIJm-Mlg19B0xQRhN0pmx2xgXM",
+    "type": "shelter",
+    "name": "Gölbaşı Hayvan Barınağı",
+    "address": "Şafak, 867. Sk. No:33, 06830 Gölbaşı/Ankara",
+    "district": null,
+    "phone": "(0312) 484 12 31",
+    "international_phone_number": "+90 312 484 12 31",
+    "website": null,
+    "opening_hours": [
+      "Pazartesi: Kapalı",
+      "Salı: 08:00–15:00",
+      "Çarşamba: Kapalı",
+      "Perşembe: 08:00–15:00",
+      "Cuma: Kapalı",
+      "Cumartesi: 08:00–15:00",
+      "Pazar: 08:00–15:00"
+    ],
+    "rating": 3.4,
+    "user_rating_count": 216,
+    "latitude": 39.8095715,
+    "longitude": 32.8074171,
+    "google_maps_url": "https://maps.google.com/?cid=8323128327072767364",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Şafak, 867. Sk. No:33, 06830 Gölbaşı/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8095715,
+            "lng": 32.8074171
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8107900802915,
+              "lng": 32.8087294802915
+            },
+            "southwest": {
+              "lat": 39.8080921197085,
+              "lng": 32.8060315197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Gölbaşı Hayvan Barınağı",
+        "opening_hours": {
+          "open_now": true
+        },
+        "photos": [
+          {
+            "height": 1600,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/111028966707538252426\">Mehtap “Kazım Mehtap” Kurum</a>"
+            ],
+            "photo_reference": "AU_ZVEHNhK7hHX35BDh0LPykmEBzblyvzc91ibSdX1OMt8qy386sugcBgsnNHDLOygxEXR_fclaH7zdCwIGP0t8lwtqedofQgL3d_d0rli6BjRGFx0fL6vJdHpTad8NKh0L9xhO9vI8Aefs61piPjXvbcMY5Ie-7Nx7xd8X6GgaATpg59ynRivhDgwax2syhDe8VY22xsbAMknb-03J0ES8cZ_vlpV4BqFTLQeQr6a955qM7xemW5X60QUfs5TSi6RBA6yY6OW2Hpq_r3E643vZbRHqt1xi231epgAxZgezSSEr7Y19IvyVP4JQGBk9a-TQunweTiXpFE1jVLLriYNc4u9Ll23UIeqiZgOcrRuFvqROfIG9IDP5OHOG_G1V5g0FLshHnElxYo9jWzaH_m09HlrPRmE4jnGqcOd0WdUowWyTI-z_B",
+            "width": 1200
+          }
+        ],
+        "place_id": "ChIJm-Mlg19B0xQRhN0pmx2xgXM",
+        "plus_code": {
+          "compound_code": "RR54+RX Gölbaşı/Ankara",
+          "global_code": "8GFJRR54+RX"
+        },
+        "rating": 3.4,
+        "reference": "ChIJm-Mlg19B0xQRhN0pmx2xgXM",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 216
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Şafak, 867. Sk. No:33, 06830 Gölbaşı/Ankara",
+        "formatted_phone_number": "(0312) 484 12 31",
+        "geometry": {
+          "location": {
+            "lat": 39.8095715,
+            "lng": 32.8074171
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8107900802915,
+              "lng": 32.8087294802915
+            },
+            "southwest": {
+              "lat": 39.8080921197085,
+              "lng": 32.8060315197085
+            }
+          }
+        },
+        "international_phone_number": "+90 312 484 12 31",
+        "name": "Gölbaşı Hayvan Barınağı",
+        "opening_hours": {
+          "open_now": true,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1500"
+              },
+              "open": {
+                "day": 0,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1500"
+              },
+              "open": {
+                "day": 2,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1500"
+              },
+              "open": {
+                "day": 4,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1500"
+              },
+              "open": {
+                "day": 6,
+                "time": "0800"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: Kapalı",
+            "Salı: 08:00–15:00",
+            "Çarşamba: Kapalı",
+            "Perşembe: 08:00–15:00",
+            "Cuma: Kapalı",
+            "Cumartesi: 08:00–15:00",
+            "Pazar: 08:00–15:00"
+          ]
+        },
+        "place_id": "ChIJm-Mlg19B0xQRhN0pmx2xgXM",
+        "rating": 3.4,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=8323128327072767364",
+        "user_ratings_total": 216
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+
+  {
+    "external_source_id": "ChIJl76UMvc30xQRkEd_7nwNR2E",
+    "type": "shelter",
+    "name": "Hayvan Barınağı",
+    "address": "Bahçekapı, 06797 Etimesgut/Ankara",
+    "district": null,
+    "phone": null,
+    "international_phone_number": null,
+    "website": null,
+    "opening_hours": [
+      "Pazartesi: Kapalı",
+      "Salı: 14:00–15:30",
+      "Çarşamba: Kapalı",
+      "Perşembe: 14:00–15:30",
+      "Cuma: Kapalı",
+      "Cumartesi: Kapalı",
+      "Pazar: 14:00–15:30"
+    ],
+    "rating": 3.8,
+    "user_rating_count": 92,
+    "latitude": 39.9369167,
+    "longitude": 32.7048591,
+    "google_maps_url": "https://maps.google.com/?cid=7009586175253890960",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Bahçekapı, 06797 Etimesgut/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.9369167,
+            "lng": 32.7048591
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.9382403802915,
+              "lng": 32.7062308802915
+            },
+            "southwest": {
+              "lat": 39.9355424197085,
+              "lng": 32.7035329197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Hayvan Barınağı",
+        "opening_hours": {
+          "open_now": false
+        },
+        "photos": [
+          {
+            "height": 1080,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/117764080507124550560\">Atilla Kılıç</a>"
+            ],
+            "photo_reference": "AU_ZVEFDLYxoH6y7pa1p0-vwkGL5ropVPb8542UP2I-SHlgvuvOfsOAGA1fTIKSXPN98xBSP8yInb94d1p1gyzWltFMdS-o75O9ztuQ-VezEbtG0F7vdgPO88sn540StoTKeBGJVsWl6xY_lG0fYdGcW82FhrfAx0LuHYVOaBJE5GK-vpEMcqf_xYDyYUL4HxTTI6RGyUWLymcFPFrxyc8kM4FeNFBD81ZRAP5vWADmLGxwtixk0uQKzL0z3f9YMaSL1kV7qTdrWPPKvgn-tSjSPh86tiRkXnjgbpAK4EviJmYDr6DNuHwxv-GyYyC_eBh3UIjRKAct3Kk6oMoeWm6LNmGBh8hTeMhAqMkqcE3k7gTgtCkscmjIggmEN6SK2LERBOE9dZ2WbUQAXWYrj9uoE5yrna_rzVNBu_5IID1EMtgri4NE",
+            "width": 1920
+          }
+        ],
+        "place_id": "ChIJl76UMvc30xQRkEd_7nwNR2E",
+        "plus_code": {
+          "compound_code": "WPP3+QW Etimesgut/Ankara",
+          "global_code": "8GFJWPP3+QW"
+        },
+        "rating": 3.8,
+        "reference": "ChIJl76UMvc30xQRkEd_7nwNR2E",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 92
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Bahçekapı, 06797 Etimesgut/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.9369167,
+            "lng": 32.7048591
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.9382403802915,
+              "lng": 32.7062308802915
+            },
+            "southwest": {
+              "lat": 39.9355424197085,
+              "lng": 32.7035329197085
+            }
+          }
+        },
+        "name": "Hayvan Barınağı",
+        "opening_hours": {
+          "open_now": false,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1530"
+              },
+              "open": {
+                "day": 0,
+                "time": "1400"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1530"
+              },
+              "open": {
+                "day": 2,
+                "time": "1400"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1530"
+              },
+              "open": {
+                "day": 4,
+                "time": "1400"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: Kapalı",
+            "Salı: 14:00–15:30",
+            "Çarşamba: Kapalı",
+            "Perşembe: 14:00–15:30",
+            "Cuma: Kapalı",
+            "Cumartesi: Kapalı",
+            "Pazar: 14:00–15:30"
+          ]
+        },
+        "place_id": "ChIJl76UMvc30xQRkEd_7nwNR2E",
+        "rating": 3.8,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=7009586175253890960",
+        "user_ratings_total": 92
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJzd2poWk-0xQRZXEwDfmXuX8",
+    "type": "shelter",
+    "name": "HAYVAN KURTARMA REHABİLİTASYON MERKEZİ",
+    "address": "Dodurga, Türkkonut Blv, 06810 Yenimahalle/Ankara",
+    "district": null,
+    "phone": null,
+    "international_phone_number": null,
+    "website": null,
+    "opening_hours": [
+      "Pazartesi: 10:30–17:30",
+      "Salı: 10:30–17:30",
+      "Çarşamba: 10:30–17:30",
+      "Perşembe: 10:30–17:30",
+      "Cuma: 10:30–17:30",
+      "Cumartesi: 09:00–17:30",
+      "Pazar: 09:00–17:30"
+    ],
+    "rating": 4.7,
+    "user_rating_count": 101,
+    "latitude": 39.8271115,
+    "longitude": 32.6477304,
+    "google_maps_url": "https://maps.google.com/?cid=9203554409432248677",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Dodurga, Türkkonut Blv, 06810 Yenimahalle/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8271115,
+            "lng": 32.6477304
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8284585302915,
+              "lng": 32.64912613029149
+            },
+            "southwest": {
+              "lat": 39.8257605697085,
+              "lng": 32.6464281697085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "HAYVAN KURTARMA REHABİLİTASYON MERKEZİ",
+        "opening_hours": {
+          "open_now": true
+        },
+        "photos": [
+          {
+            "height": 810,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/115116826694343809178\">HAYVAN KURTARMA REHABİLİTASYON MERKEZİ</a>"
+            ],
+            "photo_reference": "AU_ZVEHGhMy_XtlNxYFVMjwDC-wI5ly_N5LNZDA4_je4ldZxcajmHixDSMalKirSVVAuSZgurSDj6CVmXEHxiH_7UnzbFpbtlDVJ0KQVFU4jSmO2pzrg6kc1NAnnpFDNg99ajUf-d7D2bDyWCijwaISZPQZr4h66GxnsUovIE_lcP0dQI6bfOb6PYCJwU8I6QLaVz70OR_lNer1SUCzUFsWZ5JnGqR2gOV9PN01wXt2Uf1r4aBQKMp0Ho4Cye2zkX07CLNAuVAPfBBJb-9YbSxVqvf_FKgYbnb3z9iB_sSjfMLxJjA",
+            "width": 1440
+          }
+        ],
+        "place_id": "ChIJzd2poWk-0xQRZXEwDfmXuX8",
+        "plus_code": {
+          "compound_code": "RJGX+R3 Çankaya/Ankara",
+          "global_code": "8GFJRJGX+R3"
+        },
+        "rating": 4.7,
+        "reference": "ChIJzd2poWk-0xQRZXEwDfmXuX8",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 101
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Dodurga, Türkkonut Blv, 06810 Yenimahalle/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8271115,
+            "lng": 32.6477304
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8284585302915,
+              "lng": 32.64912613029149
+            },
+            "southwest": {
+              "lat": 39.8257605697085,
+              "lng": 32.6464281697085
+            }
+          }
+        },
+        "name": "HAYVAN KURTARMA REHABİLİTASYON MERKEZİ",
+        "opening_hours": {
+          "open_now": true,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1730"
+              },
+              "open": {
+                "day": 0,
+                "time": "0900"
+              }
+            },
+            {
+              "close": {
+                "day": 1,
+                "time": "1730"
+              },
+              "open": {
+                "day": 1,
+                "time": "1030"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1730"
+              },
+              "open": {
+                "day": 2,
+                "time": "1030"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1730"
+              },
+              "open": {
+                "day": 3,
+                "time": "1030"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1730"
+              },
+              "open": {
+                "day": 4,
+                "time": "1030"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "1730"
+              },
+              "open": {
+                "day": 5,
+                "time": "1030"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1730"
+              },
+              "open": {
+                "day": 6,
+                "time": "0900"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 10:30–17:30",
+            "Salı: 10:30–17:30",
+            "Çarşamba: 10:30–17:30",
+            "Perşembe: 10:30–17:30",
+            "Cuma: 10:30–17:30",
+            "Cumartesi: 09:00–17:30",
+            "Pazar: 09:00–17:30"
+          ]
+        },
+        "place_id": "ChIJzd2poWk-0xQRZXEwDfmXuX8",
+        "rating": 4.7,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=9203554409432248677",
+        "user_ratings_total": 101
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJ2aF6n4hN0xQR3npPUEzhiu0",
+    "type": "shelter",
+    "name": "İnci Anne Hayvan Barınağı",
+    "address": "Yükseltepe, 2RF5+9R, 06220 Keçiören/Ankara",
+    "district": null,
+    "phone": null,
+    "international_phone_number": null,
+    "website": null,
+    "opening_hours": null,
+    "rating": 4.4,
+    "user_rating_count": 17,
+    "latitude": 40.0234293,
+    "longitude": 32.80951390000001,
+    "google_maps_url": "https://maps.google.com/?cid=17116741051656141534",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yükseltepe, 2RF5+9R, 06220 Keçiören/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 40.0234293,
+            "lng": 32.80951390000001
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 40.0248475802915,
+              "lng": 32.81080378029151
+            },
+            "southwest": {
+              "lat": 40.0221496197085,
+              "lng": 32.80810581970851
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "İnci Anne Hayvan Barınağı",
+        "photos": [
+          {
+            "height": 4032,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/106485102292192921351\">Murat Tekinay</a>"
+            ],
+            "photo_reference": "AU_ZVEFdXs5a1Hx8K6b6wDwVSZ-0LKIkqAncB-aawBDzwDEaS-YibnqzbJunq6YoVRqwPpzkOV8SPRD4P8BC3xwzAR5x8RqU16l4QDlAxFD4TrQydrt2QhlkE4mqgimjRL6M8IONJuxHllZEbchCJf4ymTY90vIGstUFxKb75L94k0iHNNcm0m9jW_GC8W5iBHgFnF_9pE3wOn-GezDbi6Aw2ztcgMBM6rY75H_O-CRwKCN6QaH9byiljwIYyEbNPY6SSSLBx8JMVkNGtCrtAUo_5BnTz5Kl3XtiJFdyaiTHlrJCWub7H7pgXwCS9fzHYzp8esHKQxQ2UI8CBHnr2QMwdFu_iIK2WCexvGgG6CE9S27-UVOSJGYuevG3HlRsmRXGORIAZHjnXrhhvk8R-sD9Svg3cb_N8k-5vV1aktlV-8DvbQ",
+            "width": 3024
+          }
+        ],
+        "place_id": "ChIJ2aF6n4hN0xQR3npPUEzhiu0",
+        "rating": 4.4,
+        "reference": "ChIJ2aF6n4hN0xQR3npPUEzhiu0",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 17
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yükseltepe, 2RF5+9R, 06220 Keçiören/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 40.0234293,
+            "lng": 32.80951390000001
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 40.0248475802915,
+              "lng": 32.81080378029151
+            },
+            "southwest": {
+              "lat": 40.0221496197085,
+              "lng": 32.80810581970851
+            }
+          }
+        },
+        "name": "İnci Anne Hayvan Barınağı",
+        "place_id": "ChIJ2aF6n4hN0xQR3npPUEzhiu0",
+        "rating": 4.4,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=17116741051656141534",
+        "user_ratings_total": 17
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJoTHm654LgkARBRRcPr8Tt6A",
+    "type": "shelter",
+    "name": "Keçiören Belediyesi Hayvan Barınağı",
+    "address": "Karşıyaka, Hançer Cd., 06291 Keçiören/Ankara",
+    "district": null,
+    "phone": null,
+    "international_phone_number": null,
+    "website": "https://www.tikla.com.tr/kecioren-belediyesi-veteriner-hizmetleri-mudurlugu-hayvan-barinagi.html",
+    "opening_hours": null,
+    "rating": 2.9,
+    "user_rating_count": 79,
+    "latitude": 40.0869087,
+    "longitude": 32.8048211,
+    "google_maps_url": "https://maps.google.com/?cid=11580746678912422917",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Karşıyaka, Hançer Cd., 06291 Keçiören/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 40.0869087,
+            "lng": 32.8048211
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 40.0882720302915,
+              "lng": 32.8060911802915
+            },
+            "southwest": {
+              "lat": 40.0855740697085,
+              "lng": 32.8033932197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Keçiören Belediyesi Hayvan Barınağı",
+        "photos": [
+          {
+            "height": 2992,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/100044934581479406580\">Salih Gündoğdu</a>"
+            ],
+            "photo_reference": "AU_ZVEFftA-ntabdsLnMCmoqAj4i_D7896sATPZYNd2xWsYYaTj55zPiVOXafFTYf_-hvVDoR460eFZYFEqX7-SGve_axwwNbfrxFEtUwusD6szPmQHBhPrIX_TuBaD2VqATaUZa4DNT-k8mwuTCQaD2jD5FyDa-sEBANtf457AiRNh_EDp6L1AP8NQFTDl2a-Wg-mQBtUXtCZnAYeXXXO3zuZeByq_ivwPHWX6eJE2l-l3o7gy1Iblv46slWx9PwbyRT2nJq_GSVsDiStNp7li3l_n8mCX6hqomLxOLDNVKLVHryPl-EHWkaFdFPVstJy4Vf8Pp4-PLK7tqiPLsvAWffCjvQ-RFAXmrxO9Rlp3cOFQ99n33fEE1HlfLEbKdh2mjJP3JeECG6e0lM6OhnRvd_nHN5ynT_tfOhm1j1XMBNHp5Sg",
+            "width": 2992
+          }
+        ],
+        "place_id": "ChIJoTHm654LgkARBRRcPr8Tt6A",
+        "plus_code": {
+          "compound_code": "3RP3+QW Keçiören/Ankara",
+          "global_code": "8GGJ3RP3+QW"
+        },
+        "rating": 2.9,
+        "reference": "ChIJoTHm654LgkARBRRcPr8Tt6A",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 79
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Karşıyaka, Hançer Cd., 06291 Keçiören/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 40.0869087,
+            "lng": 32.8048211
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 40.0882720302915,
+              "lng": 32.8060911802915
+            },
+            "southwest": {
+              "lat": 40.0855740697085,
+              "lng": 32.8033932197085
+            }
+          }
+        },
+        "name": "Keçiören Belediyesi Hayvan Barınağı",
+        "place_id": "ChIJoTHm654LgkARBRRcPr8Tt6A",
+        "rating": 2.9,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=11580746678912422917",
+        "user_ratings_total": 79,
+        "website": "https://www.tikla.com.tr/kecioren-belediyesi-veteriner-hizmetleri-mudurlugu-hayvan-barinagi.html"
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJZeWQXN9B0xQR1nOIp3m01Yo",
+    "type": "shelter",
+    "name": "KISAMER Ankara Büyükşehir Belediyesi Sokak Hayvanları Kısırlaştırma ve Sahiplendirme Merkezi",
+    "address": "Oran mah. Mevlana bulvari no:475 Samanyolu outlet 1 numara, Oran, 06830 Çankaya/Ankara",
+    "district": null,
+    "phone": "(0312) 484 22 95",
+    "international_phone_number": "+90 312 484 22 95",
+    "website": "http://epati.ankara.bel.tr/kisirlastirmarandevusu",
+    "opening_hours": [
+      "Pazartesi: 08:00–16:00",
+      "Salı: 08:00–16:00",
+      "Çarşamba: 08:00–16:00",
+      "Perşembe: 08:00–16:00",
+      "Cuma: 08:00–16:00",
+      "Cumartesi: 08:00–16:00",
+      "Pazar: 08:00–16:00"
+    ],
+    "rating": 4.5,
+    "user_rating_count": 475,
+    "latitude": 39.8163017,
+    "longitude": 32.7985078,
+    "google_maps_url": "https://maps.google.com/?cid=10004100581868205014",
+    "types": [
+      "establishment",
+      "point_of_interest",
+      "veterinary_care"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Oran mah. Mevlana bulvari no:475 Samanyolu outlet 1 numara, Oran, 06830 Çankaya/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8163017,
+            "lng": 32.7985078
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8175847302915,
+              "lng": 32.7998068802915
+            },
+            "southwest": {
+              "lat": 39.8148867697085,
+              "lng": 32.7971089197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "KISAMER Ankara Büyükşehir Belediyesi Sokak Hayvanları Kısırlaştırma ve Sahiplendirme Merkezi",
+        "opening_hours": {
+          "open_now": true
+        },
+        "photos": [
+          {
+            "height": 768,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/107257817891228739049\">KISAMER Ankara Büyükşehir Belediyesi Sokak Hayvanları Kısırlaştırma ve Sahiplendirme Merkezi</a>"
+            ],
+            "photo_reference": "AU_ZVEHY2hJXxbqUwagyse9cZvCClEN6Y-k6hxXbi5250o2YcaDqWXPgta75qkwBHSrRhE4joPagg_1RG4ubbffGuc1PY4w0xV1EHVoGvX3d56z01fIdYrh6azIh1luFhV_8UrP2FB9hm-mz8bZ9og7_WFvTEUGEkdqPmyAiirSai1jMeOw09utHpmPN1sXlUyLDvEcbm0JmOYK26RtPzm4OzIdkkpAxgoCW0D9KfA5gnHVaqM0IacVOWFrCfSPbwyK_v3JnHL318UCfTceeOcENtjDRl5MTQOA6qUpDM9zD8PE-zQ",
+            "width": 1024
+          }
+        ],
+        "place_id": "ChIJZeWQXN9B0xQR1nOIp3m01Yo",
+        "plus_code": {
+          "compound_code": "RQ8X+GC Çankaya/Ankara",
+          "global_code": "8GFJRQ8X+GC"
+        },
+        "rating": 4.5,
+        "reference": "ChIJZeWQXN9B0xQR1nOIp3m01Yo",
+        "types": [
+          "establishment",
+          "point_of_interest",
+          "veterinary_care"
+        ],
+        "user_ratings_total": 475
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Oran mah. Mevlana bulvari no:475 Samanyolu outlet 1 numara, Oran, 06830 Çankaya/Ankara",
+        "formatted_phone_number": "(0312) 484 22 95",
+        "geometry": {
+          "location": {
+            "lat": 39.8163017,
+            "lng": 32.7985078
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8175847302915,
+              "lng": 32.7998068802915
+            },
+            "southwest": {
+              "lat": 39.8148867697085,
+              "lng": 32.7971089197085
+            }
+          }
+        },
+        "international_phone_number": "+90 312 484 22 95",
+        "name": "KISAMER Ankara Büyükşehir Belediyesi Sokak Hayvanları Kısırlaştırma ve Sahiplendirme Merkezi",
+        "opening_hours": {
+          "open_now": true,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1600"
+              },
+              "open": {
+                "day": 0,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 1,
+                "time": "1600"
+              },
+              "open": {
+                "day": 1,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1600"
+              },
+              "open": {
+                "day": 2,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1600"
+              },
+              "open": {
+                "day": 3,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1600"
+              },
+              "open": {
+                "day": 4,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "1600"
+              },
+              "open": {
+                "day": 5,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1600"
+              },
+              "open": {
+                "day": 6,
+                "time": "0800"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 08:00–16:00",
+            "Salı: 08:00–16:00",
+            "Çarşamba: 08:00–16:00",
+            "Perşembe: 08:00–16:00",
+            "Cuma: 08:00–16:00",
+            "Cumartesi: 08:00–16:00",
+            "Pazar: 08:00–16:00"
+          ]
+        },
+        "place_id": "ChIJZeWQXN9B0xQR1nOIp3m01Yo",
+        "rating": 4.5,
+        "types": [
+          "establishment",
+          "point_of_interest",
+          "veterinary_care"
+        ],
+        "url": "https://maps.google.com/?cid=10004100581868205014",
+        "user_ratings_total": 475,
+        "website": "http://epati.ankara.bel.tr/kisirlastirmarandevusu"
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJAbBYLapa0xQRxBZMMmCJWqw",
+    "type": "shelter",
+    "name": "Köpek Barınağı SOKAKTA KALANLAR BAKIMEVİ",
+    "address": "Yakupabdal, 06705 Çankaya/Ankara",
+    "district": null,
+    "phone": "0545 563 90 90",
+    "international_phone_number": "+90 545 563 90 90",
+    "website": null,
+    "opening_hours": [
+      "Pazartesi: 24 saat açık",
+      "Salı: 24 saat açık",
+      "Çarşamba: 24 saat açık",
+      "Perşembe: 24 saat açık",
+      "Cuma: 24 saat açık",
+      "Cumartesi: 24 saat açık",
+      "Pazar: 24 saat açık"
+    ],
+    "rating": 4.4,
+    "user_rating_count": 98,
+    "latitude": 39.8669566,
+    "longitude": 32.9036162,
+    "google_maps_url": "https://maps.google.com/?cid=12419389968681277124",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yakupabdal, 06705 Çankaya/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8669566,
+            "lng": 32.9036162
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8682755802915,
+              "lng": 32.90487433029149
+            },
+            "southwest": {
+              "lat": 39.8655776197085,
+              "lng": 32.9021763697085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Köpek Barınağı SOKAKTA KALANLAR BAKIMEVİ",
+        "opening_hours": {
+          "open_now": true
+        },
+        "photos": [
+          {
+            "height": 2250,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/109683895546015319860\">Köpek Barınağı SOKAKTA KALANLAR BAKIMEVİ</a>"
+            ],
+            "photo_reference": "AU_ZVEEXH2BV-oIHyHJFmtDXHzQ82dXTVLl_TN49zSeQ3bN60UDePFqWYQxY5Nb8sxJS9Qw3xPp8vPlF4tHb-UB38zAp8B8ICKK9EccH9Rp6Jk5InWklWfDFILG_zqyt1A3idlYO9jjIDKgVrg1xKlub5ADtK4EyoQ6X-_alg04VDdtCEssIwckC0J5kugd-gpkdz0ujYZmJPxlXS6mIfjYu0pHkfJ-i0EPSKl1AmWcCrw_Ev57KrcvX1GrI5wT3jUzyQ2rKcoOr-1rNQFIc3D-GvIF6eotb1zgfGTV-5YaaYfu4qw",
+            "width": 4000
+          }
+        ],
+        "place_id": "ChIJAbBYLapa0xQRxBZMMmCJWqw",
+        "plus_code": {
+          "compound_code": "VW83+QC Çankaya/Ankara",
+          "global_code": "8GFJVW83+QC"
+        },
+        "rating": 4.4,
+        "reference": "ChIJAbBYLapa0xQRxBZMMmCJWqw",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 98
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yakupabdal, 06705 Çankaya/Ankara",
+        "formatted_phone_number": "0545 563 90 90",
+        "geometry": {
+          "location": {
+            "lat": 39.8669566,
+            "lng": 32.9036162
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8682755802915,
+              "lng": 32.90487433029149
+            },
+            "southwest": {
+              "lat": 39.8655776197085,
+              "lng": 32.9021763697085
+            }
+          }
+        },
+        "international_phone_number": "+90 545 563 90 90",
+        "name": "Köpek Barınağı SOKAKTA KALANLAR BAKIMEVİ",
+        "opening_hours": {
+          "open_now": true,
+          "periods": [
+            {
+              "open": {
+                "day": 0,
+                "time": "0000"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 24 saat açık",
+            "Salı: 24 saat açık",
+            "Çarşamba: 24 saat açık",
+            "Perşembe: 24 saat açık",
+            "Cuma: 24 saat açık",
+            "Cumartesi: 24 saat açık",
+            "Pazar: 24 saat açık"
+          ]
+        },
+        "place_id": "ChIJAbBYLapa0xQRxBZMMmCJWqw",
+        "rating": 4.4,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=12419389968681277124",
+        "user_ratings_total": 98
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJfczTQ6pJ0xQRFJS8ChoeQno",
+    "type": "shelter",
+    "name": "Macunköy Hayvan Barınağı",
+    "address": "Macun Mah Batı Blv, Macun, 250. Cadde No:2, 06374 Yenimahalle/Ankara",
+    "district": null,
+    "phone": "(0312) 397 24 74",
+    "international_phone_number": "+90 312 397 24 74",
+    "website": "http://www.yenimahalle.bel.tr/Icerik/Sahipsiz-Hayvanlar/203",
+    "opening_hours": [
+      "Pazartesi: Kapalı",
+      "Salı: Kapalı",
+      "Çarşamba: 13:30–15:30",
+      "Perşembe: 13:30–15:30",
+      "Cuma: Kapalı",
+      "Cumartesi: Kapalı",
+      "Pazar: 13:30–15:30"
+    ],
+    "rating": 3.2,
+    "user_rating_count": 95,
+    "latitude": 39.9494888,
+    "longitude": 32.757284,
+    "google_maps_url": "https://maps.google.com/?cid=8809636918288225300",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Macun Mah Batı Blv, Macun, 250. Cadde No:2, 06374 Yenimahalle/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.9494888,
+            "lng": 32.757284
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.9507972802915,
+              "lng": 32.7584924802915
+            },
+            "southwest": {
+              "lat": 39.9480993197085,
+              "lng": 32.7557945197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Macunköy Hayvan Barınağı",
+        "opening_hours": {
+          "open_now": false
+        },
+        "photos": [
+          {
+            "height": 4080,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/102136108752857103622\">Eray Kabal</a>"
+            ],
+            "photo_reference": "AU_ZVEFXswwnmq9sb2xvTK1lKxqrsPjlY0gODn9jtOcM4m4SYt9VlUBUUM7OJJnnO1nY8E9jT8E3FXCx4mG11MD-cIiK1_rfKmESoo9eBmQzfMoq_H9EduHOmAR708Re7B8_1VB2SkSsm61xCuOsjSFXEBSj9yJUb9rA1FxDe4UaS4J0RJRTzzfZRbXsQd72CcB3nVYDqJngUW9xZMuD_ur47e16mKQOvkyA_aLlCmsB8NErqfiR3MvAM0J2IOCnIWhn3Tm3Q9LeDRQGqz7c57UgCKemP56-rACoy3QFh3q2Tj9Bv3hV8rzC0ZSk4nS-rXkOQutmlFD4AU6fT6beKZlOiVnmNZ4-gI9nKEQJvUoGZo8d5ojr2mf7rfBpet2DtbZEbY6xqhw9P045nPjPEVZTYhL6jLFK8yMS0Hd4WQ5GGUGDeSKB4UNHC7B2aSLVOA",
+            "width": 3060
+          }
+        ],
+        "place_id": "ChIJfczTQ6pJ0xQRFJS8ChoeQno",
+        "plus_code": {
+          "compound_code": "WQX4+QW Yenimahalle/Ankara",
+          "global_code": "8GFJWQX4+QW"
+        },
+        "rating": 3.2,
+        "reference": "ChIJfczTQ6pJ0xQRFJS8ChoeQno",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 95
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Macun Mah Batı Blv, Macun, 250. Cadde No:2, 06374 Yenimahalle/Ankara",
+        "formatted_phone_number": "(0312) 397 24 74",
+        "geometry": {
+          "location": {
+            "lat": 39.9494888,
+            "lng": 32.757284
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.9507972802915,
+              "lng": 32.7584924802915
+            },
+            "southwest": {
+              "lat": 39.9480993197085,
+              "lng": 32.7557945197085
+            }
+          }
+        },
+        "international_phone_number": "+90 312 397 24 74",
+        "name": "Macunköy Hayvan Barınağı",
+        "opening_hours": {
+          "open_now": false,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1530"
+              },
+              "open": {
+                "day": 0,
+                "time": "1330"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1530"
+              },
+              "open": {
+                "day": 3,
+                "time": "1330"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1530"
+              },
+              "open": {
+                "day": 4,
+                "time": "1330"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: Kapalı",
+            "Salı: Kapalı",
+            "Çarşamba: 13:30–15:30",
+            "Perşembe: 13:30–15:30",
+            "Cuma: Kapalı",
+            "Cumartesi: Kapalı",
+            "Pazar: 13:30–15:30"
+          ]
+        },
+        "place_id": "ChIJfczTQ6pJ0xQRFJS8ChoeQno",
+        "rating": 3.2,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=8809636918288225300",
+        "user_ratings_total": 95,
+        "website": "http://www.yenimahalle.bel.tr/Icerik/Sahipsiz-Hayvanlar/203"
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJHb8llXZW0xQRoXqj_tDivJw",
+    "type": "shelter",
+    "name": "Mamak Belediyesi Sokak Hayvanları Rehabilitasyon ve Geçici Bakım Merkezi",
+    "address": "Kutludüğün, 06260 Mamak/Ankara",
+    "district": null,
+    "phone": "444 0 149",
+    "international_phone_number": "+90 4440149",
+    "website": "http://mamak.bel.tr/",
+    "opening_hours": [
+      "Pazartesi: 13:00–15:00",
+      "Salı: 13:00–15:00",
+      "Çarşamba: 13:00–15:00",
+      "Perşembe: 13:00–15:00",
+      "Cuma: Kapalı",
+      "Cumartesi: 13:00–15:00",
+      "Pazar: Kapalı"
+    ],
+    "rating": 2.6,
+    "user_rating_count": 67,
+    "latitude": 39.8929327,
+    "longitude": 33.0494065,
+    "google_maps_url": "https://maps.google.com/?cid=11294151352791562913",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Kutludüğün, 06260 Mamak/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8929327,
+            "lng": 33.0494065
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.89431143029149,
+              "lng": 33.0507361302915
+            },
+            "southwest": {
+              "lat": 39.8916134697085,
+              "lng": 33.0480381697085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Mamak Belediyesi Sokak Hayvanları Rehabilitasyon ve Geçici Bakım Merkezi",
+        "opening_hours": {
+          "open_now": false
+        },
+        "photos": [
+          {
+            "height": 2268,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/108821047816730403463\">AHMET ÜNAL</a>"
+            ],
+            "photo_reference": "AU_ZVEExK-o19Kd3V6SwSJr21shBAPf4CCattphoXXTWLtgbPc-4DU-UZtN0mSpjxj4ItqPfRNjAKi6CKK-Wil5rWbVks5SEXeDiRRVYfHb3xVKCENMf3ogCj7HNtEEKDjU_GeJhajrZAB7qlXNAN1J55CoLxMKYS9tOjBymqtqCJJwitsG2KM-jYmLUyOLfMq-BovdVCatWnSHbiV95pw8mSVLIhJ2bXVAcEo-zzoGcgNrkIooJRc55Wvo-d-Psa9nXHAhZLbFECXVx5O58E1Ddi85lTF6wvx3NUL9ucx6NclTER7vOhT2Db-iOwyEKl0WJjDboIGrgkm9-JKjz3N-XeHMwCYMCPjcn8QnQkaSjQktV7h40jC1eeq5J_7RC6UjsPZNMiva7ZvfMHhntOvna85DRhbSNszWYVxOjA6zKnZMbjQ",
+            "width": 4032
+          }
+        ],
+        "place_id": "ChIJHb8llXZW0xQRoXqj_tDivJw",
+        "plus_code": {
+          "compound_code": "V2VX+5Q Mamak/Ankara",
+          "global_code": "8GFMV2VX+5Q"
+        },
+        "rating": 2.6,
+        "reference": "ChIJHb8llXZW0xQRoXqj_tDivJw",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 67
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Kutludüğün, 06260 Mamak/Ankara",
+        "formatted_phone_number": "444 0 149",
+        "geometry": {
+          "location": {
+            "lat": 39.8929327,
+            "lng": 33.0494065
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.89431143029149,
+              "lng": 33.0507361302915
+            },
+            "southwest": {
+              "lat": 39.8916134697085,
+              "lng": 33.0480381697085
+            }
+          }
+        },
+        "international_phone_number": "+90 4440149",
+        "name": "Mamak Belediyesi Sokak Hayvanları Rehabilitasyon ve Geçici Bakım Merkezi",
+        "opening_hours": {
+          "open_now": false,
+          "periods": [
+            {
+              "close": {
+                "day": 1,
+                "time": "1500"
+              },
+              "open": {
+                "day": 1,
+                "time": "1300"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1500"
+              },
+              "open": {
+                "day": 2,
+                "time": "1300"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1500"
+              },
+              "open": {
+                "day": 3,
+                "time": "1300"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1500"
+              },
+              "open": {
+                "day": 4,
+                "time": "1300"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1500"
+              },
+              "open": {
+                "day": 6,
+                "time": "1300"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 13:00–15:00",
+            "Salı: 13:00–15:00",
+            "Çarşamba: 13:00–15:00",
+            "Perşembe: 13:00–15:00",
+            "Cuma: Kapalı",
+            "Cumartesi: 13:00–15:00",
+            "Pazar: Kapalı"
+          ]
+        },
+        "place_id": "ChIJHb8llXZW0xQRoXqj_tDivJw",
+        "rating": 2.6,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=11294151352791562913",
+        "user_ratings_total": 67,
+        "website": "http://mamak.bel.tr/"
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJMy7-iwFN0xQRdK9kdwAAh_4",
+    "type": "shelter",
+    "name": "Özel Hayvan Barınağı",
+    "address": "Yükseltepe, 06220 Keçiören/Ankara",
+    "district": null,
+    "phone": null,
+    "international_phone_number": null,
+    "website": null,
+    "opening_hours": null,
+    "rating": 4.4,
+    "user_rating_count": 37,
+    "latitude": 40.02256819999999,
+    "longitude": 32.8086059,
+    "google_maps_url": "https://maps.google.com/?cid=18340628009492721524",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yükseltepe, 06220 Keçiören/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 40.02256819999999,
+            "lng": 32.8086059
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 40.0239562302915,
+              "lng": 32.8098438302915
+            },
+            "southwest": {
+              "lat": 40.0212582697085,
+              "lng": 32.8071458697085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Özel Hayvan Barınağı",
+        "photos": [
+          {
+            "height": 4080,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/102136108752857103622\">Eray Kabal</a>"
+            ],
+            "photo_reference": "AU_ZVEGp1P90f3OMb27U3VNhscrTll780rHHepnH5qiSvmggFRxY6Nyx4OQJ6AFGBJNXPmlX_lrZCo8tzKPNAyHQrahvtzl73GAnJ23axFKlrz5IFP-cckQqNQ5QyV2_H4jSq4Ucf3aNzwV7wnTsji171_Yb69A5D6BCnpeUB5kYfwubKsfjpS47lqnlYXo6U7rKQvunjg-_xVDrIVPIdxROLAEiIJARyMQqkyicIoxpFMGoQwDkM8bCuDkZtwW8W2806r0KgJZ3bIqEa2EpMzfts23WybqD2WF8vftHqV0zQNa5hiOO3RqJhyyV5tLbLJyhhAdLYnfddws1wQh5MWiEwbV5rP0AbMCbiZzP_t7xwDbPt1JkYsNXVj41HKtVQRW1GY-6DcRQuQfcb9PyF2o7Glte-NtQfbftCdlKL2ftoa3h3_vbuEECDahRUUF8LH7O",
+            "width": 3060
+          }
+        ],
+        "place_id": "ChIJMy7-iwFN0xQRdK9kdwAAh_4",
+        "plus_code": {
+          "compound_code": "2RF5+2C Keçiören/Ankara",
+          "global_code": "8GGJ2RF5+2C"
+        },
+        "rating": 4.4,
+        "reference": "ChIJMy7-iwFN0xQRdK9kdwAAh_4",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 37
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Yükseltepe, 06220 Keçiören/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 40.02256819999999,
+            "lng": 32.8086059
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 40.0239562302915,
+              "lng": 32.8098438302915
+            },
+            "southwest": {
+              "lat": 40.0212582697085,
+              "lng": 32.8071458697085
+            }
+          }
+        },
+        "name": "Özel Hayvan Barınağı",
+        "place_id": "ChIJMy7-iwFN0xQRdK9kdwAAh_4",
+        "rating": 4.4,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=18340628009492721524",
+        "user_ratings_total": 37
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJSTJWdLJI0xQRMXyZtoXnpY4",
+    "type": "shelter",
+    "name": "Patiliköy Kopek Barınagı",
+    "address": "Gölbaşı, Ahiboz, 06510 Gölbaşı/Ankara",
+    "district": null,
+    "phone": "0553 455 43 52",
+    "international_phone_number": "+90 553 455 43 52",
+    "website": "https://patilikoyankara.com/",
+    "opening_hours": [
+      "Pazartesi: 11:00–18:00",
+      "Salı: 11:00–18:00",
+      "Çarşamba: 11:00–18:00",
+      "Perşembe: 11:00–18:00",
+      "Cuma: 11:00–18:00",
+      "Cumartesi: 11:00–18:00",
+      "Pazar: 11:00–18:00"
+    ],
+    "rating": 4.6,
+    "user_rating_count": 120,
+    "latitude": 39.604139,
+    "longitude": 32.8669027,
+    "google_maps_url": "https://maps.google.com/?cid=10278876286023203889",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Gölbaşı, Ahiboz, 06510 Gölbaşı/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.604139,
+            "lng": 32.8669027
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.6058028802915,
+              "lng": 32.86826208029149
+            },
+            "southwest": {
+              "lat": 39.6031049197085,
+              "lng": 32.86556411970849
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Patiliköy Kopek Barınagı",
+        "opening_hours": {
+          "open_now": true
+        },
+        "photos": [
+          {
+            "height": 4032,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/102633644035650848772\">Patiliköy Kopek Barınagı</a>"
+            ],
+            "photo_reference": "AU_ZVEHc08HxSsrzy5uykDdLCfTLp5ycjnmOX8PlAvh93HX4XRnygMpoxlLIfJJ1O_el8rkvjs10EzcDHtMjDBzfan0oWuG-rzGh3jbbJZvSsjd-_Cr_R1T9JNWrRtwKtvptbQWlpxt4zFJAYfDe8MFyMx5H3QljMOoZ3RpEMggkUL3carJbmzdrH1NQ2aetwYoHD7H2TzqrFjddCJERgDv0CW8WAmH2AywoIXRI98hAwXUoP2bGGVoTdtlW-8u9KWE04G1-uZtFcYjgQ3F3TeFh71hc9vV4DIj1Z42klML5FWe-cQ",
+            "width": 3024
+          }
+        ],
+        "place_id": "ChIJSTJWdLJI0xQRMXyZtoXnpY4",
+        "plus_code": {
+          "compound_code": "JV38+MQ Gölbaşı/Ankara",
+          "global_code": "8GFJJV38+MQ"
+        },
+        "rating": 4.6,
+        "reference": "ChIJSTJWdLJI0xQRMXyZtoXnpY4",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 120
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Gölbaşı, Ahiboz, 06510 Gölbaşı/Ankara",
+        "formatted_phone_number": "0553 455 43 52",
+        "geometry": {
+          "location": {
+            "lat": 39.604139,
+            "lng": 32.8669027
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.6058028802915,
+              "lng": 32.86826208029149
+            },
+            "southwest": {
+              "lat": 39.6031049197085,
+              "lng": 32.86556411970849
+            }
+          }
+        },
+        "international_phone_number": "+90 553 455 43 52",
+        "name": "Patiliköy Kopek Barınagı",
+        "opening_hours": {
+          "open_now": true,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1800"
+              },
+              "open": {
+                "day": 0,
+                "time": "1100"
+              }
+            },
+            {
+              "close": {
+                "day": 1,
+                "time": "1800"
+              },
+              "open": {
+                "day": 1,
+                "time": "1100"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1800"
+              },
+              "open": {
+                "day": 2,
+                "time": "1100"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1800"
+              },
+              "open": {
+                "day": 3,
+                "time": "1100"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1800"
+              },
+              "open": {
+                "day": 4,
+                "time": "1100"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "1800"
+              },
+              "open": {
+                "day": 5,
+                "time": "1100"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1800"
+              },
+              "open": {
+                "day": 6,
+                "time": "1100"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 11:00–18:00",
+            "Salı: 11:00–18:00",
+            "Çarşamba: 11:00–18:00",
+            "Perşembe: 11:00–18:00",
+            "Cuma: 11:00–18:00",
+            "Cumartesi: 11:00–18:00",
+            "Pazar: 11:00–18:00"
+          ]
+        },
+        "place_id": "ChIJSTJWdLJI0xQRMXyZtoXnpY4",
+        "rating": 4.6,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=10278876286023203889",
+        "user_ratings_total": 120,
+        "website": "https://patilikoyankara.com/"
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  
+  {
+    "external_source_id": "ChIJV7VxEcFP0xQRjJwrVQHZkG4",
+    "type": "shelter",
+    "name": "Seğmenler hayvan barinagi",
+    "address": "Ankara, Çankaya, 06690 Çankaya/Ankara",
+    "district": null,
+    "phone": null,
+    "international_phone_number": null,
+    "website": null,
+    "opening_hours": null,
+    "rating": 5,
+    "user_rating_count": 1,
+    "latitude": 39.8937336,
+    "longitude": 32.8639857,
+    "google_maps_url": "https://maps.google.com/?cid=7967106340565523596",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Ankara, Çankaya, 06690 Çankaya/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8937336,
+            "lng": 32.8639857
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8950596802915,
+              "lng": 32.8653069302915
+            },
+            "southwest": {
+              "lat": 39.8923617197085,
+              "lng": 32.8626089697085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Seğmenler hayvan barinagi",
+        "place_id": "ChIJV7VxEcFP0xQRjJwrVQHZkG4",
+        "plus_code": {
+          "compound_code": "VVV7+FH Çankaya/Ankara",
+          "global_code": "8GFJVVV7+FH"
+        },
+        "rating": 5,
+        "reference": "ChIJV7VxEcFP0xQRjJwrVQHZkG4",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 1
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Ankara, Çankaya, 06690 Çankaya/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8937336,
+            "lng": 32.8639857
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8950596802915,
+              "lng": 32.8653069302915
+            },
+            "southwest": {
+              "lat": 39.8923617197085,
+              "lng": 32.8626089697085
+            }
+          }
+        },
+        "name": "Seğmenler hayvan barinagi",
+        "place_id": "ChIJV7VxEcFP0xQRjJwrVQHZkG4",
+        "rating": 5,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=7967106340565523596",
+        "user_ratings_total": 1
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJgU88ft4j0xQR1yQpeQEhDyA",
+    "type": "shelter",
+    "name": "Sokak Hayvanları Bakım Evi ve Rehabilitasyon Merkezi - Sincan Belediyesi",
+    "address": "Polatlar, Tatlar Sokak No:49, 06930 Sincan/Ankara",
+    "district": null,
+    "phone": "444 4 762",
+    "international_phone_number": "+90 4444762",
+    "website": "http://www.sincan.bel.tr/",
+    "opening_hours": [
+      "Pazartesi: 08:00–17:00",
+      "Salı: 08:00–17:00",
+      "Çarşamba: 08:00–17:00",
+      "Perşembe: 08:00–17:00",
+      "Cuma: 08:00–17:00",
+      "Cumartesi: 08:00–17:00",
+      "Pazar: 08:00–17:00"
+    ],
+    "rating": 3.3,
+    "user_rating_count": 54,
+    "latitude": 39.8975426,
+    "longitude": 32.4731798,
+    "google_maps_url": "https://maps.google.com/?cid=2310101424075777239",
+    "types": [
+      "establishment",
+      "point_of_interest",
+      "veterinary_care",
+      "zoo"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Polatlar, Tatlar Sokak No:49, 06930 Sincan/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.8975426,
+            "lng": 32.4731798
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8988017302915,
+              "lng": 32.4746741802915
+            },
+            "southwest": {
+              "lat": 39.8961037697085,
+              "lng": 32.4719762197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Sokak Hayvanları Bakım Evi ve Rehabilitasyon Merkezi - Sincan Belediyesi",
+        "opening_hours": {
+          "open_now": true
+        },
+        "photos": [
+          {
+            "height": 4000,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/113378096112702538488\">Feyza Nur Bilen</a>"
+            ],
+            "photo_reference": "AU_ZVEEw8v3RqE326yv0QPUZE7t4rcSZ9gw38VrP6W4MIp7Qca35TXMM4JO8g97HOln9pAF9anq8G8gVOKaEVrTbs-WkVeJ6aGZxiwNMzFVFTr13nqC57TwBhmm9aihErvjeKWbIvBUi4txJTVSZsUGAwkwj8AlxTBqQBh0hQcvnrQbb80zrsk2bXhTjekQhQtXXKIga-JhJ8_wHxItfia1HImZ787ZyK7fyLSr5U8uxl2wDsIT9Q40GkV5WteYvu5v5HLzX2WF_giW1o5bl8_L0IkKO_gvunPK6_a2FQjqWpEMIAIFB_bRvaCxIu0GkcFPqUaX--rlXE5eoJAXGRGDA5Unk4xQtJ0BqHuJLlYHmclvgOE_YN6WjOpbU1t4L7-D19o7gU65JMg-llyYWi_PEd_de9HKaTb_4CkNciJOe5JGCgA",
+            "width": 2256
+          }
+        ],
+        "place_id": "ChIJgU88ft4j0xQR1yQpeQEhDyA",
+        "plus_code": {
+          "compound_code": "VFXF+27 Sincan/Ankara",
+          "global_code": "8GFJVFXF+27"
+        },
+        "rating": 3.3,
+        "reference": "ChIJgU88ft4j0xQR1yQpeQEhDyA",
+        "types": [
+          "establishment",
+          "point_of_interest",
+          "veterinary_care",
+          "zoo"
+        ],
+        "user_ratings_total": 54
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Polatlar, Tatlar Sokak No:49, 06930 Sincan/Ankara",
+        "formatted_phone_number": "444 4 762",
+        "geometry": {
+          "location": {
+            "lat": 39.8975426,
+            "lng": 32.4731798
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.8988017302915,
+              "lng": 32.4746741802915
+            },
+            "southwest": {
+              "lat": 39.8961037697085,
+              "lng": 32.4719762197085
+            }
+          }
+        },
+        "international_phone_number": "+90 4444762",
+        "name": "Sokak Hayvanları Bakım Evi ve Rehabilitasyon Merkezi - Sincan Belediyesi",
+        "opening_hours": {
+          "open_now": true,
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "1700"
+              },
+              "open": {
+                "day": 0,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 1,
+                "time": "1700"
+              },
+              "open": {
+                "day": 1,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1700"
+              },
+              "open": {
+                "day": 2,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1700"
+              },
+              "open": {
+                "day": 3,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1700"
+              },
+              "open": {
+                "day": 4,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "1700"
+              },
+              "open": {
+                "day": 5,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1700"
+              },
+              "open": {
+                "day": 6,
+                "time": "0800"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 08:00–17:00",
+            "Salı: 08:00–17:00",
+            "Çarşamba: 08:00–17:00",
+            "Perşembe: 08:00–17:00",
+            "Cuma: 08:00–17:00",
+            "Cumartesi: 08:00–17:00",
+            "Pazar: 08:00–17:00"
+          ]
+        },
+        "place_id": "ChIJgU88ft4j0xQR1yQpeQEhDyA",
+        "rating": 3.3,
+        "types": [
+          "establishment",
+          "point_of_interest",
+          "veterinary_care",
+          "zoo"
+        ],
+        "url": "https://maps.google.com/?cid=2310101424075777239",
+        "user_ratings_total": 54,
+        "website": "http://www.sincan.bel.tr/"
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  
+  {
+    "external_source_id": "ChIJ3aLejlNI0xQRUnewaHf5a-0",
+    "type": "shelter",
+    "name": "Yenimahalle Belediyesi Sahipsiz Hayvanlar Bakimevi",
+    "address": "Macun, 250. Cadde, 06374 Yenimahalle/Ankara",
+    "district": null,
+    "phone": "(0312) 526 26 26",
+    "international_phone_number": "+90 312 526 26 26",
+    "website": null,
+    "opening_hours": [
+      "Pazartesi: 08:00–17:00",
+      "Salı: 08:00–17:00",
+      "Çarşamba: 08:00–17:00",
+      "Perşembe: 08:00–17:00",
+      "Cuma: 08:00–17:00",
+      "Cumartesi: 08:00–17:00",
+      "Pazar: Kapalı"
+    ],
+    "rating": 3.6,
+    "user_rating_count": 47,
+    "latitude": 39.9497262,
+    "longitude": 32.7571982,
+    "google_maps_url": "https://maps.google.com/?cid=17108041900749780818",
+    "types": [
+      "establishment",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Macun, 250. Cadde, 06374 Yenimahalle/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.9497262,
+            "lng": 32.7571982
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.95111818029151,
+              "lng": 32.7583558802915
+            },
+            "southwest": {
+              "lat": 39.94842021970851,
+              "lng": 32.7556579197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Yenimahalle Belediyesi Sahipsiz Hayvanlar Bakimevi",
+        "opening_hours": {
+          "open_now": false
+        },
+        "photos": [
+          {
+            "height": 3264,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/111162253721420944722\">Tuncay KAPLAN</a>"
+            ],
+            "photo_reference": "AU_ZVEFQ-U-GpTTKsppYJ0gKhcETRVumUAAYqaJuQ-JbWsYhTs0if-SHTnrY0ree0ZymKdIGjIiLKBSuv3HttLpyIc3G8Ww_Vukn2I8CBnvh5nYv7DM6Dj36lVtfGvS2V_mbB0iGCiQ53oL8JdhM2JzCDwXgCVcOSwJzghZRjQWjjS6H9aENVynmy4O0pNL4GMElcuSXbmVdZikrsXVrtyoII8HJHFHzBGz24NtLWzoOxGgbOPioh7Vmt7PdzEtEvHe6Kq059AgVvrHFLHlCRTj6Afn9H87cvYSE7cPa-OnLJ8oIODx6wTpLkefzPSbl1mtC1tyVK5K4iR_QS4uk64rJ1a3EwgquC7feruWPs-n3qN-H656M5HvL2jmwMQZs17prRrvcTLJi0MbQDsPozz4xnCMJN1K8d9jYhAEV66hfcxgaQ0t6",
+            "width": 2448
+          }
+        ],
+        "place_id": "ChIJ3aLejlNI0xQRUnewaHf5a-0",
+        "plus_code": {
+          "compound_code": "WQX4+VV Yenimahalle/Ankara",
+          "global_code": "8GFJWQX4+VV"
+        },
+        "rating": 3.6,
+        "reference": "ChIJ3aLejlNI0xQRUnewaHf5a-0",
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "user_ratings_total": 47
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Macun, 250. Cadde, 06374 Yenimahalle/Ankara",
+        "formatted_phone_number": "(0312) 526 26 26",
+        "geometry": {
+          "location": {
+            "lat": 39.9497262,
+            "lng": 32.7571982
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.95111818029151,
+              "lng": 32.7583558802915
+            },
+            "southwest": {
+              "lat": 39.94842021970851,
+              "lng": 32.7556579197085
+            }
+          }
+        },
+        "international_phone_number": "+90 312 526 26 26",
+        "name": "Yenimahalle Belediyesi Sahipsiz Hayvanlar Bakimevi",
+        "opening_hours": {
+          "open_now": false,
+          "periods": [
+            {
+              "close": {
+                "day": 1,
+                "time": "1700"
+              },
+              "open": {
+                "day": 1,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1700"
+              },
+              "open": {
+                "day": 2,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1700"
+              },
+              "open": {
+                "day": 3,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1700"
+              },
+              "open": {
+                "day": 4,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "1700"
+              },
+              "open": {
+                "day": 5,
+                "time": "0800"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "1700"
+              },
+              "open": {
+                "day": 6,
+                "time": "0800"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 08:00–17:00",
+            "Salı: 08:00–17:00",
+            "Çarşamba: 08:00–17:00",
+            "Perşembe: 08:00–17:00",
+            "Cuma: 08:00–17:00",
+            "Cumartesi: 08:00–17:00",
+            "Pazar: Kapalı"
+          ]
+        },
+        "place_id": "ChIJ3aLejlNI0xQRUnewaHf5a-0",
+        "rating": 3.6,
+        "types": [
+          "establishment",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=17108041900749780818",
+        "user_ratings_total": 47
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  },
+  {
+    "external_source_id": "ChIJKz5bErhJ0xQRWGt3WDbBDxo",
+    "type": "shelter",
+    "name": "Yenimahalle Belediyesi Sahipsiz Hayvanlar Bakımevi",
+    "address": "Macun, Batı Blv No:41, 06374 Yenimahalle/Ankara",
+    "district": null,
+    "phone": null,
+    "international_phone_number": null,
+    "website": null,
+    "opening_hours": [
+      "Pazartesi: 09:00–18:00",
+      "Salı: 09:00–18:00",
+      "Çarşamba: 09:00–18:00",
+      "Perşembe: 09:00–18:00",
+      "Cuma: 09:00–18:00",
+      "Cumartesi: Kapalı",
+      "Pazar: Kapalı"
+    ],
+    "rating": null,
+    "user_rating_count": null,
+    "latitude": 39.948713,
+    "longitude": 32.7576964,
+    "google_maps_url": "https://maps.google.com/?cid=1877932008793402200",
+    "types": [
+      "doctor",
+      "establishment",
+      "health",
+      "point_of_interest"
+    ],
+    "raw": {
+      "summary": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Macun, Batı Blv No:41, 06374 Yenimahalle/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.948713,
+            "lng": 32.7576964
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.95022493029149,
+              "lng": 32.7589990302915
+            },
+            "southwest": {
+              "lat": 39.94752696970849,
+              "lng": 32.7563010697085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+        "icon_background_color": "#7B9EB0",
+        "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+        "name": "Yenimahalle Belediyesi Sahipsiz Hayvanlar Bakımevi",
+        "opening_hours": {
+          "open_now": false
+        },
+        "photos": [
+          {
+            "height": 4640,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/109920033800237623150\">burak t.</a>"
+            ],
+            "photo_reference": "AU_ZVEGdrzoocu2QoFXtX7Hfxr2u2k1IoLptYiXxrAj1HzfhByR1S0_sgp_zVLEhmADlLQfylF120YD8aZtx8sffT74sfNYLnhR_hiUYC0p7IojWk-uHv5xKfDXB3nYWWvmjK2vb0L26iJJzq3iLQVVdHdbrkydurwr8EnHfk93ZS8UPLfEBvof14FwhCbgyCwbsiicr52Ipsv8lAp52OdBcFG5edcsc8ISkmqewGKYL6G3oRDRtFnjfFkWPJWX_SHrPMfidiTFVFKryzQhV-Dl3YnitxKtU7vC1UI8wwsy5N2Ladi0HeV0770JnbqZHwlrgIi1AQAM5AqxS34dxFe5mPOpiHJn-2qlEqNt8wIQXraPafOYX823HyEDgPKr_iblcACH5OIa3P1dBhPLB8nOagy3-HwULPcW05TXgRMnlDhcvizHN",
+            "width": 2610
+          }
+        ],
+        "place_id": "ChIJKz5bErhJ0xQRWGt3WDbBDxo",
+        "plus_code": {
+          "compound_code": "WQX5+F3 Yenimahalle/Ankara",
+          "global_code": "8GFJWQX5+F3"
+        },
+        "reference": "ChIJKz5bErhJ0xQRWGt3WDbBDxo",
+        "types": [
+          "doctor",
+          "establishment",
+          "health",
+          "point_of_interest"
+        ]
+      },
+      "details": {
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Macun, Batı Blv No:41, 06374 Yenimahalle/Ankara",
+        "geometry": {
+          "location": {
+            "lat": 39.948713,
+            "lng": 32.7576964
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 39.95022493029149,
+              "lng": 32.7589990302915
+            },
+            "southwest": {
+              "lat": 39.94752696970849,
+              "lng": 32.7563010697085
+            }
+          }
+        },
+        "name": "Yenimahalle Belediyesi Sahipsiz Hayvanlar Bakımevi",
+        "opening_hours": {
+          "open_now": false,
+          "periods": [
+            {
+              "close": {
+                "day": 1,
+                "time": "1800"
+              },
+              "open": {
+                "day": 1,
+                "time": "0900"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "1800"
+              },
+              "open": {
+                "day": 2,
+                "time": "0900"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "1800"
+              },
+              "open": {
+                "day": 3,
+                "time": "0900"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "1800"
+              },
+              "open": {
+                "day": 4,
+                "time": "0900"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "1800"
+              },
+              "open": {
+                "day": 5,
+                "time": "0900"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Pazartesi: 09:00–18:00",
+            "Salı: 09:00–18:00",
+            "Çarşamba: 09:00–18:00",
+            "Perşembe: 09:00–18:00",
+            "Cuma: 09:00–18:00",
+            "Cumartesi: Kapalı",
+            "Pazar: Kapalı"
+          ]
+        },
+        "place_id": "ChIJKz5bErhJ0xQRWGt3WDbBDxo",
+        "types": [
+          "doctor",
+          "establishment",
+          "health",
+          "point_of_interest"
+        ],
+        "url": "https://maps.google.com/?cid=1877932008793402200"
+      }
+    },
+    "filter_reason": "strong positive keyword in name"
+  }
+]

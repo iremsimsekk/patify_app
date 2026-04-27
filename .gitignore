@@ -63,4 +63,7 @@ app.*.map.json
 /linux/
 /android/.gradle/
 /android/.idea/
+/android/local.properties
+/ios/Flutter/MapsKeys.xcconfig
+/web/maps_config.js
 .vscode/

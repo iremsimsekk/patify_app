@@ -20,7 +20,9 @@ class AnimalDetailScreen extends StatelessWidget {
             pinned: true,
             backgroundColor: theme.colorScheme.surface,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(animal.name, style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+              title: Text(animal.name,
+                  style:
+                      TextStyle(color: textColor, fontWeight: FontWeight.bold)),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -52,15 +54,22 @@ class AnimalDetailScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildInfoBadge(context, "Tür", animal.type, const Color(0xFF51BDC5)!, const Color(0xFF054B50)),
-                      _buildInfoBadge(context, "Cinsiyet", animal.gender, const Color(0xFF51BDC5)!, const Color(0xFF054B50)),
-                      _buildInfoBadge(context, "Yaş", animal.age, const Color(0xFF51BDC5)!, const Color(0xFF054B50)),
+                      _buildInfoBadge(context, "Tür", animal.type,
+                          const Color(0xFF51BDC5), const Color(0xFF054B50)),
+                      _buildInfoBadge(context, "Cinsiyet", animal.gender,
+                          const Color(0xFF51BDC5), const Color(0xFF054B50)),
+                      _buildInfoBadge(context, "Yaş", animal.age,
+                          const Color(0xFF51BDC5), const Color(0xFF054B50)),
                     ],
                   ),
                   const SizedBox(height: 24),
 
                   // Detaylı Özellikler Grid'i
-                  Text("Özellikler", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor)),
+                  Text("Özellikler",
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: textColor)),
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -81,16 +90,23 @@ class AnimalDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  Text("Hikayesi", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor)),
+                  Text("Hikayesi",
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: textColor)),
                   const SizedBox(height: 8),
                   Text(
                     animal.description,
-                    style: TextStyle(fontSize: 16, height: 1.6, color: textColor.withValues(alpha: 0.8)),
+                    style: TextStyle(
+                        fontSize: 16,
+                        height: 1.6,
+                        color: textColor.withValues(alpha: 0.8)),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   // Sahiplen Butonu
                   SizedBox(
                     width: double.infinity,
@@ -101,8 +117,13 @@ class AnimalDetailScreen extends StatelessWidget {
                           context: context,
                           builder: (ctx) => AlertDialog(
                             title: const Text("Başvuru Alındı ❤️"),
-                            content: Text("${animal.name} ile tanışmak için talebiniz barınağa iletildi."),
-                            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Tamam"))],
+                            content: Text(
+                                "${animal.name} ile tanışmak için talebiniz barınağa iletildi."),
+                            actions: [
+                              TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: const Text("Tamam"))
+                            ],
                           ),
                         );
                       },
@@ -119,7 +140,8 @@ class AnimalDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoBadge(BuildContext context, String title, String value, Color bg, Color text) {
+  Widget _buildInfoBadge(
+      BuildContext context, String title, String value, Color bg, Color text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -128,9 +150,13 @@ class AnimalDetailScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(title, style: TextStyle(fontSize: 12, color: text.withValues(alpha: 0.7))),
+          Text(title,
+              style:
+                  TextStyle(fontSize: 12, color: text.withValues(alpha: 0.7))),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: text)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.bold, color: text)),
         ],
       ),
     );
@@ -142,8 +168,12 @@ class AnimalDetailScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+          Text(label,
+              style: const TextStyle(
+                  color: Colors.grey, fontWeight: FontWeight.w500)),
+          Text(value,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black87)),
         ],
       ),
     );
