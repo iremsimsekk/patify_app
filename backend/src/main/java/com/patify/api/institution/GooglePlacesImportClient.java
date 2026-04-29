@@ -16,7 +16,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class GooglePlacesImportClient {
   private static final Logger log = LoggerFactory.getLogger(GooglePlacesImportClient.class);
-  private static final String FALLBACK_FRONTEND_GOOGLE_MAPS_KEY = "PATIFY_GOOGLE_MAPS_API_KEY";
   private static final double ANKARA_LAT = 39.92077;
   private static final double ANKARA_LNG = 32.85411;
   private static final int DEFAULT_RADIUS_METERS = 35000;
@@ -35,9 +34,7 @@ public class GooglePlacesImportClient {
       @Value("${places.api.key:}") String configuredApiKey
   ) {
     this.webClient = webClientBuilder.build();
-    this.apiKey = configuredApiKey == null || configuredApiKey.isBlank()
-        ? FALLBACK_FRONTEND_GOOGLE_MAPS_KEY
-        : configuredApiKey.trim();
+    this.apiKey = configuredApiKey == null ? "" : configuredApiKey.trim();
   }
 
   public List<ExternalPlaceSummary> fetchAnkaraVets() {
@@ -151,6 +148,14 @@ public class GooglePlacesImportClient {
       String url,
       java.util.function.Function<UriComponentsBuilder, java.net.URI> uriCustomizer
   ) {
+    if (apiKey.isBlank()) {
+      throw new InstitutionImportException(
+          "PLACES_API_KEY_MISSING",
+          "places.api.key is required only for legacy Google Places import.",
+          ""
+      );
+    }
+
     String body = webClient.get()
         .uri(uriCustomizer.apply(UriComponentsBuilder.fromHttpUrl(url)))
         .retrieve()
