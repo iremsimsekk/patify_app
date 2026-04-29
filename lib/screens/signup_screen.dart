@@ -32,15 +32,15 @@ class _SignupScreenState extends State<SignupScreen> {
   String _friendlyError(Object e) {
     final s = e.toString();
 
-    if (s.contains('EMAIL_EXISTS')) return 'Bu email zaten kayitli.';
-    if (s.contains('INVALID')) return 'Bilgiler hatali. Lutfen tekrar dene.';
+    if (s.contains('EMAIL_EXISTS')) return 'Bu e-posta adresi zaten kayıtlı.';
+    if (s.contains('INVALID')) return 'Bilgilerde bir hata var. Lütfen tekrar dene.';
     if (s.contains('SocketException') || s.contains('Connection refused')) {
-      return 'Sunucuya baglanilamadi. Backend ve baseUrl ayarlarini kontrol et.';
+      return 'Sunucuya bağlanılamadı. Lütfen bağlantını kontrol edip tekrar dene.';
     }
     if (s.contains('TimeoutException')) {
-      return 'Istek zaman asimina ugradi. Baglantini kontrol edip tekrar dene.';
+      return 'İstek zaman aşımına uğradı. Lütfen bağlantını kontrol edip tekrar dene.';
     }
-    return 'Kayit basarisiz. Lutfen tekrar dene.';
+    return 'Kayıt tamamlanamadı. Lütfen tekrar dene.';
   }
 
   Future<void> _signup() async {
@@ -71,7 +71,7 @@ class _SignupScreenState extends State<SignupScreen> {
       if (!mounted) return;
       setState(() {
         _success =
-            '${result.email.isNotEmpty ? result.email : email} adresine dogrulama maili gonderildi. Giris yapmadan once maildeki linke tikla.';
+            '${result.email.isNotEmpty ? result.email : email} adresine doğrulama e-postası gönderdik. Giriş yapmadan önce e-postadaki bağlantıya tıkla.';
       });
     } catch (e) {
       setState(() => _error = _friendlyError(e));
@@ -99,7 +99,7 @@ class _SignupScreenState extends State<SignupScreen> {
         );
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Kayit Ol")),
+      appBar: AppBar(title: const Text("Kayıt Ol")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(PatifyTheme.space24),
         child: Center(
@@ -117,13 +117,13 @@ class _SignupScreenState extends State<SignupScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        "Yeni bir hesap olustur",
+                        "Yeni bir hesap oluştur",
                         style: textTheme.headlineSmall,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: PatifyTheme.space8),
                       Text(
-                        "Temel bilgilerini ekleyip Patify deneyimine katil.",
+                        "Temel bilgilerini ekleyip Patify deneyimine katıl.",
                         style: textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
@@ -134,7 +134,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         textInputAction: TextInputAction.next,
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
-                            return "Ad bos olamaz.";
+                            return "Ad boş olamaz.";
                           }
                           return null;
                         },
@@ -146,7 +146,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         textInputAction: TextInputAction.next,
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
-                            return "Soyad bos olamaz.";
+                            return "Soyad boş olamaz.";
                           }
                           return null;
                         },
@@ -154,14 +154,14 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: PatifyTheme.space12),
                       TextFormField(
                         controller: _emailController,
-                        decoration: deco("Email", Icons.email_outlined),
+                        decoration: deco("E-posta", Icons.email_outlined),
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
                         validator: (v) {
                           final email = (v ?? '').trim();
-                          if (email.isEmpty) return "Email bos olamaz.";
+                          if (email.isEmpty) return "E-posta boş olamaz.";
                           if (!_isValidEmail(email)) {
-                            return "Lutfen gecerli bir email gir.";
+                            return "Lütfen geçerli bir e-posta adresi gir.";
                           }
                           return null;
                         },
@@ -170,14 +170,14 @@ class _SignupScreenState extends State<SignupScreen> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
-                        decoration: deco("Sifre", Icons.lock_outline),
+                        decoration: deco("Şifre", Icons.lock_outline),
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) => _loading ? null : _signup(),
                         validator: (v) {
                           final p = (v ?? '').trim();
-                          if (p.isEmpty) return "Sifre bos olamaz.";
+                          if (p.isEmpty) return "Şifre boş olamaz.";
                           if (p.length < 6) {
-                            return "Sifre en az 6 karakter olmali.";
+                            return "Şifre en az 6 karakter olmalı.";
                           }
                           return null;
                         },
@@ -242,7 +242,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                     color: Colors.white,
                                   ),
                                 )
-                              : const Text("Kayit Ol"),
+                              : const Text("Kayıt Ol"),
                         ),
                       ),
                     ],

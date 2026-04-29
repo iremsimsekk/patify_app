@@ -20,8 +20,10 @@ import java.util.Base64;
 @Service
 public class EmailVerificationService {
   private static final Logger log = LoggerFactory.getLogger(EmailVerificationService.class);
+  private static final long RESEND_COOLDOWN_SECONDS = 120;
 
   private final EmailVerificationTokenRepository tokens;
+  private final UserRepository users;
   private final EmailService emailService;
   private final JdbcTemplate jdbcTemplate;
   private final SecureRandom secureRandom = new SecureRandom();
@@ -30,12 +32,14 @@ public class EmailVerificationService {
 
   public EmailVerificationService(
       EmailVerificationTokenRepository tokens,
+      UserRepository users,
       EmailService emailService,
       JdbcTemplate jdbcTemplate,
       @Value("${app.emailVerification.expiryMinutes:1440}") long expiryMinutes,
       @Value("${app.emailVerification.base-url:http://localhost:8080}") String baseUrl
   ) {
     this.tokens = tokens;
+    this.users = users;
     this.emailService = emailService;
     this.jdbcTemplate = jdbcTemplate;
     this.expiryMinutes = expiryMinutes;
@@ -65,6 +69,39 @@ public class EmailVerificationService {
         + encodedToken;
     log.info("[auth][verification-create] sending email userId={} email={} baseUrl={}", user.id, user.email, baseUrl);
     emailService.sendVerificationEmail(user.email, verificationUrl);
+  }
+
+  @Transactional
+  public void resend(String email) {
+    String normalizedEmail = email != null ? email.toLowerCase().trim() : "";
+    if (normalizedEmail.isBlank()) {
+      log.info("[auth][verification-resend] ignored blank email");
+      return;
+    }
+
+    User user = users.findByEmail(normalizedEmail).orElse(null);
+    if (user == null) {
+      log.info("[auth][verification-resend] no account found email={}", normalizedEmail);
+      return;
+    }
+
+    if (user.emailVerified) {
+      log.info("[auth][verification-resend] already verified userId={} email={}", user.id, user.email);
+      return;
+    }
+
+    Instant now = Instant.now();
+    boolean inCooldown = tokens.findTopByUserIdAndUsedAtIsNullOrderByCreatedAtDesc(user.id)
+        .map(token -> token.createdAt.plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(now))
+        .orElse(false);
+    if (inCooldown) {
+      log.info("[auth][verification-resend] throttled userId={} email={}", user.id, user.email);
+      return;
+    }
+
+    int invalidated = tokens.markUnusedTokensAsUsed(user.id, now);
+    log.info("[auth][verification-resend] invalidated old tokens userId={} count={}", user.id, invalidated);
+    createAndSend(user);
   }
 
   @Transactional

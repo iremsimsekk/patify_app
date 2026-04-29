@@ -105,6 +105,26 @@ class AuthService {
     }
   }
 
+  static Future<void> resendVerificationEmail({required String email}) async {
+    const path = "/auth/resend-verification";
+    final url = "${ApiConfig.baseUrl}$path";
+    debugPrint('[AuthService][resendVerification] POST $url');
+    try {
+      final res = await ApiClient.dio.post(
+        path,
+        data: {"email": email},
+      );
+      debugPrint('[AuthService][resendVerification] status=${res.statusCode}');
+      debugPrint('[AuthService][resendVerification] body=${res.data}');
+    } on DioException catch (error) {
+      _logDioError('resendVerification', url, error);
+      throw Exception(_extractMessage(error));
+    } catch (error) {
+      debugPrint('[AuthService][resendVerification] exception=$error');
+      rethrow;
+    }
+  }
+
   static Future<AuthResponse> updateProfile({
     required String email,
     required String firstName,
