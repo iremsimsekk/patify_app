@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -111,9 +112,10 @@ class _MapScreenState extends State<MapScreen> {
       if (!mounted) {
         return;
       }
+
       setState(() {
         _errorMessage =
-            'Harita ve acil veteriner verileri yüklenemedi. Backend bağlantısını kontrol edip tekrar dene.';
+            'Harita ve acil veteriner verileri yuklenemedi. Backend baglantisini kontrol edip tekrar dene.';
         _nearbyClinics = const <_NearbyClinic>[];
         _markers.clear();
       });
@@ -146,7 +148,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Marker _markerFor(PlaceSummary place, {required double hue}) {
     final ratingText =
-        place.rating != null ? ' • ${place.rating!.toStringAsFixed(1)}' : '';
+        place.rating != null ? ' - ${place.rating!.toStringAsFixed(1)}' : '';
     final snippetBase = place.address?.trim().isNotEmpty == true
         ? place.address!.trim()
         : 'Adres bilgisi yok';
@@ -160,7 +162,7 @@ class _MapScreenState extends State<MapScreen> {
         snippet: '$snippetBase$ratingText',
         onTap: () => _openDetails(place),
       ),
-      onTap: () => _openBottomSheet(place),
+      onTap: () => _openPlaceSheet(place),
     );
   }
 
@@ -170,7 +172,7 @@ class _MapScreenState extends State<MapScreen> {
         latitude: 39.9334,
         longitude: 32.8597,
         isPreciseUserLocation: false,
-        message: 'Harita mobil ve web üzerinde desteklenir.',
+        message: 'Harita mobil ve web uzerinde desteklenir.',
       );
     }
 
@@ -180,7 +182,7 @@ class _MapScreenState extends State<MapScreen> {
         latitude: 39.9334,
         longitude: 32.8597,
         isPreciseUserLocation: false,
-        message: 'Konum servisi kapalı. Harita Ankara merkezi gösteriyor.',
+        message: 'Konum servisi kapali. Harita Ankara merkezi gosteriyor.',
       );
     }
 
@@ -195,7 +197,7 @@ class _MapScreenState extends State<MapScreen> {
         latitude: 39.9334,
         longitude: 32.8597,
         isPreciseUserLocation: false,
-        message: 'Konum izni verilmedi. Harita Ankara merkezi gösteriyor.',
+        message: 'Konum izni verilmedi. Harita Ankara merkezi gosteriyor.',
       );
     }
 
@@ -233,7 +235,8 @@ class _MapScreenState extends State<MapScreen> {
         .toList(growable: false);
 
     items.sort(
-        (left, right) => left.distanceMeters.compareTo(right.distanceMeters));
+      (left, right) => left.distanceMeters.compareTo(right.distanceMeters),
+    );
     return items;
   }
 
@@ -277,7 +280,7 @@ class _MapScreenState extends State<MapScreen> {
     _didFitBounds = true;
   }
 
-  void _openBottomSheet(PlaceSummary place) {
+  void _openPlaceSheet(PlaceSummary place) {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Theme.of(context).cardColor,
@@ -293,32 +296,68 @@ class _MapScreenState extends State<MapScreen> {
             PatifyTheme.space20,
             PatifyTheme.space20,
           ),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(place.name,
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: PatifyTheme.space8),
-                    Text(place.address ?? 'Adres bilgisi yok'),
-                    if (place.rating != null) ...[
-                      const SizedBox(height: PatifyTheme.space8),
-                      Text('Puan: ${place.rating!.toStringAsFixed(1)}'),
-                    ],
-                  ],
-                ),
+              Text(
+                place.name,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(width: PatifyTheme.space12),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _openDetails(place);
-                },
-                child: const Text('Detay'),
+              const SizedBox(height: PatifyTheme.space8),
+              Text(place.address ?? 'Adres bilgisi yok'),
+              const SizedBox(height: PatifyTheme.space8),
+              Wrap(
+                spacing: PatifyTheme.space8,
+                runSpacing: PatifyTheme.space8,
+                children: [
+                  _MetaPill(
+                    label: place.category == PlaceCategory.shelter
+                        ? 'Barinak'
+                        : 'Veteriner',
+                    icon: place.category == PlaceCategory.shelter
+                        ? Icons.home_work_outlined
+                        : Icons.local_hospital_outlined,
+                  ),
+                  if (place.phone != null && place.phone!.trim().isNotEmpty)
+                    _MetaPill(
+                      label: place.phone!,
+                      icon: Icons.phone_outlined,
+                    ),
+                  if (place.rating != null)
+                    _MetaPill(
+                      label: place.userRatingsTotal != null
+                          ? '${place.rating!.toStringAsFixed(1)} (${place.userRatingsTotal})'
+                          : place.rating!.toStringAsFixed(1),
+                      icon: Icons.star_outline,
+                    ),
+                ],
+              ),
+              const SizedBox(height: PatifyTheme.space16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => _launchPhone(place.phone),
+                      child: const Text('Ara'),
+                    ),
+                  ),
+                  const SizedBox(width: PatifyTheme.space8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => _launchDirections(place),
+                      child: const Text('Yol Tarifi Al'),
+                    ),
+                  ),
+                  const SizedBox(width: PatifyTheme.space8),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _openDetails(place);
+                    },
+                    child: const Text('Detay'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -355,9 +394,11 @@ class _MapScreenState extends State<MapScreen> {
       if (!mounted) {
         return;
       }
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Bu kurum için telefon bilgisi bulunmuyor.')),
+          content: Text('Bu kurum icin telefon bilgisi bulunmuyor.'),
+        ),
       );
       return;
     }
@@ -366,7 +407,7 @@ class _MapScreenState extends State<MapScreen> {
     final launched = await launchUrl(uri);
     if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Arama başlatılamadı.')),
+        const SnackBar(content: Text('Arama baslatilamadi.')),
       );
     }
   }
@@ -383,17 +424,46 @@ class _MapScreenState extends State<MapScreen> {
 
     if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Yol tarifi açılamadı.')),
+        const SnackBar(content: Text('Yol tarifi acilamadi.')),
       );
     }
   }
 
+  Future<void> _openNearbyClinicsPage() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _NearbyClinicsScreen(
+          nearbyClinics: _nearbyClinics,
+          loading: _loading,
+          errorMessage: _errorMessage,
+          onRetry: _load,
+          onCall: _launchPhone,
+          onDirections: _launchDirections,
+          onOpenDetails: _openDetails,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Harita')),
+      appBar: AppBar(
+        title: const Text('Harita'),
+        actions: [
+          IconButton(
+            onPressed: _openNearbyClinicsPage,
+            tooltip: 'Yakindaki veterinerler',
+            icon: const Icon(Icons.local_hospital_outlined),
+          ),
+          IconButton(
+            onPressed: _load,
+            tooltip: 'Yenile',
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+        ],
+      ),
       body: !_supportsMap
           ? _DesktopFallback(
               errorMessage: _errorMessage,
@@ -411,9 +481,25 @@ class _MapScreenState extends State<MapScreen> {
                     target: _ankaraCenter,
                     zoom: 11,
                   ),
+                  mapType: MapType.normal,
+                  liteModeEnabled: false,
                   markers: _markers,
+                  zoomGesturesEnabled: true,
+                  scrollGesturesEnabled: true,
+                  rotateGesturesEnabled: true,
+                  tiltGesturesEnabled: true,
+                  zoomControlsEnabled: true,
+                  compassEnabled: true,
+                  mapToolbarEnabled: true,
+                  indoorViewEnabled: true,
+                  buildingsEnabled: true,
                   myLocationEnabled: _myLocationEnabled,
                   myLocationButtonEnabled: _myLocationEnabled,
+                  gestureRecognizers: const {
+                    Factory<OneSequenceGestureRecognizer>(
+                      EagerGestureRecognizer.new,
+                    ),
+                  },
                   onMapCreated: (controller) {
                     if (!_mapController.isCompleted) {
                       _mapController.complete(controller);
@@ -421,82 +507,22 @@ class _MapScreenState extends State<MapScreen> {
                     _isMapReady = true;
                     _fitBoundsIfPossible();
                   },
-                ),
-                Positioned(
-                  left: PatifyTheme.space16,
-                  right: PatifyTheme.space16,
-                  top: PatifyTheme.space12,
-                  child: Container(
-                    padding: const EdgeInsets.all(PatifyTheme.space16),
-                    decoration: BoxDecoration(
-                      color: theme.cardColor.withValues(alpha: 0.96),
-                      borderRadius: BorderRadius.circular(PatifyTheme.radius24),
-                      border: Border.all(color: PatifyTheme.border),
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                              PatifyTheme.textPrimary.withValues(alpha: 0.10),
-                          blurRadius: 24,
-                          offset: const Offset(0, 14),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Ankara', style: theme.textTheme.bodyMedium),
-                              const SizedBox(height: PatifyTheme.space4),
-                              Text(
-                                'Veterinerler ve barınaklar',
-                                style: theme.textTheme.titleLarge,
-                              ),
-                              if (_locationMessage != null) ...[
-                                const SizedBox(height: PatifyTheme.space8),
-                                Text(
-                                  _locationMessage!,
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: _load,
-                          icon: const Icon(Icons.refresh_rounded),
-                          label: const Text('Yenile'),
-                        ),
-                      ],
-                    ),
-                  ),
+                  onTap: (_) {},
                 ),
                 if (_errorMessage != null)
                   _StatusBanner(
                     icon: Icons.error_outline_rounded,
                     text: _errorMessage!,
                     toneColor: PatifyTheme.danger,
-                    top: 112,
+                    top: 12,
                   ),
                 if (_loading)
                   const _StatusBanner(
                     icon: Icons.location_searching_rounded,
-                    text: 'Noktalar ve acil veterinerler yükleniyor...',
+                    text: 'Noktalar ve acil veterinerler yukleniyor...',
                     toneColor: PatifyTheme.primary,
-                    top: 168,
+                    top: 68,
                   ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: _EmergencyPanel(
-                    nearbyClinics: _nearbyClinics,
-                    loading: _loading,
-                    errorMessage: _errorMessage,
-                    onCall: _launchPhone,
-                    onDirections: _launchDirections,
-                    onOpenDetails: _openDetails,
-                  ),
-                ),
               ],
             ),
     );
@@ -511,6 +537,7 @@ class _EmergencyPanel extends StatelessWidget {
     required this.onCall,
     required this.onDirections,
     required this.onOpenDetails,
+    this.showCardChrome = true,
   });
 
   final List<_NearbyClinic> nearbyClinics;
@@ -519,9 +546,126 @@ class _EmergencyPanel extends StatelessWidget {
   final Future<void> Function(String? phone) onCall;
   final Future<void> Function(PlaceSummary place) onDirections;
   final Future<void> Function(PlaceSummary place) onOpenDetails;
+  final bool showCardChrome;
 
   @override
   Widget build(BuildContext context) {
+    final content = Padding(
+      padding: const EdgeInsets.all(PatifyTheme.space16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Acil durumda en yakin veterinerler',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: PatifyTheme.space8),
+          if (loading)
+            const Expanded(
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (errorMessage != null)
+            Expanded(
+              child: Center(
+                child: Text(
+                  errorMessage!,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          else if (nearbyClinics.isEmpty)
+            const Expanded(
+              child: Center(
+                child: Text('Yakin veteriner bulunamadi.'),
+              ),
+            )
+          else
+            Expanded(
+              child: ListView.separated(
+                itemCount: nearbyClinics.length,
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: PatifyTheme.space12),
+                itemBuilder: (context, index) {
+                  final item = nearbyClinics[index];
+                  final place = item.place;
+                  return Container(
+                    padding: const EdgeInsets.all(PatifyTheme.space12),
+                    decoration: BoxDecoration(
+                      color: PatifyTheme.backgroundSoft,
+                      borderRadius:
+                          BorderRadius.circular(PatifyTheme.radius16),
+                      border: Border.all(color: PatifyTheme.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          place.name,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: PatifyTheme.space4),
+                        Text(place.address ?? 'Adres bilgisi yok'),
+                        const SizedBox(height: PatifyTheme.space4),
+                        Wrap(
+                          spacing: PatifyTheme.space8,
+                          runSpacing: PatifyTheme.space8,
+                          children: [
+                            _MetaPill(
+                              label: item.distanceLabel,
+                              icon: Icons.near_me_outlined,
+                            ),
+                            if (place.phone != null &&
+                                place.phone!.trim().isNotEmpty)
+                              _MetaPill(
+                                label: place.phone!,
+                                icon: Icons.phone_outlined,
+                              ),
+                            if (place.rating != null)
+                              _MetaPill(
+                                label: place.userRatingsTotal != null
+                                    ? '${place.rating!.toStringAsFixed(1)} (${place.userRatingsTotal})'
+                                    : place.rating!.toStringAsFixed(1),
+                                icon: Icons.star_outline,
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: PatifyTheme.space12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => onCall(place.phone),
+                                child: const Text('Ara'),
+                              ),
+                            ),
+                            const SizedBox(width: PatifyTheme.space8),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => onDirections(place),
+                                child: const Text('Yol Tarifi Al'),
+                              ),
+                            ),
+                            const SizedBox(width: PatifyTheme.space8),
+                            TextButton(
+                              onPressed: () => onOpenDetails(place),
+                              child: const Text('Detay'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+
+    if (!showCardChrome) {
+      return SafeArea(top: false, child: content);
+    }
+
     return SafeArea(
       minimum: const EdgeInsets.fromLTRB(
         PatifyTheme.space12,
@@ -533,114 +677,7 @@ class _EmergencyPanel extends StatelessWidget {
         margin: EdgeInsets.zero,
         child: SizedBox(
           height: 260,
-          child: Padding(
-            padding: const EdgeInsets.all(PatifyTheme.space16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Acil durumda en yakın veterinerler',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: PatifyTheme.space8),
-                if (loading)
-                  const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (errorMessage != null)
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        errorMessage!,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  )
-                else if (nearbyClinics.isEmpty)
-                  const Expanded(
-                    child: Center(
-                      child: Text('Yakın veteriner bulunamadı.'),
-                    ),
-                  )
-                else
-                  Expanded(
-                    child: ListView.separated(
-                      itemCount: nearbyClinics.length,
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(height: PatifyTheme.space12),
-                      itemBuilder: (context, index) {
-                        final item = nearbyClinics[index];
-                        final place = item.place;
-                        return Container(
-                          padding: const EdgeInsets.all(PatifyTheme.space12),
-                          decoration: BoxDecoration(
-                            color: PatifyTheme.backgroundSoft,
-                            borderRadius:
-                                BorderRadius.circular(PatifyTheme.radius16),
-                            border: Border.all(color: PatifyTheme.border),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(place.name,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium),
-                              const SizedBox(height: PatifyTheme.space4),
-                              Text(place.address ?? 'Adres bilgisi yok'),
-                              const SizedBox(height: PatifyTheme.space4),
-                              Wrap(
-                                spacing: PatifyTheme.space8,
-                                runSpacing: PatifyTheme.space8,
-                                children: [
-                                  _MetaPill(
-                                      label: item.distanceLabel,
-                                      icon: Icons.near_me_outlined),
-                                  if (place.phone != null &&
-                                      place.phone!.trim().isNotEmpty)
-                                    _MetaPill(
-                                        label: place.phone!,
-                                        icon: Icons.phone_outlined),
-                                  if (place.rating != null)
-                                    _MetaPill(
-                                      label: place.userRatingsTotal != null
-                                          ? '${place.rating!.toStringAsFixed(1)} (${place.userRatingsTotal})'
-                                          : place.rating!.toStringAsFixed(1),
-                                      icon: Icons.star_outline,
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: PatifyTheme.space12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton(
-                                      onPressed: () => onCall(place.phone),
-                                      child: const Text('Ara'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: PatifyTheme.space8),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () => onDirections(place),
-                                      child: const Text('Yol Tarifi Al'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: PatifyTheme.space8),
-                                  TextButton(
-                                    onPressed: () => onOpenDetails(place),
-                                    child: const Text('Detay'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          child: content,
         ),
       ),
     );
@@ -678,12 +715,12 @@ class _DesktopFallback extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Harita mobil ve web üzerinde desteklenir',
+                  'Harita mobil ve web uzerinde desteklenir',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: PatifyTheme.space8),
                 const Text(
-                  'Windows masaüstünde uygulama çökmeden çalışmaya devam eder. Bu ekranda en yakın veterinerler listesini kullanabilirsin.',
+                  'Windows masaustunde uygulama cokmeden calismaya devam eder. Bu ekranda en yakin veterinerler listesini kullanabilirsin.',
                 ),
                 if (locationMessage != null) ...[
                   const SizedBox(height: PatifyTheme.space8),
@@ -713,6 +750,51 @@ class _DesktopFallback extends StatelessWidget {
           onOpenDetails: onOpenDetails,
         ),
       ],
+    );
+  }
+}
+
+class _NearbyClinicsScreen extends StatelessWidget {
+  const _NearbyClinicsScreen({
+    required this.nearbyClinics,
+    required this.loading,
+    required this.errorMessage,
+    required this.onRetry,
+    required this.onCall,
+    required this.onDirections,
+    required this.onOpenDetails,
+  });
+
+  final List<_NearbyClinic> nearbyClinics;
+  final bool loading;
+  final String? errorMessage;
+  final VoidCallback onRetry;
+  final Future<void> Function(String? phone) onCall;
+  final Future<void> Function(PlaceSummary place) onDirections;
+  final Future<void> Function(PlaceSummary place) onOpenDetails;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Yakindaki Veterinerler'),
+        actions: [
+          IconButton(
+            onPressed: onRetry,
+            tooltip: 'Yenile',
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+        ],
+      ),
+      body: _EmergencyPanel(
+        nearbyClinics: nearbyClinics,
+        loading: loading,
+        errorMessage: errorMessage,
+        onCall: onCall,
+        onDirections: onDirections,
+        onOpenDetails: onOpenDetails,
+        showCardChrome: false,
+      ),
     );
   }
 }
