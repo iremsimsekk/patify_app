@@ -6,6 +6,7 @@ class ApiConfig {
   ApiConfig._();
 
   static const int port = 8080;
+  static const String defaultBaseUrl = 'http://192.168.1.243:8080';
 
   // Preferred full override, for example:
   // --dart-define=API_BASE_URL=http://192.168.1.243:8080
@@ -26,21 +27,21 @@ class ApiConfig {
     }
 
     if (kIsWeb) {
-      return 'http://localhost:$port';
+      return defaultBaseUrl;
     }
 
     if (Platform.isAndroid) {
-      return 'http://10.0.2.2:$port';
+      return defaultBaseUrl;
     }
 
     if (Platform.isIOS) {
-      return 'http://localhost:$port';
+      return defaultBaseUrl;
     }
 
     if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      return 'http://localhost:$port';
+      return defaultBaseUrl;
     }
 
-    return 'http://localhost:$port';
+    return defaultBaseUrl;
   }
 }
