@@ -19,7 +19,7 @@ public class InstitutionImportRunner implements ApplicationRunner {
   @Value("${patify.import.exit-on-complete:true}")
   private boolean exitOnComplete;
 
-  @Value("${patify.import.source:google}")
+  @Value("${patify.import.source:json}")
   private String importSource;
 
   @Value("${patify.import.json.clinics:classpath:import-data/ankara_veterinary_google_legacy.json}")
