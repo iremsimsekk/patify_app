@@ -1,22 +1,33 @@
 package com.patify.api.auth;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+  private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
   private final UserRepository users;
   private final PasswordEncoder encoder;
   private final JwtService jwt;
+  private final EmailVerificationService emailVerificationService;
 
-  public AuthController(UserRepository users, PasswordEncoder encoder, JwtService jwt) {
+  public AuthController(
+      UserRepository users,
+      PasswordEncoder encoder,
+      JwtService jwt,
+      EmailVerificationService emailVerificationService
+  ) {
     this.users = users;
     this.encoder = encoder;
     this.jwt = jwt;
+    this.emailVerificationService = emailVerificationService;
   }
 
   public record RegisterReq(String email, String password, String firstName, String lastName) {}
@@ -25,11 +36,15 @@ public class AuthController {
   public record ChangePasswordReq(String email, String currentPassword, String newPassword) {}
 
   public record AuthRes(String token, String role, String email, String firstName, String lastName) {}
+  public record RegisterRes(String email, String message) {}
 
+  @Transactional
   @PostMapping("/register")
-  public AuthRes register(@RequestBody RegisterReq req) {
+  public RegisterRes register(@RequestBody RegisterReq req) {
     String email = req.email().toLowerCase().trim();
+    log.info("[auth][register] requested email={}", email);
     if (users.findByEmail(email).isPresent()) {
+      log.info("[auth][register] email already exists email={}", email);
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "EMAIL_EXISTS");
     }
 
@@ -39,22 +54,53 @@ public class AuthController {
     u.role = Role.USER;
     u.firstName = req.firstName() != null ? req.firstName().trim() : null;
     u.lastName = req.lastName() != null ? req.lastName().trim() : null;
+    u.emailVerified = false;
 
     users.save(u);
-    return toAuthRes(u);
+    log.info(
+        "[auth][register] saved user id={} email={} role={} emailVerified={}",
+        u.id,
+        u.email,
+        u.role,
+        u.emailVerified
+    );
+    emailVerificationService.createAndSend(u);
+    return new RegisterRes(u.email, "VERIFICATION_EMAIL_SENT");
+  }
+
+  @GetMapping("/verify-email")
+  public String verifyEmail(@RequestParam String token) {
+    log.info("[auth][verify-email] verification requested");
+    emailVerificationService.verify(token);
+    return "EMAIL_VERIFIED";
   }
 
   @PostMapping("/login")
   public AuthRes login(@RequestBody LoginReq req) {
     String email = req.email().toLowerCase().trim();
+    log.info("[auth][login] requested email={}", email);
     User u = users.findByEmail(email).orElseThrow(
       () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID")
     );
+    log.info(
+        "[auth][login] found user id={} email={} role={} emailVerified={}",
+        u.id,
+        u.email,
+        u.role,
+        u.emailVerified
+    );
 
     if (!encoder.matches(req.password(), u.passwordHash)) {
+      log.info("[auth][login] invalid password userId={} email={}", u.id, u.email);
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID");
     }
 
+    if (!u.emailVerified) {
+      log.info("[auth][login] blocked unverified userId={} email={}", u.id, u.email);
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "EMAIL_NOT_VERIFIED");
+    }
+
+    log.info("[auth][login] success userId={} email={}", u.id, u.email);
     return toAuthRes(u);
   }
 
@@ -116,6 +162,7 @@ public class AuthController {
     u.role = Role.ADMIN;
     u.firstName = firstName != null ? firstName.trim() : null;
     u.lastName = lastName != null ? lastName.trim() : null;
+    u.emailVerified = true;
 
     users.save(u);
     return "admin seeded";

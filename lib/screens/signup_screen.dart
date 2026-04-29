@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../config/api_keys.dart';
-import '../data/mock_data.dart';
 import '../services/auth_service.dart';
 import '../theme/patify_theme.dart';
-import 'main_wrapper.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -24,6 +21,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _loading = false;
   bool _submitted = false;
   String? _error;
+  String? _success;
 
   bool _isValidEmail(String email) {
     final e = email.trim();
@@ -49,6 +47,7 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       _submitted = true;
       _error = null;
+      _success = null;
     });
 
     final ok = _formKey.currentState?.validate() ?? false;
@@ -62,34 +61,18 @@ class _SignupScreenState extends State<SignupScreen> {
     final password = _passwordController.text.trim();
 
     try {
-      final auth = await AuthService.register(
+      final result = await AuthService.register(
         email: email,
         password: password,
         firstName: firstName,
         lastName: lastName,
       );
 
-      final user = AppUser(
-        id: 'u_${DateTime.now().millisecondsSinceEpoch}',
-        email: auth.email.isNotEmpty ? auth.email : email.toLowerCase(),
-        password: '',
-        firstName: auth.firstName ?? firstName,
-        lastName: auth.lastName ?? lastName,
-        name: "${auth.firstName ?? firstName} ${auth.lastName ?? lastName}"
-            .trim(),
-        type: auth.role == "ADMIN" ? UserType.shelter : UserType.petOwner,
-      );
-
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MainWrapper(
-            currentUser: user,
-            apiKey: ApiKeys.googleMaps,
-          ),
-        ),
-      );
+      setState(() {
+        _success =
+            '${result.email.isNotEmpty ? result.email : email} adresine dogrulama maili gonderildi. Giris yapmadan once maildeki linke tikla.';
+      });
     } catch (e) {
       setState(() => _error = _friendlyError(e));
     } finally {
@@ -215,6 +198,30 @@ class _SignupScreenState extends State<SignupScreen> {
                             _error!,
                             style: textTheme.bodyMedium?.copyWith(
                               color: PatifyTheme.danger,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: PatifyTheme.space16),
+                      ],
+                      if (_success != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(PatifyTheme.space12),
+                          decoration: BoxDecoration(
+                            color:
+                                PatifyTheme.success.withValues(alpha: 0.08),
+                            borderRadius:
+                                BorderRadius.circular(PatifyTheme.radius12),
+                            border: Border.all(
+                              color:
+                                  PatifyTheme.success.withValues(alpha: 0.22),
+                            ),
+                          ),
+                          child: Text(
+                            _success!,
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: PatifyTheme.success,
                               fontWeight: FontWeight.w700,
                             ),
                             textAlign: TextAlign.center,

@@ -77,6 +77,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final message = error.toString();
 
     if (message.contains('EMAIL_EXISTS')) return 'Bu email zaten kayitli.';
+    if (message.contains('EMAIL_NOT_VERIFIED')) {
+      return 'Giris yapmadan once email adresini dogrulaman gerekiyor. Lutfen gelen kutunu kontrol et.';
+    }
     if (message.contains('INVALID')) return 'Email veya sifre hatali.';
     if (message.contains('SocketException') ||
         message.contains('Connection refused')) {
