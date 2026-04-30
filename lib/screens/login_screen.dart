@@ -21,7 +21,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   String? _errorMessage;
+  String? _infoMessage;
   bool _loading = false;
+  bool _resendLoading = false;
   bool _submitted = false;
 
   bool _isValidEmail(String email) {
@@ -76,22 +78,73 @@ class _LoginScreenState extends State<LoginScreen> {
   String _friendlyError(Object error) {
     final message = error.toString();
 
-    if (message.contains('EMAIL_EXISTS')) return 'Bu email zaten kayitli.';
-    if (message.contains('INVALID')) return 'Email veya sifre hatali.';
+    if (message.contains('EMAIL_EXISTS')) {
+      return 'Bu e-posta adresi zaten kayıtlı.';
+    }
+    if (message.contains('EMAIL_NOT_VERIFIED')) {
+      return 'Giriş yapmadan önce e-posta adresini doğrulaman gerekiyor. Lütfen gelen kutunu kontrol et.';
+    }
+    if (message.contains('INVALID')) return 'E-posta adresi veya şifre hatalı.';
     if (message.contains('SocketException') ||
         message.contains('Connection refused')) {
-      return 'Backend baglantisi kurulamadi. Sunucu ve baseUrl ayarlarini kontrol et.';
+      return 'Sunucuya bağlanılamadı. Lütfen bağlantını kontrol edip tekrar dene.';
     }
     if (message.contains('TimeoutException')) {
-      return 'Istek zaman asimina ugradi. Baglantiyi kontrol edip tekrar dene.';
+      return 'İstek zaman aşımına uğradı. Lütfen bağlantını kontrol edip tekrar dene.';
     }
-    return 'Giris basarisiz. Lutfen tekrar dene.';
+    return 'Giriş yapılamadı. Lütfen tekrar dene.';
+  }
+
+  String _friendlyResendError(Object error) {
+    final message = error.toString();
+
+    if (message.contains('SocketException') ||
+        message.contains('Connection refused')) {
+      return 'Sunucuya bağlanılamadı. Lütfen bağlantını kontrol edip tekrar dene.';
+    }
+    if (message.contains('TimeoutException')) {
+      return 'İstek zaman aşımına uğradı. Lütfen bağlantını kontrol edip tekrar dene.';
+    }
+    return 'Doğrulama e-postası isteği gönderilemedi. Lütfen tekrar dene.';
+  }
+
+  Future<void> _resendVerificationEmail() async {
+    final email = _emailController.text.trim();
+    setState(() {
+      _errorMessage = null;
+      _infoMessage = null;
+    });
+
+    if (email.isEmpty || !_isValidEmail(email)) {
+      setState(() {
+        _errorMessage =
+            'Doğrulama e-postası gönderebilmemiz için geçerli bir e-posta adresi gir.';
+      });
+      return;
+    }
+
+    setState(() => _resendLoading = true);
+
+    try {
+      await AuthService.resendVerificationEmail(email: email);
+      if (!mounted) return;
+      setState(() {
+        _infoMessage =
+            'Eğer bu e-posta adresine ait doğrulanmamış bir hesap varsa, yeni doğrulama bağlantısı gönderildi.';
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = _friendlyResendError(error));
+    } finally {
+      if (mounted) setState(() => _resendLoading = false);
+    }
   }
 
   Future<void> _login() async {
     setState(() {
       _submitted = true;
       _errorMessage = null;
+      _infoMessage = null;
     });
 
     final isValid = _formKey.currentState?.validate() ?? false;
@@ -187,7 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text('Patify', style: textTheme.displayMedium),
                         const SizedBox(height: PatifyTheme.space8),
                         Text(
-                          'Evcil dostlarin icin sakin, guvenli ve modern bir deneyim.',
+                          'Evcil dostların için sakin, güvenli ve modern bir deneyim.',
                           style: textTheme.bodyMedium,
                           textAlign: TextAlign.center,
                         ),
@@ -195,14 +248,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextFormField(
                           controller: _emailController,
                           decoration:
-                              inputDecoration('Email', Icons.email_outlined),
+                              inputDecoration('E-posta', Icons.email_outlined),
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           validator: (value) {
                             final email = (value ?? '').trim();
-                            if (email.isEmpty) return 'Email bos olamaz.';
+                            if (email.isEmpty) return 'E-posta boş olamaz.';
                             if (!_isValidEmail(email)) {
-                              return 'Lutfen gecerli bir email gir.';
+                              return 'Lütfen geçerli bir e-posta adresi gir.';
                             }
                             return null;
                           },
@@ -212,12 +265,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _passwordController,
                           obscureText: true,
                           decoration:
-                              inputDecoration('Sifre', Icons.lock_outline),
+                              inputDecoration('Şifre', Icons.lock_outline),
                           textInputAction: TextInputAction.done,
                           onFieldSubmitted: (_) => _loading ? null : _login(),
                           validator: (value) {
                             final password = (value ?? '').trim();
-                            if (password.isEmpty) return 'Sifre bos olamaz.';
+                            if (password.isEmpty) return 'Şifre boş olamaz.';
                             return null;
                           },
                         ),
@@ -225,7 +278,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: _loading ? null : _login,
+                            onPressed:
+                                (_loading || _resendLoading) ? null : _login,
                             child: _loading
                                 ? const SizedBox(
                                     width: 22,
@@ -235,17 +289,36 @@ class _LoginScreenState extends State<LoginScreen> {
                                       color: Colors.white,
                                     ),
                                   )
-                                : const Text('Giris Yap'),
+                                : const Text('Giriş Yap'),
                           ),
                         ),
                         const SizedBox(height: PatifyTheme.space12),
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
-                            onPressed: _loading ? null : _guestLogin,
+                            onPressed: (_loading || _resendLoading)
+                                ? null
+                                : _guestLogin,
                             icon: const Icon(Icons.person_outline),
-                            label: const Text('Misafir Girisi'),
+                            label: const Text('Misafir Girişi'),
                           ),
+                        ),
+                        const SizedBox(height: PatifyTheme.space8),
+                        TextButton(
+                          onPressed: (_loading || _resendLoading)
+                              ? null
+                              : _resendVerificationEmail,
+                          child: _resendLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Doğrulama e-postasını yeniden gönder',
+                                ),
                         ),
                         if (_errorMessage != null) ...[
                           const SizedBox(height: PatifyTheme.space16),
@@ -271,6 +344,31 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ],
+                        if (_infoMessage != null) ...[
+                          const SizedBox(height: PatifyTheme.space16),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(PatifyTheme.space12),
+                            decoration: BoxDecoration(
+                              color:
+                                  PatifyTheme.success.withValues(alpha: 0.08),
+                              borderRadius:
+                                  BorderRadius.circular(PatifyTheme.radius12),
+                              border: Border.all(
+                                color:
+                                    PatifyTheme.success.withValues(alpha: 0.22),
+                              ),
+                            ),
+                            child: Text(
+                              _infoMessage!,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: PatifyTheme.success,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: PatifyTheme.space8),
                         TextButton(
                           onPressed: _loading
@@ -283,7 +381,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   );
                                 },
-                          child: const Text('Hesabin yok mu? Kayit Ol'),
+                          child: const Text('Hesabın yok mu? Kayıt Ol'),
                         ),
                       ],
                     ),

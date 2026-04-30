@@ -25,4 +25,7 @@ public class User {
 
   @Column(name = "last_name")
   public String lastName;
+
+  @Column(name = "email_verified", nullable = false)
+  public boolean emailVerified = false;
 }
