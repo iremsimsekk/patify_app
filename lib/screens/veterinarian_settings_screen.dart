@@ -184,7 +184,12 @@ class _InfoTile extends StatelessWidget {
             children: [
               Text(title, style: Theme.of(context).textTheme.labelLarge),
               const SizedBox(height: PatifyTheme.space4),
-              Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                subtitle,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ],
           ),
         ),

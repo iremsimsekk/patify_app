@@ -267,7 +267,11 @@ class _ProfileLine extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: PatifyTheme.space4),
-          Text(value, style: Theme.of(context).textTheme.bodyLarge),
+          Text(
+            value,
+            softWrap: true,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
         ],
       ),
     );

@@ -27,7 +27,6 @@ class _VeterinarianCalendarScreenState
   bool _loading = false;
   String? _error;
   VeterinarianDaySlots? _daySlots;
-  VeterinarianMonthSummary? _monthSummary;
 
   @override
   void initState() {
@@ -49,7 +48,6 @@ class _VeterinarianCalendarScreenState
         _loading = false;
         _error = null;
         _daySlots = null;
-        _monthSummary = null;
       });
       return;
     }
@@ -60,15 +58,11 @@ class _VeterinarianCalendarScreenState
     });
 
     try {
-      final month = await AppointmentService.fetchVeterinarianMonthSummary(
-        month: _visibleMonth,
-      );
       final day = await AppointmentService.fetchVeterinarianSlots(
         date: _selectedDate,
       );
       if (!mounted) return;
       setState(() {
-        _monthSummary = month;
         _daySlots = day;
       });
     } catch (error) {
@@ -86,14 +80,12 @@ class _VeterinarianCalendarScreenState
 
   void _changeMonth(int offset) {
     final next = DateTime(_visibleMonth.year, _visibleMonth.month + offset);
-    final newSelected = DateTime(
-      next.year,
-      next.month,
-      _selectedDate.month == next.month ? _selectedDate.day : 1,
-    );
     setState(() {
       _visibleMonth = next;
-      _selectedDate = DateUtils.dateOnly(newSelected);
+      if (_selectedDate.year != next.year ||
+          _selectedDate.month != next.month) {
+        _selectedDate = DateTime(next.year, next.month, 1);
+      }
     });
     _load();
   }
@@ -105,6 +97,7 @@ class _VeterinarianCalendarScreenState
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.fromLTRB(
           PatifyTheme.space20,
           PatifyTheme.space16,
@@ -154,7 +147,7 @@ class _VeterinarianCalendarScreenState
           else ...[
             _buildCalendar(theme),
             const SizedBox(height: PatifyTheme.space16),
-            _buildSummary(theme),
+            _buildSummary(),
             const SizedBox(height: PatifyTheme.space16),
             Text(
               '${_formatDate(_selectedDate)} günü slotları',
@@ -181,35 +174,29 @@ class _VeterinarianCalendarScreenState
   }
 
   Widget _buildCalendar(ThemeData theme) {
-    final month = _monthSummary;
     final firstDay = DateTime(_visibleMonth.year, _visibleMonth.month, 1);
     final daysInMonth =
         DateTime(_visibleMonth.year, _visibleMonth.month + 1, 0).day;
     final leadingEmpty = (firstDay.weekday + 6) % 7;
-    final cells = <Widget>[];
-    final summaries = {
-      for (final day in month?.days ?? const <VeterinarianCalendarDaySummary>[])
-        DateUtils.dateOnly(day.date): day,
-    };
 
-    for (var i = 0; i < leadingEmpty; i++) {
-      cells.add(const SizedBox.shrink());
-    }
-
-    for (var day = 1; day <= daysInMonth; day++) {
-      final current = DateTime(_visibleMonth.year, _visibleMonth.month, day);
-      final summary = summaries[DateUtils.dateOnly(current)];
-      final selected = DateUtils.isSameDay(current, _selectedDate);
-      cells.add(
+    final cells = <Widget>[
+      for (var i = 0; i < leadingEmpty; i++) const SizedBox.shrink(),
+      for (var day = 1; day <= daysInMonth; day++)
         _CalendarDayCell(
-          date: current,
-          summary: summary,
-          selected: selected,
-          isToday: DateUtils.isSameDay(current, DateTime.now()),
-          onTap: () => _selectDate(current),
+          date: DateTime(_visibleMonth.year, _visibleMonth.month, day),
+          selected: DateUtils.isSameDay(
+            DateTime(_visibleMonth.year, _visibleMonth.month, day),
+            _selectedDate,
+          ),
+          isToday: DateUtils.isSameDay(
+            DateTime(_visibleMonth.year, _visibleMonth.month, day),
+            DateTime.now(),
+          ),
+          onTap: () => _selectDate(
+            DateTime(_visibleMonth.year, _visibleMonth.month, day),
+          ),
         ),
-      );
-    }
+    ];
 
     return Container(
       padding: const EdgeInsets.all(PatifyTheme.space16),
@@ -230,6 +217,8 @@ class _VeterinarianCalendarScreenState
                 child: Text(
                   _formatMonthTitle(_visibleMonth),
                   textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleLarge,
                 ),
               ),
@@ -252,49 +241,72 @@ class _VeterinarianCalendarScreenState
             ],
           ),
           const SizedBox(height: PatifyTheme.space8),
-          GridView.count(
+          GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 7,
-            mainAxisSpacing: PatifyTheme.space8,
-            crossAxisSpacing: PatifyTheme.space8,
-            childAspectRatio: 0.82,
-            children: cells,
+            itemCount: cells.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              mainAxisSpacing: PatifyTheme.space8,
+              crossAxisSpacing: PatifyTheme.space8,
+              mainAxisExtent: 52,
+            ),
+            itemBuilder: (context, index) => cells[index],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSummary(ThemeData theme) {
+  Widget _buildSummary() {
     final summary = _daySlots?.summary;
     if (summary == null) return const SizedBox.shrink();
 
-    return Wrap(
-      spacing: PatifyTheme.space12,
-      runSpacing: PatifyTheme.space12,
-      children: [
-        _CountCard(
-          title: 'Toplam',
-          value: summary.totalSlots.toString(),
-          accent: PatifyTheme.info,
-        ),
-        _CountCard(
-          title: 'Boş',
-          value: summary.availableSlots.toString(),
-          accent: PatifyTheme.success,
-        ),
-        _CountCard(
-          title: 'Dolu',
-          value: summary.bookedSlots.toString(),
-          accent: PatifyTheme.primary,
-        ),
-        _CountCard(
-          title: 'İptal',
-          value: summary.cancelledSlots.toString(),
-          accent: PatifyTheme.danger,
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = constraints.maxWidth < 540
+            ? constraints.maxWidth
+            : (constraints.maxWidth - 12) / 2;
+
+        return Wrap(
+          spacing: PatifyTheme.space12,
+          runSpacing: PatifyTheme.space12,
+          children: [
+            SizedBox(
+              width: cardWidth,
+              child: _CountCard(
+                title: 'Toplam',
+                value: summary.totalSlots.toString(),
+                accent: PatifyTheme.info,
+              ),
+            ),
+            SizedBox(
+              width: cardWidth,
+              child: _CountCard(
+                title: 'Boş',
+                value: summary.availableSlots.toString(),
+                accent: PatifyTheme.success,
+              ),
+            ),
+            SizedBox(
+              width: cardWidth,
+              child: _CountCard(
+                title: 'Dolu',
+                value: summary.bookedSlots.toString(),
+                accent: PatifyTheme.primary,
+              ),
+            ),
+            SizedBox(
+              width: cardWidth,
+              child: _CountCard(
+                title: 'İptal',
+                value: summary.cancelledSlots.toString(),
+                accent: PatifyTheme.danger,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -317,13 +329,14 @@ class _VeterinarianCalendarScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            Wrap(
+              spacing: PatifyTheme.space12,
+              runSpacing: PatifyTheme.space12,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(
-                  child: Text(
-                    '${_formatClock(slot.startTime)} - ${_formatClock(slot.endTime)}',
-                    style: theme.textTheme.titleMedium,
-                  ),
+                Text(
+                  '${_formatClock(slot.startTime)} - ${_formatClock(slot.endTime)}',
+                  style: theme.textTheme.titleMedium,
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -336,6 +349,8 @@ class _VeterinarianCalendarScreenState
                   ),
                   child: Text(
                     label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelLarge?.copyWith(color: color),
                   ),
                 ),
@@ -357,7 +372,11 @@ class _VeterinarianCalendarScreenState
               ),
               if (slot.bookedByEmail != null) ...[
                 const SizedBox(height: PatifyTheme.space4),
-                Text(slot.bookedByEmail!, style: theme.textTheme.bodyMedium),
+                Text(
+                  slot.bookedByEmail!,
+                  softWrap: true,
+                  style: theme.textTheme.bodyMedium,
+                ),
               ],
             ],
             if (slot.isAvailable) ...[
@@ -451,29 +470,24 @@ class _VeterinarianCalendarScreenState
 class _CalendarDayCell extends StatelessWidget {
   const _CalendarDayCell({
     required this.date,
-    required this.summary,
     required this.selected,
     required this.isToday,
     required this.onTap,
   });
 
   final DateTime date;
-  final VeterinarianCalendarDaySummary? summary;
   final bool selected;
   final bool isToday;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(PatifyTheme.radius16),
         child: Ink(
-          padding: const EdgeInsets.all(PatifyTheme.space8),
           decoration: BoxDecoration(
             color: selected
                 ? PatifyTheme.primarySoft
@@ -489,34 +503,14 @@ class _CalendarDayCell extends StatelessWidget {
                       : PatifyTheme.border,
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${date.day}',
-                style: theme.textTheme.titleMedium,
-              ),
-              const Spacer(),
-              if (summary?.hasSlots == true)
-                Row(
-                  children: [
-                    const _Dot(color: PatifyTheme.success),
-                    const SizedBox(width: 4),
-                    const _Dot(color: PatifyTheme.primary),
-                    if ((summary?.cancelledSlots ?? 0) > 0) ...[
-                      const SizedBox(width: 4),
-                      const _Dot(color: PatifyTheme.danger),
-                    ],
-                  ],
-                ),
-              if (summary?.hasSlots == true) ...[
-                const SizedBox(height: 4),
-                Text(
-                  '${summary!.totalSlots} slot',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11),
-                ),
-              ],
-            ],
+          child: Center(
+            child: Text(
+              '${date.day}',
+              maxLines: 1,
+              overflow: TextOverflow.clip,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
         ),
       ),
@@ -535,28 +529,12 @@ class _WeekdayLabel extends StatelessWidget {
       child: Center(
         child: Text(
           label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: PatifyTheme.textSecondary,
               ),
         ),
-      ),
-    );
-  }
-}
-
-class _Dot extends StatelessWidget {
-  const _Dot({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 6,
-      height: 6,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
       ),
     );
   }
@@ -576,7 +554,6 @@ class _CountCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160,
       padding: const EdgeInsets.all(PatifyTheme.space16),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.1),
@@ -589,6 +566,8 @@ class _CountCard extends StatelessWidget {
           const SizedBox(height: PatifyTheme.space8),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: accent,
                 ),

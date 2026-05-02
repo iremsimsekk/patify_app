@@ -4,6 +4,7 @@ import '../constants/ankara_districts.dart';
 import '../services/google_places_service.dart';
 import '../services/institution_repository.dart';
 import '../theme/patify_theme.dart';
+import '../widgets/patify_user_bottom_nav.dart';
 import '../widgets/place_directory_widgets.dart';
 import 'shelter_detail_screen.dart';
 
@@ -27,6 +28,7 @@ class ShelterListScreen extends StatefulWidget {
 class _ShelterListScreenState extends State<ShelterListScreen> {
   late final InstitutionRepository _repo;
   late Future<List<PlaceSummary>> _future;
+  late final TextEditingController _searchController;
 
   String _searchQuery = '';
   String _selectedDistrict = "Tümü";
@@ -50,6 +52,13 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
     _repo = InstitutionRepository();
     _future = _repo.getAnkaraShelters(radiusMeters: 35000);
     _selectedStarRange = _starRanges.first;
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   String _districtLabelOf(PlaceSummary place) {
@@ -79,16 +88,31 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
   }
 
   bool _matchesSearch(PlaceSummary place) {
-    final query = _searchQuery.trim().toLowerCase();
+    final query = _normalize(_searchQuery);
     if (query.isEmpty) return true;
 
-    final haystack = [
+    final haystack = _normalize([
       place.name,
       place.address ?? '',
       _districtLabelOf(place),
-    ].join(' ').toLowerCase();
+      place.email ?? '',
+      place.phone ?? '',
+      place.website ?? '',
+    ].join(' '));
 
     return haystack.contains(query);
+  }
+
+  String _normalize(String value) {
+    return value
+        .toLowerCase()
+        .replaceAll('ç', 'c')
+        .replaceAll('ğ', 'g')
+        .replaceAll('ı', 'i')
+        .replaceAll('ö', 'o')
+        .replaceAll('ş', 's')
+        .replaceAll('ü', 'u')
+        .trim();
   }
 
   String get _selectedRatingLabel =>
@@ -257,6 +281,9 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
       appBar: AppBar(
         title: const Text("Barınaklar"),
       ),
+      bottomNavigationBar: const PatifyUserBottomNav(
+        current: PatifyUserNavItem.services,
+      ),
       body: FutureBuilder<List<PlaceSummary>>(
         future: _future,
         builder: (context, snapshot) {
@@ -290,8 +317,9 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
               content = DirectoryStateCard(
                 icon: Icons.search_off_rounded,
                 title: "Sonuç bulunamadı",
-                message:
-                    "Seçtiğin filtrelere uygun barınak bulunamadı. Filtreleri değiştirip yeniden deneyebilirsin.",
+                message: _searchQuery.trim().isNotEmpty
+                    ? "Aramanıza uygun barınak bulunamadı."
+                    : "Seçtiğin filtrelere uygun barınak bulunamadı. Filtreleri değiştirip yeniden deneyebilirsin.",
                 actionLabel: "Filtreleri düzenle",
                 onAction: _openFilterSheet,
               );
@@ -336,11 +364,13 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
                     ),
                     const SizedBox(height: PatifyTheme.space16),
                     TextField(
+                      controller: _searchController,
                       onChanged: (value) =>
                           setState(() => _searchQuery = value),
                       decoration: const InputDecoration(
                         hintText: 'Barınak adı, adres veya ilçe ara',
                         prefixIcon: Icon(Icons.search_rounded),
+                        suffixIcon: Icon(Icons.tune_rounded),
                       ),
                     ),
                     const SizedBox(height: PatifyTheme.space20),

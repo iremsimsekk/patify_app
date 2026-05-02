@@ -71,6 +71,7 @@ class InstitutionApiService {
           lat: (lat ?? 0).toDouble(),
           lng: (lng ?? 0).toDouble(),
           address: _readString(row, ['address']),
+          email: _readString(row, ['email']),
           phone: _readString(row, ['phone']),
           internationalPhoneNumber: _readString(
             row,

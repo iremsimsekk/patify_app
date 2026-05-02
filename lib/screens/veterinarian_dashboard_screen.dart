@@ -200,6 +200,11 @@ class _VeterinarianHomeTab extends StatelessWidget {
     final theme = Theme.of(context);
     final institution = claimStatus?.institution;
     final approved = claimStatus?.isApproved == true;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth =
+        screenWidth > 720 ? (screenWidth - 52) / 2 : screenWidth - 40;
+    final heroMetaWidth =
+        screenWidth > 520 ? (screenWidth - 52) / 2 : screenWidth - 40;
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -260,6 +265,8 @@ class _VeterinarianHomeTab extends StatelessWidget {
                 Text(
                   institution?.name ?? user.displayName,
                   style: theme.textTheme.displayMedium,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: PatifyTheme.space8),
                 Text(
@@ -271,16 +278,19 @@ class _VeterinarianHomeTab extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: PatifyTheme.space16),
-                Row(
+                Wrap(
+                  spacing: PatifyTheme.space12,
+                  runSpacing: PatifyTheme.space12,
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: heroMetaWidth,
                       child: _HeroMeta(
                         label: 'Veteriner',
                         value: user.displayName,
                       ),
                     ),
-                    const SizedBox(width: PatifyTheme.space12),
-                    Expanded(
+                    SizedBox(
+                      width: heroMetaWidth,
                       child: _HeroMeta(
                         label: 'Bugün',
                         value: summary?.bookedSlots.toString() ?? '--',
@@ -338,16 +348,12 @@ class _VeterinarianHomeTab extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: PatifyTheme.space12),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: MediaQuery.of(context).size.width > 720 ? 2 : 1,
-              crossAxisSpacing: PatifyTheme.space12,
-              mainAxisSpacing: PatifyTheme.space12,
-              childAspectRatio:
-                  MediaQuery.of(context).size.width > 720 ? 1.5 : 2.25,
+            Wrap(
+              spacing: PatifyTheme.space12,
+              runSpacing: PatifyTheme.space12,
               children: [
                 _StatCard(
+                  width: cardWidth,
                   title: 'Bugünkü Randevular',
                   value: approved ? '${summary?.bookedSlots ?? 0}' : '--',
                   subtitle: 'Alınmış randevular',
@@ -355,6 +361,7 @@ class _VeterinarianHomeTab extends StatelessWidget {
                   accent: PatifyTheme.primary,
                 ),
                 _StatCard(
+                  width: cardWidth,
                   title: 'Açık Randevu Slotları',
                   value: approved ? '${summary?.availableSlots ?? 0}' : '--',
                   subtitle: 'Müsait saatler',
@@ -362,6 +369,7 @@ class _VeterinarianHomeTab extends StatelessWidget {
                   accent: PatifyTheme.success,
                 ),
                 _StatCard(
+                  width: cardWidth,
                   title: 'Bekleyen / Alınmış',
                   value: approved
                       ? '${summary?.availableSlots ?? 0} / ${summary?.bookedSlots ?? 0}'
@@ -371,6 +379,7 @@ class _VeterinarianHomeTab extends StatelessWidget {
                   accent: PatifyTheme.accent,
                 ),
                 _StatCard(
+                  width: cardWidth,
                   title: 'Profil Bilgilerim',
                   value: institution?.name ?? 'Hazırlanıyor',
                   subtitle:
@@ -440,6 +449,7 @@ class _VeterinarianHomeTab extends StatelessWidget {
 
 class _StatCard extends StatelessWidget {
   const _StatCard({
+    required this.width,
     required this.title,
     required this.value,
     required this.subtitle,
@@ -447,6 +457,7 @@ class _StatCard extends StatelessWidget {
     required this.accent,
   });
 
+  final double width;
   final String title;
   final String value;
   final String subtitle;
@@ -456,6 +467,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: width,
       padding: const EdgeInsets.all(PatifyTheme.space16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -474,7 +486,7 @@ class _StatCard extends StatelessWidget {
             ),
             child: Icon(icon, color: accent),
           ),
-          const Spacer(),
+          const SizedBox(height: PatifyTheme.space16),
           Text(title, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: PatifyTheme.space8),
           Text(
@@ -482,9 +494,16 @@ class _StatCard extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: accent,
                 ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: PatifyTheme.space4),
-          Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            subtitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
         ],
       ),
     );
@@ -526,7 +545,11 @@ class _QuickActionCard extends StatelessWidget {
         title: Text(title),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: PatifyTheme.space4),
-          child: Text(subtitle),
+          child: Text(
+            subtitle,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         trailing: Icon(
           onTap == null
@@ -565,9 +588,16 @@ class _HeroMeta extends StatelessWidget {
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: PatifyTheme.textSecondary,
                 ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: PatifyTheme.space4),
-          Text(value, style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ],
       ),
     );

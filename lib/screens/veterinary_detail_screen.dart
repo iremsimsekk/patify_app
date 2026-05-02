@@ -4,6 +4,7 @@ import '../services/appointment_service.dart';
 import '../services/google_places_service.dart';
 import '../services/institution_api_service.dart';
 import '../theme/patify_theme.dart';
+import '../widgets/patify_user_bottom_nav.dart';
 import 'book_appointment_screen.dart';
 
 class VeterinaryDetailScreen extends StatefulWidget {
@@ -74,6 +75,9 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
+      bottomNavigationBar: const PatifyUserBottomNav(
+        current: PatifyUserNavItem.services,
+      ),
       body: FutureBuilder<PlaceDetails>(
         future: _detailsFuture,
         builder: (context, snap) {
@@ -110,6 +114,8 @@ class _VeterinaryDetailScreenState extends State<VeterinaryDetailScreen> {
                             Text(
                               clinicName,
                               style: theme.textTheme.headlineSmall,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: PatifyTheme.space12),
                             _buildInfoRow(

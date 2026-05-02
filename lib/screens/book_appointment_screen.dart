@@ -4,6 +4,7 @@ import '../models/appointment_slot.dart';
 import '../services/app_preferences.dart';
 import '../services/appointment_service.dart';
 import '../theme/patify_theme.dart';
+import '../widgets/patify_user_bottom_nav.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   const BookAppointmentScreen({
@@ -113,9 +114,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Randevu Al')),
+      bottomNavigationBar: const PatifyUserBottomNav(
+        current: PatifyUserNavItem.appointments,
+      ),
       body: RefreshIndicator(
         onRefresh: _loadSlots,
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(
             PatifyTheme.space20,
             PatifyTheme.space16,
@@ -139,7 +144,12 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.clinicName, style: theme.textTheme.headlineSmall),
+                  Text(
+                    widget.clinicName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.headlineSmall,
+                  ),
                   const SizedBox(height: PatifyTheme.space8),
                   Text(
                     'Tarih seç, müsait slotları incele ve randevunu güvenle oluştur.',
@@ -326,6 +336,8 @@ class _SlotCard extends StatelessWidget {
                       slot.note?.isNotEmpty == true
                           ? slot.note!
                           : 'Durum: ${slot.status}',
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodyMedium,
                     ),
                   ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/mock_data.dart';
 import '../main.dart';
+import '../services/app_preferences.dart';
 import '../services/auth_service.dart';
 import '../theme/patify_theme.dart';
 
@@ -47,6 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (updated != null) {
       setState(() => _currentUser = updated);
+      await AppPreferences.saveCurrentUser(updated);
       widget.onUserUpdated(updated);
       _showFeedback('Profil bilgileri güncellendi.');
     }

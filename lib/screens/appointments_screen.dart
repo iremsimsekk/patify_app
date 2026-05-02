@@ -4,6 +4,7 @@ import '../models/appointment_slot.dart';
 import '../services/app_preferences.dart';
 import '../services/appointment_service.dart';
 import '../theme/patify_theme.dart';
+import '../widgets/patify_user_bottom_nav.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -80,6 +81,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Randevularım')),
+      bottomNavigationBar: const PatifyUserBottomNav(
+        current: PatifyUserNavItem.appointments,
+      ),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
@@ -137,6 +141,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                                 Expanded(
                                   child: Text(
                                     slot.institutionName,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                     style: theme.textTheme.titleMedium,
                                   ),
                                 ),
@@ -169,6 +175,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                               const SizedBox(height: PatifyTheme.space8),
                               Text(
                                 slot.note!,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.bodyMedium,
                               ),
                             ],

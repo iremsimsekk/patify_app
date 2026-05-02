@@ -173,6 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await AppPreferences.saveAuthRole(auth.role);
       await AppPreferences.saveAuthToken(auth.token);
       final user = _buildUserFromAuth(auth, email);
+      await AppPreferences.saveCurrentUser(user);
 
       if (!mounted) return;
 
