@@ -30,4 +30,29 @@ public class EmailService {
     );
     mailSender.send(message);
   }
+
+  public void sendVeterinarianApprovalEmail(
+      String to,
+      String veterinarianEmail,
+      String clinicName,
+      String clinicAddress,
+      String clinicEmail,
+      String approveUrl,
+      String rejectUrl
+  ) {
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setFrom(from);
+    message.setTo(to);
+    message.setSubject("Patify veteriner sahiplenme onayi gerekiyor");
+    message.setText(
+        "Yeni bir veteriner sahiplenme talebi olusturuldu.\n\n"
+            + "Talep eden veteriner: " + veterinarianEmail + "\n"
+            + "Klinik adi: " + clinicName + "\n"
+            + "Klinik adresi: " + clinicAddress + "\n"
+            + "Klinik emaili: " + (clinicEmail == null || clinicEmail.isBlank() ? "-" : clinicEmail) + "\n\n"
+            + "Onayla: " + approveUrl + "\n"
+            + "Reddet: " + rejectUrl + "\n"
+    );
+    mailSender.send(message);
+  }
 }

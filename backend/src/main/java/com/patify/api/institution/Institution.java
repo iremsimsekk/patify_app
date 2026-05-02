@@ -39,6 +39,12 @@ public class Institution {
   private String district;
 
   @Column
+  private String city;
+
+  @Column
+  private String email;
+
+  @Column
   private String website;
 
   @Column(name = "opening_hours")
@@ -135,6 +141,22 @@ public class Institution {
 
   public void setDistrict(String district) {
     this.district = district;
+  }
+
+  public String getCity() {
+    return city;
+  }
+
+  public void setCity(String city) {
+    this.city = city;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
   }
 
   public String getWebsite() {

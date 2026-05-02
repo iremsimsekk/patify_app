@@ -2,6 +2,7 @@ package com.patify.api.institution;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,5 +29,37 @@ public interface InstitutionRepository extends JpaRepository<Institution, Long> 
       @Param("type") String type,
       @Param("name") String name,
       @Param("address") String address
+  );
+
+  @EntityGraph(attributePaths = "location")
+  @Query("""
+      select i
+      from Institution i
+      where i.deletedAt is null
+        and i.type in :types
+      order by i.name asc
+      """)
+  List<Institution> findVeterinaryInstitutions(
+      @Param("types") List<String> types,
+      Pageable pageable
+  );
+
+  @EntityGraph(attributePaths = "location")
+  @Query("""
+      select i
+      from Institution i
+      where i.deletedAt is null
+        and i.type in :types
+        and (
+          lower(i.name) like lower(concat('%', :query, '%'))
+          or lower(coalesce(i.address, '')) like lower(concat('%', :query, '%'))
+          or lower(coalesce(i.email, '')) like lower(concat('%', :query, '%'))
+        )
+      order by i.name asc
+      """)
+  List<Institution> searchVeterinaryInstitutions(
+      @Param("types") List<String> types,
+      @Param("query") String query,
+      Pageable pageable
   );
 }
