@@ -5,6 +5,7 @@ class AppPreferences {
   AppPreferences._();
 
   static const _themeModeKey = 'theme_mode';
+  static const _authRoleKey = 'auth_role';
 
   static Future<ThemeMode> loadThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
@@ -28,5 +29,15 @@ class AppPreferences {
       ThemeMode.system => 'system',
     };
     await prefs.setString(_themeModeKey, raw);
+  }
+
+  static Future<void> saveAuthRole(String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_authRoleKey, role);
+  }
+
+  static Future<String?> loadAuthRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_authRoleKey);
   }
 }

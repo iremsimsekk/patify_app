@@ -67,3 +67,6 @@ app.*.map.json
 /ios/Flutter/MapsKeys.xcconfig
 /web/maps_config.js
 .vscode/
+.env
+.env.*
+!.env.example
