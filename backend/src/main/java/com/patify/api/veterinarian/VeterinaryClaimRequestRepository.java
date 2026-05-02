@@ -10,6 +10,12 @@ public interface VeterinaryClaimRequestRepository
   Optional<VeterinaryClaimRequest> findTopByUserIdOrderByCreatedAtDesc(Long userId);
 
   @EntityGraph(attributePaths = {"institution", "institution.location"})
+  Optional<VeterinaryClaimRequest> findTopByUserIdAndStatusOrderByCreatedAtDesc(
+      Long userId,
+      VeterinaryClaimStatus status
+  );
+
+  @EntityGraph(attributePaths = {"institution", "institution.location"})
   Optional<VeterinaryClaimRequest> findTopByUserIdAndInstitutionIdAndStatusOrderByCreatedAtDesc(
       Long userId,
       Long institutionId,

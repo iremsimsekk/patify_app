@@ -31,6 +31,7 @@ class InstitutionApiService {
           data,
           ['internationalPhoneNumber', 'international_phone_number'],
         ),
+        email: _readString(data, ['email']),
         website: _readString(data, ['website']),
         rating: _readDouble(data, ['rating']),
         userRatingsTotal: _readInt(
@@ -39,6 +40,9 @@ class InstitutionApiService {
         ),
         weekdayText: _readStringList(data, ['openingHours', 'opening_hours']),
         googleMapsUrl: _readString(data, ['googleMapsUrl', 'google_maps_url']),
+        description: _readString(data, ['description']),
+        city: _readString(data, ['city']),
+        district: _readString(data, ['district']),
       );
     } on DioException catch (error) {
       throw Exception(_extractMessage(error));

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../data/mock_data.dart';
+import '../models/appointment_slot.dart';
+import '../services/appointment_service.dart';
 import '../services/veterinarian_claim_service.dart';
 import '../theme/patify_theme.dart';
+import 'veterinarian_calendar_screen.dart';
 import 'veterinarian_claim_clinic_screen.dart';
+import 'veterinarian_create_slots_screen.dart';
+import 'veterinarian_profile_screen.dart';
+import 'veterinarian_settings_screen.dart';
 
 class VeterinarianDashboardScreen extends StatefulWidget {
   const VeterinarianDashboardScreen({
@@ -20,71 +26,38 @@ class VeterinarianDashboardScreen extends StatefulWidget {
 
 class _VeterinarianDashboardScreenState
     extends State<VeterinarianDashboardScreen> {
-  static const List<_VeterinarianMenuItem> _items = [
-    _VeterinarianMenuItem(
-      keyName: 'status',
-      title: 'Klinik Durumum',
-      subtitle: 'Mevcut sahiplenme ve onay durumunuzu gözden geçirin.',
-      icon: Icons.verified_user_outlined,
-      accent: PatifyTheme.primary,
-    ),
-    _VeterinarianMenuItem(
-      keyName: 'claim',
-      title: 'Kliniğimi Sahiplen',
-      subtitle: 'Mevcut bir kliniği hesabınıza bağlamak için talep gönderin.',
-      icon: Icons.key_outlined,
-      accent: PatifyTheme.accent,
-    ),
-    _VeterinarianMenuItem(
-      keyName: 'addClinic',
-      title: 'Yeni Klinik Ekle',
-      subtitle: 'Yeni klinik kaydı alanı daha sonra açılacak.',
-      icon: Icons.add_business_outlined,
-      accent: PatifyTheme.secondary,
-    ),
-    _VeterinarianMenuItem(
-      keyName: 'clinicInfo',
-      title: 'Klinik Bilgilerim',
-      subtitle: 'Klinik detaylarınızı ve görünürlüğünüzü yöneteceğiniz alan.',
-      icon: Icons.badge_outlined,
-      accent: PatifyTheme.info,
-    ),
-    _VeterinarianMenuItem(
-      keyName: 'calendar',
-      title: 'Randevu Takvimi',
-      subtitle: 'Takvim ve uygunluk yönetimi bu kart üzerinden açılacak.',
-      icon: Icons.calendar_month_outlined,
-      accent: PatifyTheme.success,
-    ),
-    _VeterinarianMenuItem(
-      keyName: 'appointments',
-      title: 'Gelen Randevular',
-      subtitle: 'Onaylı klinik hesabınız için randevu talepleri burada görünecek.',
-      icon: Icons.notifications_active_outlined,
-      accent: PatifyTheme.danger,
-    ),
-  ];
-
-  VeterinarianClaimStatusResponse? _claimStatus;
+  int _currentIndex = 0;
   bool _loading = true;
   String? _error;
+  VeterinarianClaimStatusResponse? _claimStatus;
+  VeterinarianAppointmentSummary? _todaySummary;
 
   @override
   void initState() {
     super.initState();
-    _loadClaimStatus();
+    _reloadDashboard();
   }
 
-  Future<void> _loadClaimStatus() async {
+  Future<void> _reloadDashboard() async {
     setState(() {
       _loading = true;
       _error = null;
     });
 
     try {
-      final status = await VeterinarianClaimService.fetchClaimStatus();
+      final claimStatus = await VeterinarianClaimService.fetchClaimStatus();
+      VeterinarianAppointmentSummary? summary;
+      if (claimStatus.isApproved) {
+        summary = await AppointmentService.fetchVeterinarianSummary(
+          date: DateUtils.dateOnly(DateTime.now()),
+        );
+      }
+
       if (!mounted) return;
-      setState(() => _claimStatus = status);
+      setState(() {
+        _claimStatus = claimStatus;
+        _todaySummary = summary;
+      });
     } catch (error) {
       if (!mounted) return;
       setState(() => _error = _friendlyError(error));
@@ -93,69 +66,49 @@ class _VeterinarianDashboardScreenState
     }
   }
 
-  String _friendlyError(Object error) {
-    final message = error.toString();
-    if (message.contains('AUTH_TOKEN_MISSING') ||
-        message.contains('AUTHORIZATION_REQUIRED')) {
-      return 'Oturum bilgisi bulunamadı. Lütfen tekrar giriş yap.';
-    }
-    if (message.contains('VETERINARIAN_ROLE_REQUIRED')) {
-      return 'Bu panel sadece veteriner hesapları için kullanılabilir.';
-    }
-    if (message.contains('Connection refused') ||
-        message.contains('SocketException')) {
-      return 'Sunucuya bağlanılamadı. Lütfen daha sonra tekrar dene.';
-    }
-    return 'Klinik durumu alınamadı. Lütfen tekrar dene.';
-  }
-
-  Future<void> _handleAction(_VeterinarianMenuItem item) async {
-    switch (item.keyName) {
-      case 'claim':
-        final refreshed = await Navigator.push<bool>(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const VeterinarianClaimClinicScreen(),
-          ),
-        );
-        if (refreshed == true) {
-          await _loadClaimStatus();
-        }
-        return;
-      case 'clinicInfo':
-      case 'calendar':
-      case 'appointments':
-        if (_claimStatus?.isApproved != true) {
-          _showSnackBar('Bu özellik için klinik onayı gerekiyor.');
-          return;
-        }
-        _showSnackBar('Bu özellik yakında eklenecek.');
-        return;
-      default:
-        _showSnackBar('Bu özellik yakında eklenecek.');
-    }
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+  Future<void> _openClaimFlow() async {
+    final refreshed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const VeterinarianClaimClinicScreen(),
+      ),
     );
+
+    if (refreshed == true) {
+      await _reloadDashboard();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-    final firstName = widget.user.firstName?.trim();
-    final displayName = firstName != null && firstName.isNotEmpty
-        ? firstName
-        : widget.user.displayName;
+    final pages = [
+      _VeterinarianHomeTab(
+        user: widget.user,
+        loading: _loading,
+        error: _error,
+        claimStatus: _claimStatus,
+        summary: _todaySummary,
+        onRefresh: _reloadDashboard,
+        onClaimTap: _openClaimFlow,
+        onNavigate: (index) => setState(() => _currentIndex = index),
+      ),
+      VeterinarianCalendarScreen(
+        claimStatus: _claimStatus,
+        onSlotsChanged: _reloadDashboard,
+      ),
+      VeterinarianCreateSlotsScreen(
+        claimStatus: _claimStatus,
+        onSlotsCreated: _reloadDashboard,
+      ),
+      VeterinarianProfileScreen(
+        user: widget.user,
+        claimStatus: _claimStatus,
+        onClaimRequested: _openClaimFlow,
+      ),
+      VeterinarianSettingsScreen(user: widget.user),
+    ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Veteriner Paneli'),
-        automaticallyImplyLeading: false,
-      ),
       body: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -168,374 +121,485 @@ class _VeterinarianDashboardScreenState
           ),
         ),
         child: SafeArea(
-          top: false,
-          child: RefreshIndicator(
-            onRefresh: _loadClaimStatus,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final width = constraints.maxWidth;
-                final crossAxisCount = width >= 1100
-                    ? 3
-                    : width >= 700
-                        ? 2
-                        : 1;
-
-                return ListView(
-                  padding: const EdgeInsets.all(PatifyTheme.space24),
-                  children: [
-                    _HeroCard(
-                      displayName: displayName,
-                      textTheme: textTheme,
-                      cardColor: theme.cardColor,
-                    ),
-                    const SizedBox(height: PatifyTheme.space20),
-                    if (_loading)
-                      const Padding(
-                        padding: EdgeInsets.all(PatifyTheme.space24),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    else if (_error != null)
-                      _StatusMessageCard(
-                        title: 'Klinik durumu yüklenemedi',
-                        subtitle: _error!,
-                        accent: PatifyTheme.danger,
-                        actionLabel: 'Tekrar Dene',
-                        onTap: _loadClaimStatus,
-                      )
-                    else
-                      _ClaimStatusCard(status: _claimStatus),
-                    const SizedBox(height: PatifyTheme.space24),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _items.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: PatifyTheme.space16,
-                        mainAxisSpacing: PatifyTheme.space16,
-                        childAspectRatio: crossAxisCount == 1 ? 1.7 : 0.95,
-                      ),
-                      itemBuilder: (context, index) {
-                        final item = _items[index];
-                        return _VeterinarianActionCard(
-                          item: item,
-                          onTap: () => _handleAction(item),
-                        );
-                      },
-                    ),
-                  ],
-                );
-              },
-            ),
+          child: IndexedStack(
+            index: _currentIndex,
+            children: pages,
           ),
         ),
       ),
-    );
-  }
-}
-
-class _HeroCard extends StatelessWidget {
-  const _HeroCard({
-    required this.displayName,
-    required this.textTheme,
-    required this.cardColor,
-  });
-
-  final String displayName;
-  final TextTheme textTheme;
-  final Color cardColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(PatifyTheme.space24),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(PatifyTheme.radius24),
-        border: Border.all(color: PatifyTheme.border),
-        boxShadow: [
-          BoxShadow(
-            color: PatifyTheme.textPrimary.withValues(alpha: 0.08),
-            blurRadius: 32,
-            offset: const Offset(0, 16),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
+            label: 'Ana Sayfa',
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: PatifyTheme.primarySoft,
-              borderRadius: BorderRadius.circular(PatifyTheme.radius20),
-            ),
-            child: const Icon(
-              Icons.local_hospital_rounded,
-              color: PatifyTheme.primary,
-              size: 30,
-            ),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month_rounded),
+            label: 'Takvim',
           ),
-          const SizedBox(height: PatifyTheme.space20),
-          Text(
-            'Veteriner Paneli',
-            style: textTheme.displayMedium,
+          NavigationDestination(
+            icon: Icon(Icons.add_box_outlined),
+            selectedIcon: Icon(Icons.add_box_rounded),
+            label: 'Slot Aç',
           ),
-          const SizedBox(height: PatifyTheme.space8),
-          Text(
-            'Klinik bilgilerinizi ve randevu süreçlerinizi buradan yöneteceksiniz.',
-            style: textTheme.bodyMedium,
+          NavigationDestination(
+            icon: Icon(Icons.badge_outlined),
+            selectedIcon: Icon(Icons.badge_rounded),
+            label: 'Profil',
           ),
-          const SizedBox(height: PatifyTheme.space16),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PatifyTheme.space12,
-              vertical: PatifyTheme.space8,
-            ),
-            decoration: BoxDecoration(
-              color: PatifyTheme.secondarySoft,
-              borderRadius: BorderRadius.circular(PatifyTheme.radius16),
-            ),
-            child: Text(
-              '$displayName için hazırlanan çalışma alanı',
-              style: textTheme.labelLarge?.copyWith(
-                color: PatifyTheme.textPrimary,
-              ),
-            ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings_rounded),
+            label: 'Ayarlar',
           ),
         ],
       ),
     );
   }
-}
 
-class _ClaimStatusCard extends StatelessWidget {
-  const _ClaimStatusCard({
-    required this.status,
-  });
-
-  final VeterinarianClaimStatusResponse? status;
-
-  @override
-  Widget build(BuildContext context) {
-    final claimStatus = status?.status ?? 'NONE';
-    final institution = status?.institution;
-
-    late final String title;
-    late final String subtitle;
-    late final Color accent;
-
-    switch (claimStatus) {
-      case 'PENDING':
-        title = 'Sahiplenme talebiniz onay bekliyor';
-        subtitle =
-            'Talebiniz admin tarafından onaylandığında durumunuz güncellenecek.';
-        accent = PatifyTheme.accent;
-        break;
-      case 'APPROVED':
-        title = 'Klinik onaylandı';
-        subtitle = 'Veteriner hesabınız seçili klinik ile eşleşti.';
-        accent = PatifyTheme.success;
-        break;
-      case 'REJECTED':
-        title = 'Sahiplenme talebiniz reddedildi';
-        subtitle =
-            'Tekrar talep gönderebilir veya farklı bir klinik seçebilirsiniz.';
-        accent = PatifyTheme.danger;
-        break;
-      default:
-        title = 'Henüz kliniğiniz bağlı değil';
-        subtitle = 'Kliniğinizi sahiplenin veya yeni klinik ekleyin.';
-        accent = PatifyTheme.info;
+  String _friendlyError(Object error) {
+    final message = error.toString();
+    if (message.contains('AUTH_TOKEN_MISSING') ||
+        message.contains('AUTHORIZATION_REQUIRED')) {
+      return 'Oturum bilgisi bulunamadı. Lütfen tekrar giriş yap.';
     }
-
-    return _StatusMessageCard(
-      title: title,
-      subtitle: subtitle,
-      accent: accent,
-      detailTitle: institution?.name,
-      detailSubtitle: institution?.address ?? institution?.email,
-    );
+    if (message.contains('VETERINARIAN_ROLE_REQUIRED')) {
+      return 'Bu panel sadece veteriner hesapları için kullanılabilir.';
+    }
+    return 'Veteriner paneli yüklenemedi. Lütfen tekrar dene.';
   }
 }
 
-class _StatusMessageCard extends StatelessWidget {
-  const _StatusMessageCard({
-    required this.title,
-    required this.subtitle,
-    required this.accent,
-    this.detailTitle,
-    this.detailSubtitle,
-    this.actionLabel,
-    this.onTap,
+class _VeterinarianHomeTab extends StatelessWidget {
+  const _VeterinarianHomeTab({
+    required this.user,
+    required this.loading,
+    required this.error,
+    required this.claimStatus,
+    required this.summary,
+    required this.onRefresh,
+    required this.onClaimTap,
+    required this.onNavigate,
   });
 
-  final String title;
-  final String subtitle;
-  final Color accent;
-  final String? detailTitle;
-  final String? detailSubtitle;
-  final String? actionLabel;
-  final Future<void> Function()? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(PatifyTheme.space20),
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(PatifyTheme.radius20),
-        border: Border.all(color: accent.withValues(alpha: 0.22)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: PatifyTheme.textPrimary,
-                ),
-          ),
-          const SizedBox(height: PatifyTheme.space8),
-          Text(
-            subtitle,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: PatifyTheme.textPrimary,
-                ),
-          ),
-          if (detailTitle != null) ...[
-            const SizedBox(height: PatifyTheme.space16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(PatifyTheme.space16),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(PatifyTheme.radius16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    detailTitle!,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  if (detailSubtitle != null) ...[
-                    const SizedBox(height: PatifyTheme.space8),
-                    Text(
-                      detailSubtitle!,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-          if (actionLabel != null && onTap != null) ...[
-            const SizedBox(height: PatifyTheme.space16),
-            TextButton(
-              onPressed: () => onTap!.call(),
-              child: Text(actionLabel!),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _VeterinarianActionCard extends StatelessWidget {
-  const _VeterinarianActionCard({
-    required this.item,
-    required this.onTap,
-  });
-
-  final _VeterinarianMenuItem item;
-  final VoidCallback onTap;
+  final AppUser user;
+  final bool loading;
+  final String? error;
+  final VeterinarianClaimStatusResponse? claimStatus;
+  final VeterinarianAppointmentSummary? summary;
+  final Future<void> Function() onRefresh;
+  final Future<void> Function() onClaimTap;
+  final ValueChanged<int> onNavigate;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final institution = claimStatus?.institution;
+    final approved = claimStatus?.isApproved == true;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(PatifyTheme.radius20),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: theme.cardColor,
-            borderRadius: BorderRadius.circular(PatifyTheme.radius20),
-            border: Border.all(color: PatifyTheme.border),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(PatifyTheme.space20),
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          PatifyTheme.space20,
+          PatifyTheme.space16,
+          PatifyTheme.space20,
+          PatifyTheme.space28,
+        ),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(PatifyTheme.space24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(PatifyTheme.radius24),
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFFFCE9E2),
+                  Color(0xFFF7F3EC),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: PatifyTheme.textPrimary.withValues(alpha: 0.08),
+                  blurRadius: 30,
+                  offset: const Offset(0, 18),
+                ),
+              ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: item.accent.withValues(alpha: 0.14),
-                    borderRadius:
-                        BorderRadius.circular(PatifyTheme.radius16),
-                  ),
-                  child: Icon(
-                    item.icon,
-                    color: item.accent,
+                Row(
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.78),
+                        borderRadius:
+                            BorderRadius.circular(PatifyTheme.radius20),
+                      ),
+                      child: const Icon(
+                        Icons.local_hospital_rounded,
+                        color: PatifyTheme.primary,
+                      ),
+                    ),
+                    const Spacer(),
+                    _StatusPill(
+                      label: _statusLabel(claimStatus?.status),
+                      color: _statusColor(claimStatus?.status),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: PatifyTheme.space20),
+                Text(
+                  institution?.name ?? user.displayName,
+                  style: theme.textTheme.displayMedium,
+                ),
+                const SizedBox(height: PatifyTheme.space8),
+                Text(
+                  approved
+                      ? 'Bugünkü randevu akışını, takvimi ve kliniğinin görünürlüğünü tek yerden yönet.'
+                      : 'Klinik onayı tamamlandığında takvim, slot oluşturma ve randevu yönetimi otomatik açılacak.',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: PatifyTheme.textPrimary,
                   ),
                 ),
                 const SizedBox(height: PatifyTheme.space16),
-                Text(
-                  item.title,
-                  style: theme.textTheme.titleMedium,
-                ),
-                const SizedBox(height: PatifyTheme.space8),
-                Expanded(
-                  child: Text(
-                    item.subtitle,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ),
-                const SizedBox(height: PatifyTheme.space12),
                 Row(
                   children: [
-                    Text(
-                      'Detaylar',
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: item.accent,
+                    Expanded(
+                      child: _HeroMeta(
+                        label: 'Veteriner',
+                        value: user.displayName,
                       ),
                     ),
-                    const SizedBox(width: PatifyTheme.space8),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      size: 18,
-                      color: item.accent,
+                    const SizedBox(width: PatifyTheme.space12),
+                    Expanded(
+                      child: _HeroMeta(
+                        label: 'Bugün',
+                        value: summary?.bookedSlots.toString() ?? '--',
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-        ),
+          const SizedBox(height: PatifyTheme.space20),
+          if (loading)
+            const Padding(
+              padding: EdgeInsets.all(PatifyTheme.space24),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (error != null)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(PatifyTheme.space16),
+                child: Text(error!, style: theme.textTheme.bodyMedium),
+              ),
+            )
+          else ...[
+            if (!approved)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(PatifyTheme.space16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Klinik onayı gerekiyor',
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: PatifyTheme.space8),
+                      Text(
+                        claimStatus?.status == 'PENDING'
+                            ? 'Talebin incelemede. Onay geldikten sonra tüm veteriner özellikleri otomatik açılacak.'
+                            : 'Önce bir klinik ile eşleşme talebi gönder. Onay sonrasında gerçek randevu sistemi aktif olacak.',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: PatifyTheme.space16),
+                      ElevatedButton.icon(
+                        onPressed: onClaimTap,
+                        icon: const Icon(Icons.verified_user_outlined),
+                        label: Text(
+                          claimStatus?.status == 'PENDING'
+                              ? 'Talep durumunu gör'
+                              : 'Klinik sahiplen',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            const SizedBox(height: PatifyTheme.space12),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: MediaQuery.of(context).size.width > 720 ? 2 : 1,
+              crossAxisSpacing: PatifyTheme.space12,
+              mainAxisSpacing: PatifyTheme.space12,
+              childAspectRatio:
+                  MediaQuery.of(context).size.width > 720 ? 1.5 : 2.25,
+              children: [
+                _StatCard(
+                  title: 'Bugünkü Randevular',
+                  value: approved ? '${summary?.bookedSlots ?? 0}' : '--',
+                  subtitle: 'Alınmış randevular',
+                  icon: Icons.event_available_outlined,
+                  accent: PatifyTheme.primary,
+                ),
+                _StatCard(
+                  title: 'Açık Randevu Slotları',
+                  value: approved ? '${summary?.availableSlots ?? 0}' : '--',
+                  subtitle: 'Müsait saatler',
+                  icon: Icons.grid_view_rounded,
+                  accent: PatifyTheme.success,
+                ),
+                _StatCard(
+                  title: 'Bekleyen / Alınmış',
+                  value: approved
+                      ? '${summary?.availableSlots ?? 0} / ${summary?.bookedSlots ?? 0}'
+                      : '--',
+                  subtitle: 'Müsait ve dolu denge',
+                  icon: Icons.pie_chart_outline_rounded,
+                  accent: PatifyTheme.accent,
+                ),
+                _StatCard(
+                  title: 'Profil Bilgilerim',
+                  value: institution?.name ?? 'Hazırlanıyor',
+                  subtitle:
+                      approved ? 'Klinik profili bağlı' : 'Onay bekleniyor',
+                  icon: Icons.badge_outlined,
+                  accent: PatifyTheme.info,
+                ),
+              ],
+            ),
+            const SizedBox(height: PatifyTheme.space20),
+            Text('Hızlı geçişler', style: theme.textTheme.titleMedium),
+            const SizedBox(height: PatifyTheme.space12),
+            _QuickActionCard(
+              title: 'Takvimi yönet',
+              subtitle: approved
+                  ? 'Gün seç, slotları gör ve boş saatleri iptal et.'
+                  : 'Klinik onayı sonrası aktif olacak.',
+              icon: Icons.calendar_month_outlined,
+              onTap: approved ? () => onNavigate(1) : null,
+            ),
+            _QuickActionCard(
+              title: 'Yeni slot aç',
+              subtitle: approved
+                  ? 'Saat aralığı gir, sistem slotları otomatik oluştursun.'
+                  : 'Klinik onayı gerekiyor.',
+              icon: Icons.add_box_outlined,
+              onTap: approved ? () => onNavigate(2) : null,
+            ),
+            _QuickActionCard(
+              title: 'Profili gözden geçir',
+              subtitle: 'Klinik bilgileri ve görünür profil alanlarını incele.',
+              icon: Icons.account_box_outlined,
+              onTap: () => onNavigate(3),
+            ),
+          ],
+        ],
       ),
     );
   }
+
+  String _statusLabel(String? status) {
+    switch (status) {
+      case 'APPROVED':
+        return 'Onaylı';
+      case 'PENDING':
+        return 'İnceleniyor';
+      case 'REJECTED':
+        return 'Reddedildi';
+      default:
+        return 'Onay bekliyor';
+    }
+  }
+
+  Color _statusColor(String? status) {
+    switch (status) {
+      case 'APPROVED':
+        return PatifyTheme.success;
+      case 'PENDING':
+        return PatifyTheme.accent;
+      case 'REJECTED':
+        return PatifyTheme.danger;
+      default:
+        return PatifyTheme.info;
+    }
+  }
 }
 
-class _VeterinarianMenuItem {
-  const _VeterinarianMenuItem({
-    required this.keyName,
+class _StatCard extends StatelessWidget {
+  const _StatCard({
     required this.title,
+    required this.value,
     required this.subtitle,
     required this.icon,
     required this.accent,
   });
 
-  final String keyName;
   final String title;
+  final String value;
   final String subtitle;
   final IconData icon;
   final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(PatifyTheme.space16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(PatifyTheme.radius20),
+        border: Border.all(color: PatifyTheme.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(PatifyTheme.radius16),
+            ),
+            child: Icon(icon, color: accent),
+          ),
+          const Spacer(),
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: PatifyTheme.space8),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: accent,
+                ),
+          ),
+          const SizedBox(height: PatifyTheme.space4),
+          Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickActionCard extends StatelessWidget {
+  const _QuickActionCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(PatifyTheme.space16),
+        leading: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color:
+                (onTap == null ? PatifyTheme.border : PatifyTheme.primarySoft),
+            borderRadius: BorderRadius.circular(PatifyTheme.radius16),
+          ),
+          child: Icon(
+            icon,
+            color:
+                onTap == null ? PatifyTheme.textSecondary : PatifyTheme.primary,
+          ),
+        ),
+        title: Text(title),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: PatifyTheme.space4),
+          child: Text(subtitle),
+        ),
+        trailing: Icon(
+          onTap == null
+              ? Icons.lock_outline_rounded
+              : Icons.arrow_forward_rounded,
+          size: 18,
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+class _HeroMeta extends StatelessWidget {
+  const _HeroMeta({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(PatifyTheme.space12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(PatifyTheme.radius16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: PatifyTheme.textSecondary,
+                ),
+          ),
+          const SizedBox(height: PatifyTheme.space4),
+          Text(value, style: Theme.of(context).textTheme.titleMedium),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({
+    required this.label,
+    required this.color,
+  });
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PatifyTheme.space12,
+        vertical: PatifyTheme.space8,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: color,
+            ),
+      ),
+    );
+  }
 }

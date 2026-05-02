@@ -51,4 +51,10 @@ class AppPreferences {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_authTokenKey);
   }
+
+  static Future<void> clearAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_authRoleKey);
+    await prefs.remove(_authTokenKey);
+  }
 }

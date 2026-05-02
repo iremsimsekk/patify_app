@@ -32,6 +32,10 @@ class VeterinarianInstitutionSummary {
     required this.name,
     required this.address,
     required this.email,
+    required this.phone,
+    required this.website,
+    required this.description,
+    required this.openingHours,
     required this.city,
     required this.district,
     required this.latitude,
@@ -42,6 +46,10 @@ class VeterinarianInstitutionSummary {
   final String name;
   final String? address;
   final String? email;
+  final String? phone;
+  final String? website;
+  final String? description;
+  final String? openingHours;
   final String? city;
   final String? district;
   final double? latitude;
@@ -53,6 +61,10 @@ class VeterinarianInstitutionSummary {
       name: (json['name'] ?? '').toString(),
       address: _readNullableString(json['address']),
       email: _readNullableString(json['email']),
+      phone: _readNullableString(json['phone']),
+      website: _readNullableString(json['website']),
+      description: _readNullableString(json['description']),
+      openingHours: _readNullableString(json['openingHours']),
       city: _readNullableString(json['city']),
       district: _readNullableString(json['district']),
       latitude: _readDouble(json['latitude']),
