@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../theme/patify_theme.dart';
 
+enum _SignupAccountType { petOwner, veterinarian }
+
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -22,6 +24,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _submitted = false;
   String? _error;
   String? _success;
+  _SignupAccountType _selectedAccountType = _SignupAccountType.petOwner;
 
   bool _isValidEmail(String email) {
     final e = email.trim();
@@ -59,6 +62,9 @@ class _SignupScreenState extends State<SignupScreen> {
     final lastName = _lastNameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
+    final role = _selectedAccountType == _SignupAccountType.veterinarian
+        ? 'VETERINARIAN'
+        : 'USER';
 
     try {
       final result = await AuthService.register(
@@ -66,6 +72,7 @@ class _SignupScreenState extends State<SignupScreen> {
         password: password,
         firstName: firstName,
         lastName: lastName,
+        role: role,
       );
 
       if (!mounted) return;
@@ -91,7 +98,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     InputDecoration deco(String label, IconData icon) => InputDecoration(
           labelText: label,
@@ -99,7 +107,7 @@ class _SignupScreenState extends State<SignupScreen> {
         );
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Kayıt Ol")),
+      appBar: AppBar(title: const Text('Kayıt Ol')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(PatifyTheme.space24),
         child: Center(
@@ -117,24 +125,59 @@ class _SignupScreenState extends State<SignupScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        "Yeni bir hesap oluştur",
+                        'Yeni bir hesap oluştur',
                         style: textTheme.headlineSmall,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: PatifyTheme.space8),
                       Text(
-                        "Temel bilgilerini ekleyip Patify deneyimine katıl.",
+                        'Temel bilgilerini ekleyip Patify deneyimine katıl.',
                         style: textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: PatifyTheme.space24),
+                      Text(
+                        'Hesap tipi',
+                        style: textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: PatifyTheme.space12),
+                      _AccountTypeCard(
+                        title: 'Hayvansever Girişi',
+                        subtitle:
+                            'Patify\'ı günlük kullanım, keşif ve bakım takibi için kullan.',
+                        icon: Icons.pets_outlined,
+                        selected:
+                            _selectedAccountType == _SignupAccountType.petOwner,
+                        onTap: () {
+                          setState(() {
+                            _selectedAccountType =
+                                _SignupAccountType.petOwner;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: PatifyTheme.space12),
+                      _AccountTypeCard(
+                        title: 'Veteriner / Klinik Yetkilisi',
+                        subtitle:
+                            'Bu adımda yalnızca hesap rolün kaydedilir, ek panel açılmaz.',
+                        icon: Icons.local_hospital_outlined,
+                        selected: _selectedAccountType ==
+                            _SignupAccountType.veterinarian,
+                        onTap: () {
+                          setState(() {
+                            _selectedAccountType =
+                                _SignupAccountType.veterinarian;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: PatifyTheme.space20),
                       TextFormField(
                         controller: _firstNameController,
-                        decoration: deco("Ad", Icons.person_outline),
+                        decoration: deco('Ad', Icons.person_outline),
                         textInputAction: TextInputAction.next,
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
-                            return "Ad boş olamaz.";
+                            return 'Ad boş olamaz.';
                           }
                           return null;
                         },
@@ -142,11 +185,11 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: PatifyTheme.space12),
                       TextFormField(
                         controller: _lastNameController,
-                        decoration: deco("Soyad", Icons.badge_outlined),
+                        decoration: deco('Soyad', Icons.badge_outlined),
                         textInputAction: TextInputAction.next,
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
-                            return "Soyad boş olamaz.";
+                            return 'Soyad boş olamaz.';
                           }
                           return null;
                         },
@@ -154,14 +197,14 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: PatifyTheme.space12),
                       TextFormField(
                         controller: _emailController,
-                        decoration: deco("E-posta", Icons.email_outlined),
+                        decoration: deco('E-posta', Icons.email_outlined),
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
                         validator: (v) {
                           final email = (v ?? '').trim();
-                          if (email.isEmpty) return "E-posta boş olamaz.";
+                          if (email.isEmpty) return 'E-posta boş olamaz.';
                           if (!_isValidEmail(email)) {
-                            return "Lütfen geçerli bir e-posta adresi gir.";
+                            return 'Lütfen geçerli bir e-posta adresi gir.';
                           }
                           return null;
                         },
@@ -170,14 +213,14 @@ class _SignupScreenState extends State<SignupScreen> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
-                        decoration: deco("Şifre", Icons.lock_outline),
+                        decoration: deco('Şifre', Icons.lock_outline),
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) => _loading ? null : _signup(),
                         validator: (v) {
                           final p = (v ?? '').trim();
-                          if (p.isEmpty) return "Şifre boş olamaz.";
+                          if (p.isEmpty) return 'Şifre boş olamaz.';
                           if (p.length < 6) {
-                            return "Şifre en az 6 karakter olmalı.";
+                            return 'Şifre en az 6 karakter olmalı.';
                           }
                           return null;
                         },
@@ -209,8 +252,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         Container(
                           padding: const EdgeInsets.all(PatifyTheme.space12),
                           decoration: BoxDecoration(
-                            color:
-                                PatifyTheme.success.withValues(alpha: 0.08),
+                            color: PatifyTheme.success.withValues(alpha: 0.08),
                             borderRadius:
                                 BorderRadius.circular(PatifyTheme.radius12),
                             border: Border.all(
@@ -242,7 +284,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                     color: Colors.white,
                                   ),
                                 )
-                              : const Text("Kayıt Ol"),
+                              : const Text('Kayıt Ol'),
                         ),
                       ),
                     ],
@@ -251,6 +293,86 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AccountTypeCard extends StatelessWidget {
+  const _AccountTypeCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(PatifyTheme.radius16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(PatifyTheme.space16),
+        decoration: BoxDecoration(
+          color: selected
+              ? colorScheme.primary.withValues(alpha: 0.08)
+              : theme.cardColor,
+          borderRadius: BorderRadius.circular(PatifyTheme.radius16),
+          border: Border.all(
+            color: selected ? colorScheme.primary : PatifyTheme.border,
+            width: selected ? 1.4 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: selected
+                    ? colorScheme.primary.withValues(alpha: 0.12)
+                    : PatifyTheme.primarySoft,
+                borderRadius: BorderRadius.circular(PatifyTheme.radius12),
+              ),
+              child: Icon(
+                icon,
+                color: selected ? colorScheme.primary : PatifyTheme.textPrimary,
+              ),
+            ),
+            const SizedBox(width: PatifyTheme.space12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: selected ? colorScheme.primary : null,
+                    ),
+                  ),
+                  const SizedBox(height: PatifyTheme.space4),
+                  Text(subtitle, style: theme.textTheme.bodyMedium),
+                ],
+              ),
+            ),
+            const SizedBox(width: PatifyTheme.space12),
+            Icon(
+              selected ? Icons.radio_button_checked : Icons.radio_button_off,
+              color: selected ? colorScheme.primary : PatifyTheme.textSecondary,
+            ),
+          ],
         ),
       ),
     );

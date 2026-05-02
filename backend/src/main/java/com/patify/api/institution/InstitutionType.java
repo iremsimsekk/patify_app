@@ -2,6 +2,7 @@ package com.patify.api.institution;
 
 public enum InstitutionType {
   CLINIC("clinic", "vet"),
+  VETERINARY("veterinary", "vet"),
   SHELTER("shelter", "shelter");
 
   private final String dbValue;

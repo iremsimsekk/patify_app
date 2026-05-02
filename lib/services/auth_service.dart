@@ -32,16 +32,19 @@ class AuthResponse {
 
 class RegisterResponse {
   final String email;
+  final String role;
   final String message;
 
   RegisterResponse({
     required this.email,
+    required this.role,
     required this.message,
   });
 
   factory RegisterResponse.fromJson(Map<String, dynamic> j) {
     return RegisterResponse(
       email: (j['email'] ?? '') as String,
+      role: (j['role'] ?? 'USER') as String,
       message: (j['message'] ?? '') as String,
     );
   }
@@ -79,6 +82,7 @@ class AuthService {
     required String password,
     required String firstName,
     required String lastName,
+    required String role,
   }) async {
     const path = "/auth/register";
     final url = "${ApiConfig.baseUrl}$path";
@@ -91,6 +95,7 @@ class AuthService {
           "password": password,
           "firstName": firstName,
           "lastName": lastName,
+          "role": role,
         },
       );
       debugPrint('[AuthService][register] status=${res.statusCode}');

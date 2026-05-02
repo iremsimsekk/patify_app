@@ -4,6 +4,7 @@ import '../constants/ankara_districts.dart';
 import '../services/google_places_service.dart';
 import '../services/institution_repository.dart';
 import '../theme/patify_theme.dart';
+import '../widgets/patify_user_bottom_nav.dart';
 import '../widgets/place_directory_widgets.dart';
 import 'veterinary_detail_screen.dart';
 
@@ -27,7 +28,9 @@ class VeterinaryListScreen extends StatefulWidget {
 class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
   late final InstitutionRepository _repo;
   late Future<List<PlaceSummary>> _future;
+  late final TextEditingController _searchController;
 
+  String _searchQuery = '';
   String _selectedDistrict = "Tümü";
   _StarRange? _selectedStarRange;
   bool _isRefreshing = false;
@@ -49,6 +52,13 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
     _repo = InstitutionRepository();
     _future = _repo.getAnkaraVets(radiusMeters: 35000);
     _selectedStarRange = _starRanges.first;
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   String _districtLabelOf(PlaceSummary place) {
@@ -75,6 +85,34 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
 
     final rating = place.rating ?? 0.0;
     return rating >= range.minInclusive && rating < range.maxExclusive;
+  }
+
+  bool _matchesSearch(PlaceSummary place) {
+    final query = _normalize(_searchQuery);
+    if (query.isEmpty) return true;
+
+    final haystack = _normalize([
+      place.name,
+      place.address ?? '',
+      _districtLabelOf(place),
+      place.email ?? '',
+      place.phone ?? '',
+      place.website ?? '',
+    ].join(' '));
+
+    return haystack.contains(query);
+  }
+
+  String _normalize(String value) {
+    return value
+        .toLowerCase()
+        .replaceAll('ç', 'c')
+        .replaceAll('ğ', 'g')
+        .replaceAll('ı', 'i')
+        .replaceAll('ö', 'o')
+        .replaceAll('ş', 's')
+        .replaceAll('ü', 'u')
+        .trim();
   }
 
   String get _selectedRatingLabel =>
@@ -242,6 +280,9 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
       appBar: AppBar(
         title: const Text("Veteriner Klinikleri"),
       ),
+      bottomNavigationBar: const PatifyUserBottomNav(
+        current: PatifyUserNavItem.services,
+      ),
       body: FutureBuilder<List<PlaceSummary>>(
         future: _future,
         builder: (context, snapshot) {
@@ -266,15 +307,18 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
           } else {
             final raw = snapshot.data ?? [];
             final filtered = raw.where((place) {
-              return _matchesDistrict(place) && _matchesStars(place);
+              return _matchesDistrict(place) &&
+                  _matchesStars(place) &&
+                  _matchesSearch(place);
             }).toList();
 
             if (filtered.isEmpty) {
               content = DirectoryStateCard(
                 icon: Icons.search_off_rounded,
                 title: "Sonuç bulunamadı",
-                message:
-                    "Seçtiğin filtrelere uygun veteriner kliniği bulunamadı. Filtreleri değiştirip yeniden deneyebilirsin.",
+                message: _searchQuery.trim().isNotEmpty
+                    ? "Aramanıza uygun veteriner bulunamadı."
+                    : "Seçtiğin filtrelere uygun veteriner kliniği bulunamadı. Filtreleri değiştirip yeniden deneyebilirsin.",
                 actionLabel: "Filtreleri düzenle",
                 onAction: _openFilterSheet,
               );
@@ -313,7 +357,20 @@ class _VeterinaryListScreenState extends State<VeterinaryListScreen> {
                       districtLabel: _selectedDistrict == "Tümü"
                           ? "Tüm ilçeler"
                           : _selectedDistrict,
-                      ratingLabel: _selectedRatingLabel,
+                      ratingLabel: _searchQuery.trim().isEmpty
+                          ? _selectedRatingLabel
+                          : 'Arama: $_searchQuery',
+                    ),
+                    const SizedBox(height: PatifyTheme.space16),
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
+                      decoration: const InputDecoration(
+                        hintText: 'Veteriner adı, adres veya ilçe ara',
+                        prefixIcon: Icon(Icons.search_rounded),
+                        suffixIcon: Icon(Icons.tune_rounded),
+                      ),
                     ),
                     const SizedBox(height: PatifyTheme.space20),
                     Text(

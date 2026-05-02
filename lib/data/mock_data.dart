@@ -1,7 +1,7 @@
 // Dosya: lib/data/mock_data.dart
 
 // Kullanıcı Tipleri
-enum UserType { petOwner, shelter }
+enum UserType { petOwner, veterinarian, shelter }
 
 // Mock Kullanıcı Modeli (Barınak Detayları Genişletildi)
 class AppUser {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../models/stitch_design_dna.dart';
+
 class PatifyTheme {
   const PatifyTheme._();
 
@@ -49,6 +51,8 @@ class PatifyTheme {
   static const double radius24 = 24;
 
   static ThemeData get lightTheme => _buildTheme(
+        dna: null,
+        brightness: Brightness.light,
         colorScheme: const ColorScheme(
           brightness: Brightness.light,
           primary: primary,
@@ -78,6 +82,8 @@ class PatifyTheme {
       );
 
   static ThemeData get darkTheme => _buildTheme(
+        dna: null,
+        brightness: Brightness.dark,
         colorScheme: const ColorScheme(
           brightness: Brightness.dark,
           primary: darkPrimary,
@@ -106,7 +112,77 @@ class PatifyTheme {
         navigationIndicatorColor: darkPrimarySoft,
       );
 
+  static ThemeData lightThemeFromDna(StitchDesignDna? dna) {
+    final colors = _ThemeColors.light(dna);
+    return _buildTheme(
+      dna: dna,
+      brightness: Brightness.light,
+      colorScheme: ColorScheme(
+        brightness: Brightness.light,
+        primary: colors.primary,
+        onPrimary: Colors.white,
+        secondary: colors.secondary,
+        onSecondary: colors.textPrimary,
+        error: colors.danger,
+        onError: Colors.white,
+        surface: colors.surface,
+        onSurface: colors.textPrimary,
+      ),
+      scaffoldColor: colors.background,
+      canvasColor: colors.background,
+      appBarColor: colors.backgroundSoft,
+      cardColor: colors.surfaceRaised,
+      dividerColorValue: colors.divider,
+      iconColor: colors.textPrimary,
+      textPrimaryColor: colors.textPrimary,
+      textSecondaryColor: colors.textSecondary,
+      borderColor: colors.border,
+      chipBackgroundColor: colors.surfaceRaised,
+      chipSelectedColor: colors.primarySoft,
+      chipSecondarySelectedColor: colors.secondarySoft,
+      snackBarBackgroundColor: colors.textPrimary,
+      fabForegroundColor: Colors.white,
+      navigationIndicatorColor: colors.primarySoft,
+    );
+  }
+
+  static ThemeData darkThemeFromDna(StitchDesignDna? dna) {
+    final colors = _ThemeColors.dark(dna);
+    return _buildTheme(
+      dna: dna,
+      brightness: Brightness.dark,
+      colorScheme: ColorScheme(
+        brightness: Brightness.dark,
+        primary: colors.primary,
+        onPrimary: Colors.white,
+        secondary: colors.secondary,
+        onSecondary: colors.textPrimary,
+        error: colors.danger,
+        onError: Colors.white,
+        surface: colors.surface,
+        onSurface: colors.textPrimary,
+      ),
+      scaffoldColor: colors.background,
+      canvasColor: colors.background,
+      appBarColor: colors.backgroundSoft,
+      cardColor: colors.surfaceRaised,
+      dividerColorValue: colors.divider,
+      iconColor: colors.textPrimary,
+      textPrimaryColor: colors.textPrimary,
+      textSecondaryColor: colors.textSecondary,
+      borderColor: colors.border,
+      chipBackgroundColor: colors.surfaceRaised,
+      chipSelectedColor: colors.primarySoft,
+      chipSecondarySelectedColor: colors.secondarySoft,
+      snackBarBackgroundColor: colors.surfaceRaised,
+      fabForegroundColor: Colors.white,
+      navigationIndicatorColor: colors.primarySoft,
+    );
+  }
+
   static ThemeData _buildTheme({
+    required StitchDesignDna? dna,
+    required Brightness brightness,
     required ColorScheme colorScheme,
     required Color scaffoldColor,
     required Color canvasColor,
@@ -125,62 +201,78 @@ class PatifyTheme {
     required Color navigationIndicatorColor,
   }) {
     final base = ThemeData(useMaterial3: true, colorScheme: colorScheme);
-    final textTheme = GoogleFonts.dmSansTextTheme(base.textTheme).copyWith(
-      displayLarge: GoogleFonts.dmSans(
-        fontSize: 32,
+    final typography = dna?.typography;
+    final textTheme = _baseTextTheme(
+      base.textTheme,
+      typography?.fontFamily,
+    ).copyWith(
+      displayLarge: _font(
+        typography?.fontFamily,
+        fontSize: typography?.displayLargeSize ?? 32,
         fontWeight: FontWeight.w700,
         color: textPrimaryColor,
         letterSpacing: -0.8,
       ),
-      displayMedium: GoogleFonts.dmSans(
-        fontSize: 26,
+      displayMedium: _font(
+        typography?.fontFamily,
+        fontSize: typography?.displayMediumSize ?? 26,
         fontWeight: FontWeight.w700,
         color: textPrimaryColor,
         letterSpacing: -0.6,
       ),
-      headlineMedium: GoogleFonts.dmSans(
-        fontSize: 22,
+      headlineMedium: _font(
+        typography?.fontFamily,
+        fontSize: typography?.headlineMediumSize ?? 22,
         fontWeight: FontWeight.w700,
         color: textPrimaryColor,
         letterSpacing: -0.4,
       ),
-      headlineSmall: GoogleFonts.dmSans(
-        fontSize: 18,
+      headlineSmall: _font(
+        typography?.fontFamily,
+        fontSize: typography?.headlineSmallSize ?? 18,
         fontWeight: FontWeight.w700,
         color: textPrimaryColor,
       ),
-      titleLarge: GoogleFonts.dmSans(
-        fontSize: 17,
+      titleLarge: _font(
+        typography?.fontFamily,
+        fontSize: typography?.titleLargeSize ?? 17,
         fontWeight: FontWeight.w700,
         color: textPrimaryColor,
       ),
-      titleMedium: GoogleFonts.dmSans(
-        fontSize: 16,
+      titleMedium: _font(
+        typography?.fontFamily,
+        fontSize: typography?.titleMediumSize ?? 16,
         fontWeight: FontWeight.w600,
         color: textPrimaryColor,
       ),
-      bodyLarge: GoogleFonts.dmSans(
-        fontSize: 16,
+      bodyLarge: _font(
+        typography?.fontFamily,
+        fontSize: typography?.bodyLargeSize ?? 16,
         fontWeight: FontWeight.w500,
         color: textPrimaryColor,
         height: 1.45,
       ),
-      bodyMedium: GoogleFonts.dmSans(
-        fontSize: 14,
+      bodyMedium: _font(
+        typography?.fontFamily,
+        fontSize: typography?.bodyMediumSize ?? 14,
         fontWeight: FontWeight.w500,
         color: textSecondaryColor,
         height: 1.45,
       ),
-      labelLarge: GoogleFonts.dmSans(
-        fontSize: 14,
+      labelLarge: _font(
+        typography?.fontFamily,
+        fontSize: typography?.labelLargeSize ?? 14,
         fontWeight: FontWeight.w700,
         color: textPrimaryColor,
         letterSpacing: 0.1,
       ),
     );
 
+    final radii = _ThemeRadii.fromDna(dna);
+    final spacing = _ThemeSpacing.fromDna(dna);
+
     final outlineBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(radius16),
+      borderRadius: BorderRadius.circular(radii.r16),
       borderSide: BorderSide(color: borderColor),
     );
 
@@ -211,7 +303,7 @@ class PatifyTheme {
         surfaceTintColor: Colors.transparent,
         margin: const EdgeInsets.only(bottom: space12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radius20),
+          borderRadius: BorderRadius.circular(radii.r20),
           side: BorderSide(color: borderColor),
         ),
       ),
@@ -220,9 +312,9 @@ class PatifyTheme {
         selectedColor: chipSelectedColor,
         disabledColor: dividerColorValue,
         secondarySelectedColor: chipSecondarySelectedColor,
-        padding: const EdgeInsets.symmetric(
-          horizontal: space12,
-          vertical: space8,
+        padding: EdgeInsets.symmetric(
+          horizontal: spacing.s12,
+          vertical: spacing.s8,
         ),
         labelStyle: textTheme.labelLarge!,
         secondaryLabelStyle: textTheme.labelLarge!,
@@ -246,14 +338,14 @@ class PatifyTheme {
         ),
         actionTextColor: colorScheme.secondary,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radius16),
+          borderRadius: BorderRadius.circular(radii.r16),
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colorScheme.primary,
         foregroundColor: fabForegroundColor,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(radius16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(radii.r16)),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -287,12 +379,12 @@ class PatifyTheme {
           elevation: 0,
           shadowColor: Colors.transparent,
           minimumSize: const Size.fromHeight(54),
-          padding: const EdgeInsets.symmetric(
-            horizontal: space20,
-            vertical: space16,
+          padding: EdgeInsets.symmetric(
+            horizontal: spacing.s20,
+            vertical: spacing.s16,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radius16),
+            borderRadius: BorderRadius.circular(radii.r16),
           ),
           textStyle: textTheme.labelLarge?.copyWith(fontSize: 15),
         ),
@@ -301,13 +393,13 @@ class PatifyTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: textPrimaryColor,
           minimumSize: const Size.fromHeight(54),
-          padding: const EdgeInsets.symmetric(
-            horizontal: space20,
-            vertical: space16,
+          padding: EdgeInsets.symmetric(
+            horizontal: spacing.s20,
+            vertical: spacing.s16,
           ),
           side: BorderSide(color: borderColor),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radius16),
+            borderRadius: BorderRadius.circular(radii.r16),
           ),
           textStyle: textTheme.labelLarge?.copyWith(fontSize: 15),
         ),
@@ -317,7 +409,7 @@ class PatifyTheme {
           foregroundColor: colorScheme.primary,
           textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radius12),
+            borderRadius: BorderRadius.circular(radii.r12),
           ),
         ),
       ),
@@ -330,9 +422,9 @@ class PatifyTheme {
         labelStyle: textTheme.bodyMedium?.copyWith(color: textSecondaryColor),
         prefixIconColor: textSecondaryColor,
         suffixIconColor: textSecondaryColor,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: space16,
-          vertical: space16,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: spacing.s16,
+          vertical: spacing.s16,
         ),
         border: outlineBorder,
         enabledBorder: outlineBorder,
@@ -346,6 +438,169 @@ class PatifyTheme {
           borderSide: const BorderSide(color: danger, width: 1.2),
         ),
       ),
+    );
+  }
+
+  static TextTheme _baseTextTheme(TextTheme base, String? fontFamily) {
+    if (fontFamily != null && fontFamily.isNotEmpty) {
+      try {
+        return GoogleFonts.getTextTheme(fontFamily, base);
+      } catch (_) {
+        return GoogleFonts.dmSansTextTheme(base);
+      }
+    }
+    return GoogleFonts.dmSansTextTheme(base);
+  }
+
+  static TextStyle _font(
+    String? fontFamily, {
+    required double fontSize,
+    required FontWeight fontWeight,
+    required Color color,
+    double? letterSpacing,
+    double? height,
+  }) {
+    if (fontFamily != null && fontFamily.isNotEmpty) {
+      try {
+        return GoogleFonts.getFont(
+          fontFamily,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          letterSpacing: letterSpacing,
+          height: height,
+        );
+      } catch (_) {}
+    }
+
+    return GoogleFonts.dmSans(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+      height: height,
+    );
+  }
+}
+
+class _ThemeSpacing {
+  const _ThemeSpacing({
+    required this.s8,
+    required this.s12,
+    required this.s16,
+    required this.s20,
+  });
+
+  final double s8;
+  final double s12;
+  final double s16;
+  final double s20;
+
+  factory _ThemeSpacing.fromDna(StitchDesignDna? dna) {
+    return _ThemeSpacing(
+      s8: dna?.spacing.s8 ?? PatifyTheme.space8,
+      s12: dna?.spacing.s12 ?? PatifyTheme.space12,
+      s16: dna?.spacing.s16 ?? PatifyTheme.space16,
+      s20: dna?.spacing.s20 ?? PatifyTheme.space20,
+    );
+  }
+}
+
+class _ThemeRadii {
+  const _ThemeRadii({
+    required this.r12,
+    required this.r16,
+    required this.r20,
+  });
+
+  final double r12;
+  final double r16;
+  final double r20;
+
+  factory _ThemeRadii.fromDna(StitchDesignDna? dna) {
+    return _ThemeRadii(
+      r12: dna?.radii.r12 ?? PatifyTheme.radius12,
+      r16: dna?.radii.r16 ?? PatifyTheme.radius16,
+      r20: dna?.radii.r20 ?? PatifyTheme.radius20,
+    );
+  }
+}
+
+class _ThemeColors {
+  const _ThemeColors({
+    required this.background,
+    required this.backgroundSoft,
+    required this.surface,
+    required this.surfaceRaised,
+    required this.primary,
+    required this.primarySoft,
+    required this.secondary,
+    required this.secondarySoft,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.border,
+    required this.divider,
+    required this.danger,
+  });
+
+  final Color background;
+  final Color backgroundSoft;
+  final Color surface;
+  final Color surfaceRaised;
+  final Color primary;
+  final Color primarySoft;
+  final Color secondary;
+  final Color secondarySoft;
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color border;
+  final Color divider;
+  final Color danger;
+
+  factory _ThemeColors.light(StitchDesignDna? dna) {
+    return _ThemeColors(
+      background: dna?.lightColor('background') ?? PatifyTheme.background,
+      backgroundSoft:
+          dna?.lightColor('backgroundSoft') ?? PatifyTheme.backgroundSoft,
+      surface: dna?.lightColor('surface') ?? PatifyTheme.surface,
+      surfaceRaised:
+          dna?.lightColor('surfaceRaised') ?? PatifyTheme.surfaceRaised,
+      primary: dna?.lightColor('primary') ?? PatifyTheme.primary,
+      primarySoft: dna?.lightColor('primarySoft') ?? PatifyTheme.primarySoft,
+      secondary: dna?.lightColor('secondary') ?? PatifyTheme.secondary,
+      secondarySoft:
+          dna?.lightColor('secondarySoft') ?? PatifyTheme.secondarySoft,
+      textPrimary:
+          dna?.lightColor('textPrimary') ?? PatifyTheme.textPrimary,
+      textSecondary:
+          dna?.lightColor('textSecondary') ?? PatifyTheme.textSecondary,
+      border: dna?.lightColor('border') ?? PatifyTheme.border,
+      divider: dna?.lightColor('divider') ?? PatifyTheme.divider,
+      danger: dna?.lightColor('danger') ?? PatifyTheme.danger,
+    );
+  }
+
+  factory _ThemeColors.dark(StitchDesignDna? dna) {
+    return _ThemeColors(
+      background: dna?.darkColor('background') ?? PatifyTheme.darkBackground,
+      backgroundSoft:
+          dna?.darkColor('backgroundSoft') ?? PatifyTheme.darkBackgroundSoft,
+      surface: dna?.darkColor('surface') ?? PatifyTheme.darkSurface,
+      surfaceRaised:
+          dna?.darkColor('surfaceRaised') ?? PatifyTheme.darkSurfaceRaised,
+      primary: dna?.darkColor('primary') ?? PatifyTheme.darkPrimary,
+      primarySoft:
+          dna?.darkColor('primarySoft') ?? PatifyTheme.darkPrimarySoft,
+      secondary: dna?.darkColor('secondary') ?? PatifyTheme.darkSecondary,
+      secondarySoft:
+          dna?.darkColor('secondarySoft') ?? PatifyTheme.darkSecondarySoft,
+      textPrimary:
+          dna?.darkColor('textPrimary') ?? PatifyTheme.darkTextPrimary,
+      textSecondary:
+          dna?.darkColor('textSecondary') ?? PatifyTheme.darkTextSecondary,
+      border: dna?.darkColor('border') ?? PatifyTheme.darkBorder,
+      divider: dna?.darkColor('divider') ?? PatifyTheme.darkDivider,
+      danger: dna?.darkColor('danger') ?? PatifyTheme.danger,
     );
   }
 }

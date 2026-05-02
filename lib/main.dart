@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'screens/onboarding_screen.dart';
 import 'services/app_preferences.dart';
+import 'services/stitch_api_service.dart';
+import 'theme/patify_design_theme.dart';
 import 'theme/patify_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env', isOptional: true);
   runApp(const PatifyApp());
 }
 
@@ -29,7 +33,9 @@ abstract class PatifyAppThemeAccess {
 
 class _PatifyAppState extends State<PatifyApp> implements PatifyAppThemeAccess {
   ThemeMode _themeMode = ThemeMode.system;
-  bool _themeReady = false;
+  ThemeData _lightTheme = PatifyTheme.lightTheme;
+  ThemeData _darkTheme = PatifyTheme.darkTheme;
+  bool _appReady = false;
 
   @override
   ThemeMode get themeMode => _themeMode;
@@ -37,15 +43,19 @@ class _PatifyAppState extends State<PatifyApp> implements PatifyAppThemeAccess {
   @override
   void initState() {
     super.initState();
-    _loadThemeMode();
+    _initializeApp();
   }
 
-  Future<void> _loadThemeMode() async {
+  Future<void> _initializeApp() async {
     final storedMode = await AppPreferences.loadThemeMode();
+    final dna = await StitchApiService.fromEnv().fetchDesignDna();
+
     if (!mounted) return;
     setState(() {
       _themeMode = storedMode;
-      _themeReady = true;
+      _lightTheme = PatifyDesignTheme.light(dna);
+      _darkTheme = PatifyDesignTheme.dark(dna);
+      _appReady = true;
     });
   }
 
@@ -61,12 +71,12 @@ class _PatifyAppState extends State<PatifyApp> implements PatifyAppThemeAccess {
     return MaterialApp(
       title: 'Patify',
       debugShowCheckedModeBanner: false,
-      theme: PatifyTheme.lightTheme,
-      darkTheme: PatifyTheme.darkTheme,
+      theme: _lightTheme,
+      darkTheme: _darkTheme,
       themeMode: _themeMode,
       builder: (context, child) {
         final mediaQuery = MediaQuery.of(context);
-        final content = _themeReady
+        final content = _appReady
             ? child ?? const SizedBox.shrink()
             : const ColoredBox(
                 color: PatifyTheme.background,

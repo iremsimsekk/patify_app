@@ -11,6 +11,7 @@ class PlaceSummary {
   final double lat;
   final double lng;
   final String? address;
+  final String? email;
   final String? phone;
   final String? internationalPhoneNumber;
   final String? website;
@@ -28,6 +29,7 @@ class PlaceSummary {
     required this.lng,
     required this.category,
     this.address,
+    this.email,
     this.phone,
     this.internationalPhoneNumber,
     this.website,
@@ -51,6 +53,7 @@ class PlaceSummary {
       lat: (loc['lat'] as num).toDouble(),
       lng: (loc['lng'] as num).toDouble(),
       address: (json['formatted_address'] ?? json['vicinity']) as String?,
+      email: json['email'] as String?,
       phone: json['formatted_phone_number'] as String?,
       internationalPhoneNumber: json['international_phone_number'] as String?,
       website: json['website'] as String?,
@@ -73,6 +76,7 @@ class PlaceSummary {
         'lat': lat,
         'lng': lng,
         'address': address,
+        'email': email,
         'phone': phone,
         'internationalPhoneNumber': internationalPhoneNumber,
         'website': website,
@@ -97,6 +101,7 @@ class PlaceSummary {
       lat: ((json['lat'] ?? 0) as num).toDouble(),
       lng: ((json['lng'] ?? 0) as num).toDouble(),
       address: json['address'] as String?,
+      email: json['email'] as String?,
       phone: _readString(json, ['phone']),
       internationalPhoneNumber: _readString(
         json,
@@ -127,11 +132,15 @@ class PlaceDetails {
   final String? formattedAddress;
   final String? phone;
   final String? internationalPhoneNumber;
+  final String? email;
   final String? website;
   final double? rating;
   final int? userRatingsTotal;
   final List<String>? weekdayText;
   final String? googleMapsUrl;
+  final String? description;
+  final String? city;
+  final String? district;
 
   PlaceDetails({
     required this.placeId,
@@ -139,11 +148,15 @@ class PlaceDetails {
     this.formattedAddress,
     this.phone,
     this.internationalPhoneNumber,
+    this.email,
     this.website,
     this.rating,
     this.userRatingsTotal,
     this.weekdayText,
     this.googleMapsUrl,
+    this.description,
+    this.city,
+    this.district,
   });
 
   factory PlaceDetails.fromJson(Map<String, dynamic> json) {
@@ -157,11 +170,15 @@ class PlaceDetails {
       formattedAddress: result['formatted_address'] as String?,
       phone: result['formatted_phone_number'] as String?,
       internationalPhoneNumber: result['international_phone_number'] as String?,
+      email: result['email'] as String?,
       website: result['website'] as String?,
       rating: (result['rating'] as num?)?.toDouble(),
       userRatingsTotal: result['user_ratings_total'] as int?,
       weekdayText: weekday,
       googleMapsUrl: result['url'] as String?,
+      description: result['description'] as String?,
+      city: result['city'] as String?,
+      district: result['district'] as String?,
     );
   }
 }

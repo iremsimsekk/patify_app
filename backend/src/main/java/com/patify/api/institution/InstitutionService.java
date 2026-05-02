@@ -26,7 +26,15 @@ public class InstitutionService {
     } catch (IllegalArgumentException ex) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_INSTITUTION_TYPE");
     }
-    return institutions.findAllByTypeAndDeletedAtIsNullOrderByNameAsc(type.dbValue()).stream()
+
+    List<Institution> results = switch (type) {
+      case CLINIC, VETERINARY -> institutions.findAllByTypeInAndDeletedAtIsNullOrderByNameAsc(
+          List.of(InstitutionType.CLINIC.dbValue(), InstitutionType.VETERINARY.dbValue())
+      );
+      case SHELTER -> institutions.findAllByTypeAndDeletedAtIsNullOrderByNameAsc(type.dbValue());
+    };
+
+    return results.stream()
         .map(this::toSummary)
         .toList();
   }
@@ -73,9 +81,12 @@ public class InstitutionService {
         institution.getName(),
         institution.getPhone(),
         institution.getInternationalPhoneNumber(),
+        institution.getEmail(),
         institution.getWebsite(),
         institution.getAddress(),
+        institution.getCity(),
         institution.getDistrict(),
+        institution.getDescription(),
         readOpeningHours(institution.getOpeningHours()),
         institution.getRating(),
         institution.getUserRatingCount(),
@@ -127,9 +138,12 @@ public class InstitutionService {
       String name,
       String phone,
       String internationalPhoneNumber,
+      String email,
       String website,
       String address,
+      String city,
       String district,
+      String description,
       List<String> openingHours,
       Double rating,
       Integer userRatingCount,
