@@ -56,7 +56,7 @@ class AppointmentService {
     }
   }
 
-  static Future<int> createBulkSlots({
+  static Future<BulkSlotCreateResult> createBulkSlots({
     required DateTime date,
     required String startTime,
     required String endTime,
@@ -75,8 +75,7 @@ class AppointmentService {
         },
         options: await _authorizedOptions(),
       );
-      final data = res.data as Map<String, dynamic>;
-      return (data['createdCount'] as num?)?.toInt() ?? 0;
+      return BulkSlotCreateResult.fromJson(res.data as Map<String, dynamic>);
     } on DioException catch (error) {
       throw Exception(_extractMessage(error));
     }
@@ -86,6 +85,24 @@ class AppointmentService {
     try {
       final res = await ApiClient.dio.patch(
         '/api/veterinarian/appointments/slots/$slotId/cancel',
+        options: await _authorizedOptions(),
+      );
+      return AppointmentSlot.fromJson(res.data as Map<String, dynamic>);
+    } on DioException catch (error) {
+      throw Exception(_extractMessage(error));
+    }
+  }
+
+  static Future<AppointmentSlot> cancelVeterinarianBookedSlot({
+    required int slotId,
+    required String reason,
+  }) async {
+    try {
+      final res = await ApiClient.dio.patch(
+        '/api/veterinarian/appointments/slots/$slotId/cancel-booked',
+        data: {
+          'reason': reason.trim(),
+        },
         options: await _authorizedOptions(),
       );
       return AppointmentSlot.fromJson(res.data as Map<String, dynamic>);

@@ -293,7 +293,7 @@ class _VeterinarianHomeTab extends StatelessWidget {
                       width: heroMetaWidth,
                       child: _HeroMeta(
                         label: 'Bugün',
-                        value: summary?.bookedSlots.toString() ?? '--',
+                        value: _formatLongDate(DateTime.now()),
                       ),
                     ),
                   ],
@@ -395,7 +395,7 @@ class _VeterinarianHomeTab extends StatelessWidget {
             _QuickActionCard(
               title: 'Takvimi yönet',
               subtitle: approved
-                  ? 'Gün seç, slotları gör ve boş saatleri iptal et.'
+                  ? 'Gün seç, slotları gör ve randevuları güvenle yönet.'
                   : 'Klinik onayı sonrası aktif olacak.',
               icon: Icons.calendar_month_outlined,
               onTap: approved ? () => onNavigate(1) : null,
@@ -444,6 +444,33 @@ class _VeterinarianHomeTab extends StatelessWidget {
       default:
         return PatifyTheme.info;
     }
+  }
+
+  String _formatLongDate(DateTime value) {
+    const months = [
+      'Ocak',
+      'Şubat',
+      'Mart',
+      'Nisan',
+      'Mayıs',
+      'Haziran',
+      'Temmuz',
+      'Ağustos',
+      'Eylül',
+      'Ekim',
+      'Kasım',
+      'Aralık',
+    ];
+    const weekdays = [
+      'Pazartesi',
+      'Salı',
+      'Çarşamba',
+      'Perşembe',
+      'Cuma',
+      'Cumartesi',
+      'Pazar',
+    ];
+    return '${value.day} ${months[value.month - 1]} ${value.year}, ${weekdays[value.weekday - 1]}';
   }
 }
 

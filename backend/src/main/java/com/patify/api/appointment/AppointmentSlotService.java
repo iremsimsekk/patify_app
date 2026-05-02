@@ -1,6 +1,7 @@
 package com.patify.api.appointment;
 
 import com.patify.api.auth.AuthContextService;
+import com.patify.api.auth.EmailService;
 import com.patify.api.auth.Role;
 import com.patify.api.auth.User;
 import com.patify.api.institution.Institution;
@@ -25,20 +26,24 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AppointmentSlotService {
   private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
   private static final List<Integer> ALLOWED_SLOT_DURATIONS = List.of(15, 30, 45, 60);
 
   private final AppointmentSlotRepository appointmentSlots;
   private final VeterinaryClaimRequestRepository claimRequests;
   private final AuthContextService authContextService;
+  private final EmailService emailService;
 
   public AppointmentSlotService(
       AppointmentSlotRepository appointmentSlots,
       VeterinaryClaimRequestRepository claimRequests,
-      AuthContextService authContextService
+      AuthContextService authContextService,
+      EmailService emailService
   ) {
     this.appointmentSlots = appointmentSlots;
     this.claimRequests = claimRequests;
     this.authContextService = authContextService;
+    this.emailService = emailService;
   }
 
   public VeterinarianDaySlotsResponse getVeterinarianSlots(
@@ -114,6 +119,7 @@ public class AppointmentSlotService {
   ) {
     VeterinaryContext context = requireApprovedVeterinarianContext(authorizationHeader);
     validateBulkRequest(request);
+    OffsetDateTime now = now();
 
     LocalTime rangeStart = parseTime(request.startTime());
     LocalTime rangeEnd = parseTime(request.endTime());
@@ -121,14 +127,26 @@ public class AppointmentSlotService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_SLOT_RANGE");
     }
 
-    List<AppointmentSlot> toCreate = new ArrayList<>();
+    List<AppointmentSlot> createdSlots = new ArrayList<>();
+    int skippedPastCount = 0;
+    int conflictingCount = 0;
+    int requestedCount = 0;
     LocalTime currentStart = rangeStart;
     while (currentStart.plusMinutes(request.slotDurationMinutes()).compareTo(rangeEnd) <= 0) {
+      requestedCount++;
       OffsetDateTime slotStart = atOffset(request.date(), currentStart);
       OffsetDateTime slotEnd = slotStart.plusMinutes(request.slotDurationMinutes());
 
+      if (!slotStart.isAfter(now)) {
+        skippedPastCount++;
+        currentStart = currentStart.plusMinutes(request.slotDurationMinutes());
+        continue;
+      }
+
       if (appointmentSlots.existsByVeterinarianIdAndStartTime(context.user().id, slotStart)) {
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "APPOINTMENT_SLOT_CONFLICT");
+        conflictingCount++;
+        currentStart = currentStart.plusMinutes(request.slotDurationMinutes());
+        continue;
       }
 
       AppointmentSlot slot = new AppointmentSlot();
@@ -138,24 +156,32 @@ public class AppointmentSlotService {
       slot.setEndTime(slotEnd);
       slot.setStatus(AppointmentSlotStatus.AVAILABLE);
       slot.setNote(normalizeNote(request.note()));
-      toCreate.add(slot);
+      try {
+        createdSlots.add(appointmentSlots.save(slot));
+      } catch (DataIntegrityViolationException ex) {
+        conflictingCount++;
+      }
       currentStart = currentStart.plusMinutes(request.slotDurationMinutes());
     }
 
-    if (toCreate.isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_SLOTS_GENERATED");
-    }
-
-    try {
-      List<AppointmentSlot> saved = appointmentSlots.saveAll(toCreate);
-      return new BulkSlotCreateResponse(
-          saved.size(),
-          toInstitutionResponse(context.institution()),
-          toSlotResponses(saved, true)
-      );
-    } catch (DataIntegrityViolationException ex) {
+    if (createdSlots.isEmpty()) {
+      if (skippedPastCount == requestedCount) {
+        throw new ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "PAST_APPOINTMENT_SLOT_CREATION_NOT_ALLOWED"
+        );
+      }
       throw new ResponseStatusException(HttpStatus.CONFLICT, "APPOINTMENT_SLOT_CONFLICT");
     }
+
+    return new BulkSlotCreateResponse(
+        createdSlots.size(),
+        skippedPastCount,
+        conflictingCount,
+        buildBulkCreateMessage(createdSlots.size(), skippedPastCount, conflictingCount),
+        toInstitutionResponse(context.institution()),
+        toSlotResponses(createdSlots, true)
+    );
   }
 
   @Transactional
@@ -175,17 +201,22 @@ public class AppointmentSlotService {
     }
 
     slot.setStatus(AppointmentSlotStatus.CANCELLED);
+    slot.setCancelledAt(now());
+    slot.setCancellationSource("VETERINARIAN");
     return toSlotResponse(appointmentSlots.save(slot), true);
   }
 
   public List<AppointmentSlotResponse> getAvailableSlots(long institutionId, LocalDate date) {
     return toSlotResponses(
         appointmentSlots.findAllByInstitutionIdAndStatusAndStartTimeBetweenOrderByStartTimeAsc(
-            institutionId,
-            AppointmentSlotStatus.AVAILABLE,
-            startOfDay(date),
-            startOfDay(date.plusDays(1))
-        ),
+                institutionId,
+                AppointmentSlotStatus.AVAILABLE,
+                startOfDay(date),
+                startOfDay(date.plusDays(1))
+            )
+            .stream()
+            .filter(slot -> slot.getStartTime().isAfter(now()))
+            .toList(),
         false
     );
   }
@@ -213,6 +244,9 @@ public class AppointmentSlotService {
     AppointmentSlot slot = appointmentSlots.findByIdForUpdate(slotId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "APPOINTMENT_SLOT_NOT_FOUND"));
 
+    if (!slot.getStartTime().isAfter(now())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PAST_APPOINTMENT_BOOKING_NOT_ALLOWED");
+    }
     if (slot.getStatus() != AppointmentSlotStatus.AVAILABLE) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "APPOINTMENT_SLOT_NOT_AVAILABLE");
     }
@@ -236,7 +270,7 @@ public class AppointmentSlotService {
         appointmentSlots.findAllByBookedByUserIdAndStatusAndStartTimeGreaterThanEqualOrderByStartTimeAsc(
             user.id,
             AppointmentSlotStatus.BOOKED,
-            OffsetDateTime.now()
+            now()
         ),
         false
     );
@@ -264,6 +298,39 @@ public class AppointmentSlotService {
     return toSlotResponse(appointmentSlots.save(slot), false);
   }
 
+  @Transactional
+  public AppointmentSlotResponse cancelBookedSlot(
+      String authorizationHeader,
+      long slotId,
+      CancelBookedSlotRequest request
+  ) {
+    VeterinaryContext context = requireApprovedVeterinarianContext(authorizationHeader);
+    String reason = normalizeReason(request);
+    OffsetDateTime now = now();
+
+    AppointmentSlot slot = appointmentSlots.findByIdForUpdate(slotId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "APPOINTMENT_SLOT_NOT_FOUND"));
+
+    if (!slot.getVeterinarian().id.equals(context.user().id)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "APPOINTMENT_SLOT_ACCESS_DENIED");
+    }
+    if (slot.getStatus() != AppointmentSlotStatus.BOOKED) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "APPOINTMENT_SLOT_NOT_BOOKED");
+    }
+    if (!slot.getStartTime().isAfter(now)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PAST_BOOKED_APPOINTMENT_CANNOT_BE_CANCELLED");
+    }
+
+    slot.setStatus(AppointmentSlotStatus.CANCELLED);
+    slot.setCancellationReason(reason);
+    slot.setCancelledAt(now);
+    slot.setCancellationSource("VETERINARIAN");
+
+    AppointmentSlot saved = appointmentSlots.save(slot);
+    sendBookedCancellationEmail(saved, reason);
+    return toSlotResponse(saved, true);
+  }
+
   private VeterinaryContext requireApprovedVeterinarianContext(String authorizationHeader) {
     User veterinarian = authContextService.requireRole(authorizationHeader, Role.VETERINARIAN);
     VeterinaryClaimRequest claim = claimRequests
@@ -284,6 +351,18 @@ public class AppointmentSlotService {
     if (!ALLOWED_SLOT_DURATIONS.contains(request.slotDurationMinutes())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_SLOT_DURATION");
     }
+  }
+
+  private String buildBulkCreateMessage(int createdCount, int skippedPastCount, int conflictingCount) {
+    List<String> parts = new ArrayList<>();
+    parts.add(createdCount + " slot olusturuldu.");
+    if (skippedPastCount > 0) {
+      parts.add(skippedPastCount + " gecmis zamanli slot atlandi.");
+    }
+    if (conflictingCount > 0) {
+      parts.add(conflictingCount + " cakisan slot atlandi.");
+    }
+    return String.join(" ", parts);
   }
 
   private LocalTime parseTime(String value) {
@@ -319,6 +398,30 @@ public class AppointmentSlotService {
     return normalized.isEmpty() ? null : normalized;
   }
 
+  private String normalizeReason(CancelBookedSlotRequest request) {
+    if (request == null || request.reason() == null || request.reason().trim().isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "BOOKED_SLOT_CANCELLATION_REASON_REQUIRED");
+    }
+    return request.reason().trim();
+  }
+
+  private void sendBookedCancellationEmail(AppointmentSlot slot, String reason) {
+    if (slot.getBookedByEmail() == null || slot.getBookedByEmail().isBlank()) {
+      return;
+    }
+    emailService.sendVeterinarianCancelledAppointmentEmail(
+        slot.getBookedByEmail().trim(),
+        slot.getInstitution().getName(),
+        DATE_FORMATTER.format(slot.getStartTime().toLocalDate()),
+        TIME_FORMATTER.format(slot.getStartTime().toLocalTime()),
+        reason
+    );
+  }
+
+  private OffsetDateTime now() {
+    return OffsetDateTime.now(ZoneId.systemDefault());
+  }
+
   private List<AppointmentSlotResponse> toSlotResponses(List<AppointmentSlot> slots, boolean includeBookingContact) {
     return slots.stream()
         .map(slot -> toSlotResponse(slot, includeBookingContact))
@@ -338,6 +441,9 @@ public class AppointmentSlotService {
         includeBookingContact ? slot.getBookedByLastName() : null,
         includeBookingContact ? slot.getBookedByEmail() : null,
         slot.getNote(),
+        slot.getCancellationReason(),
+        slot.getCancelledAt(),
+        slot.getCancellationSource(),
         slot.getCreatedAt(),
         slot.getUpdatedAt()
     );
@@ -383,9 +489,14 @@ public class AppointmentSlotService {
 
   public record BulkSlotCreateResponse(
       int createdCount,
+      int skippedPastCount,
+      int conflictingCount,
+      String message,
       InstitutionCompactResponse institution,
       List<AppointmentSlotResponse> slots
   ) {}
+
+  public record CancelBookedSlotRequest(String reason) {}
 
   public record AppointmentSlotResponse(
       Long id,
@@ -399,6 +510,9 @@ public class AppointmentSlotService {
       String bookedByLastName,
       String bookedByEmail,
       String note,
+      String cancellationReason,
+      OffsetDateTime cancelledAt,
+      String cancellationSource,
       OffsetDateTime createdAt,
       OffsetDateTime updatedAt
   ) {}

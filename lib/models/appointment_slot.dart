@@ -52,6 +52,9 @@ class AppointmentSlot {
     this.bookedByLastName,
     this.bookedByEmail,
     this.note,
+    this.cancellationReason,
+    this.cancelledAt,
+    this.cancellationSource,
     this.createdAt,
     this.updatedAt,
   });
@@ -67,6 +70,9 @@ class AppointmentSlot {
   final String? bookedByLastName;
   final String? bookedByEmail;
   final String? note;
+  final String? cancellationReason;
+  final DateTime? cancelledAt;
+  final String? cancellationSource;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -95,8 +101,34 @@ class AppointmentSlot {
       bookedByLastName: _readNullableString(json['bookedByLastName']),
       bookedByEmail: _readNullableString(json['bookedByEmail']),
       note: _readNullableString(json['note']),
+      cancellationReason: _readNullableString(json['cancellationReason']),
+      cancelledAt: _readNullableDateTime(json['cancelledAt']),
+      cancellationSource: _readNullableString(json['cancellationSource']),
       createdAt: _readNullableDateTime(json['createdAt']),
       updatedAt: _readNullableDateTime(json['updatedAt']),
+    );
+  }
+}
+
+class BulkSlotCreateResult {
+  const BulkSlotCreateResult({
+    required this.createdCount,
+    required this.skippedPastCount,
+    required this.conflictingCount,
+    required this.message,
+  });
+
+  final int createdCount;
+  final int skippedPastCount;
+  final int conflictingCount;
+  final String message;
+
+  factory BulkSlotCreateResult.fromJson(Map<String, dynamic> json) {
+    return BulkSlotCreateResult(
+      createdCount: _readInt(json['createdCount']),
+      skippedPastCount: _readInt(json['skippedPastCount']),
+      conflictingCount: _readInt(json['conflictingCount']),
+      message: _readNullableString(json['message']) ?? '',
     );
   }
 }

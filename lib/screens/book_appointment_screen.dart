@@ -111,6 +111,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final canBook = _authRole == 'USER' && (_authToken?.isNotEmpty == true);
+    final today = DateUtils.dateOnly(DateTime.now());
 
     return Scaffold(
       appBar: AppBar(title: const Text('Randevu Al')),
@@ -158,6 +159,22 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     ),
                   ),
                   const SizedBox(height: PatifyTheme.space16),
+                  Wrap(
+                    spacing: PatifyTheme.space12,
+                    runSpacing: PatifyTheme.space12,
+                    children: [
+                      _DateMetaCard(
+                        label: 'Bugün',
+                        value: _formatLongDate(today),
+                      ),
+                      if (!DateUtils.isSameDay(today, _selectedDate))
+                        _DateMetaCard(
+                          label: 'Seçili gün',
+                          value: _formatLongDate(_selectedDate),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: PatifyTheme.space16),
                   OutlinedButton.icon(
                     onPressed: _pickDate,
                     icon: const Icon(Icons.calendar_today_outlined),
@@ -196,7 +213,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       Text(_error!, style: theme.textTheme.bodyMedium)
                     else if (_slots.isEmpty)
                       Text(
-                        'Seçilen tarih için müsait randevu slotu bulunamadı.',
+                        'Bu tarih için uygun randevu bulunamadı.',
                         style: theme.textTheme.bodyMedium,
                       )
                     else
@@ -205,7 +222,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           final selected = _selectedSlot?.id == slot.id;
                           return Padding(
                             padding: const EdgeInsets.only(
-                                bottom: PatifyTheme.space12),
+                              bottom: PatifyTheme.space12,
+                            ),
                             child: _SlotCard(
                               slot: slot,
                               selected: selected,
@@ -254,6 +272,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   String _friendlyLoadError(Object error) {
+    final message = error.toString();
+    if (message.contains('AUTH_TOKEN_MISSING')) {
+      return 'Randevu almak için giriş yapmalısınız.';
+    }
     return 'Slotlar alınamadı. Lütfen daha sonra tekrar dene.';
   }
 
@@ -261,6 +283,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     final message = error.toString();
     if (message.contains('APPOINTMENT_SLOT_NOT_AVAILABLE')) {
       return 'Bu slot az önce doldu veya artık uygun değil.';
+    }
+    if (message.contains('PAST_APPOINTMENT_BOOKING_NOT_ALLOWED')) {
+      return 'Geçmiş saatli randevu alınamaz.';
     }
     if (message.contains('USER_ROLE_REQUIRED')) {
       return 'Randevu alma işlemi sadece normal kullanıcı hesapları için açık.';
@@ -275,6 +300,33 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     final day = value.day.toString().padLeft(2, '0');
     final month = value.month.toString().padLeft(2, '0');
     return '$day.$month.${value.year}';
+  }
+
+  String _formatLongDate(DateTime value) {
+    const months = [
+      'Ocak',
+      'Şubat',
+      'Mart',
+      'Nisan',
+      'Mayıs',
+      'Haziran',
+      'Temmuz',
+      'Ağustos',
+      'Eylül',
+      'Ekim',
+      'Kasım',
+      'Aralık',
+    ];
+    const weekdays = [
+      'Pazartesi',
+      'Salı',
+      'Çarşamba',
+      'Perşembe',
+      'Cuma',
+      'Cumartesi',
+      'Pazar',
+    ];
+    return '${value.day} ${months[value.month - 1]} ${value.year}, ${weekdays[value.weekday - 1]}';
   }
 }
 
@@ -356,5 +408,45 @@ class _SlotCard extends StatelessWidget {
     final hour = value.hour.toString().padLeft(2, '0');
     final minute = value.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
+  }
+}
+
+class _DateMetaCard extends StatelessWidget {
+  const _DateMetaCard({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 180, maxWidth: 280),
+      padding: const EdgeInsets.all(PatifyTheme.space12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(PatifyTheme.radius16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: PatifyTheme.textSecondary,
+                ),
+          ),
+          const SizedBox(height: PatifyTheme.space4),
+          Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
+      ),
+    );
   }
 }

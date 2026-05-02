@@ -64,4 +64,13 @@ public class VeterinarianAppointmentController {
   ) {
     return appointmentSlotService.cancelSlot(authorizationHeader, id);
   }
+
+  @PatchMapping("/slots/{id}/cancel-booked")
+  public AppointmentSlotService.AppointmentSlotResponse cancelBookedSlot(
+      @RequestHeader("Authorization") String authorizationHeader,
+      @PathVariable long id,
+      @RequestBody AppointmentSlotService.CancelBookedSlotRequest request
+  ) {
+    return appointmentSlotService.cancelBookedSlot(authorizationHeader, id, request);
+  }
 }

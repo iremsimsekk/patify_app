@@ -67,6 +67,15 @@ public class AppointmentSlot {
   @Column
   private String note;
 
+  @Column(name = "cancellation_reason")
+  private String cancellationReason;
+
+  @Column(name = "cancelled_at")
+  private OffsetDateTime cancelledAt;
+
+  @Column(name = "cancellation_source")
+  private String cancellationSource;
+
   @Column(name = "created_at", nullable = false)
   private OffsetDateTime createdAt;
 
@@ -169,6 +178,30 @@ public class AppointmentSlot {
 
   public void setNote(String note) {
     this.note = note;
+  }
+
+  public String getCancellationReason() {
+    return cancellationReason;
+  }
+
+  public void setCancellationReason(String cancellationReason) {
+    this.cancellationReason = cancellationReason;
+  }
+
+  public OffsetDateTime getCancelledAt() {
+    return cancelledAt;
+  }
+
+  public void setCancelledAt(OffsetDateTime cancelledAt) {
+    this.cancelledAt = cancelledAt;
+  }
+
+  public String getCancellationSource() {
+    return cancellationSource;
+  }
+
+  public void setCancellationSource(String cancellationSource) {
+    this.cancellationSource = cancellationSource;
   }
 
   public OffsetDateTime getCreatedAt() {

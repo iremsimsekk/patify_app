@@ -62,9 +62,7 @@ class _VeterinarianCalendarScreenState
         date: _selectedDate,
       );
       if (!mounted) return;
-      setState(() {
-        _daySlots = day;
-      });
+      setState(() => _daySlots = day);
     } catch (error) {
       if (!mounted) return;
       setState(() => _error = _friendlyError(error));
@@ -108,7 +106,7 @@ class _VeterinarianCalendarScreenState
           Text('Takvim', style: theme.textTheme.headlineSmall),
           const SizedBox(height: PatifyTheme.space8),
           Text(
-            'Aylık görünüm üzerinden gün seç, slot yoğunluğunu gör ve randevuları güvenle yönet.',
+            'Aylık görünüm üzerinden gün seç ve randevuları güvenle yönet.',
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: PatifyTheme.space20),
@@ -312,6 +310,8 @@ class _VeterinarianCalendarScreenState
 
   Widget _buildSlotCard(AppointmentSlot slot) {
     final theme = Theme.of(context);
+    final now = DateTime.now();
+    final isFutureSlot = slot.startTime.isAfter(now);
     final color = switch (slot.status) {
       'BOOKED' => PatifyTheme.primary,
       'CANCELLED' => PatifyTheme.danger,
@@ -379,25 +379,54 @@ class _VeterinarianCalendarScreenState
                 ),
               ],
             ],
+            if (slot.isCancelled && slot.cancellationReason?.isNotEmpty == true)
+              Padding(
+                padding: const EdgeInsets.only(top: PatifyTheme.space12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(PatifyTheme.space12),
+                  decoration: BoxDecoration(
+                    color: PatifyTheme.danger.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(PatifyTheme.radius16),
+                  ),
+                  child: Text(
+                    'İptal açıklaması: ${slot.cancellationReason}',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              ),
             if (slot.isAvailable) ...[
               const SizedBox(height: PatifyTheme.space12),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
-                  onPressed: () => _cancelSlot(slot),
+                  onPressed: isFutureSlot ? () => _cancelSlot(slot) : null,
                   icon: const Icon(Icons.close_rounded),
                   label: const Text('Boş slotu iptal et'),
                 ),
               ),
             ],
             if (slot.isBooked) ...[
-              const SizedBox(height: PatifyTheme.space8),
-              Text(
-                'BOOKED slot iptali yakında daha güvenli bir akışla desteklenecek.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: PatifyTheme.textSecondary,
+              const SizedBox(height: PatifyTheme.space12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.tonalIcon(
+                  onPressed: isFutureSlot
+                      ? () => _showBookedCancellationDialog(slot)
+                      : null,
+                  icon: const Icon(Icons.event_busy_outlined),
+                  label: const Text('Randevuyu İptal Et'),
                 ),
               ),
+              if (!isFutureSlot) ...[
+                const SizedBox(height: PatifyTheme.space8),
+                Text(
+                  'Geçmiş randevular iptal edilemez.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: PatifyTheme.textSecondary,
+                  ),
+                ),
+              ],
             ],
           ],
         ),
@@ -425,13 +454,110 @@ class _VeterinarianCalendarScreenState
     }
   }
 
+  Future<void> _showBookedCancellationDialog(AppointmentSlot slot) async {
+    final controller = TextEditingController();
+    String? validation;
+
+    final confirmed = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Randevuyu İptal Et'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Kullanıcıya gönderilecek kısa bir iptal açıklaması yazın.',
+                  ),
+                  const SizedBox(height: PatifyTheme.space12),
+                  TextField(
+                    controller: controller,
+                    minLines: 3,
+                    maxLines: 4,
+                    decoration: InputDecoration(
+                      hintText:
+                          'Örn. Acil operasyon nedeniyle saat değişikliği',
+                      errorText: validation,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    Navigator.of(dialogContext).pop();
+                  },
+                  child: const Text('Vazgeç'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final reason = controller.text.trim();
+                    if (reason.isEmpty) {
+                      setDialogState(() {
+                        validation = 'Randevu iptal açıklaması zorunludur.';
+                      });
+                      return;
+                    }
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    Navigator.of(dialogContext).pop(reason);
+                  },
+                  child: const Text('İptal Et'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (confirmed == null || confirmed.trim().isEmpty) return;
+
+    try {
+      await AppointmentService.cancelVeterinarianBookedSlot(
+        slotId: slot.id,
+        reason: confirmed,
+      );
+      await widget.onSlotsChanged();
+      await _load();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Randevu iptal edildi ve kullanıcıya bilgi maili gönderildi.',
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_friendlyError(error)),
+          backgroundColor: PatifyTheme.danger,
+        ),
+      );
+    }
+  }
+
   String _friendlyError(Object error) {
     final message = error.toString();
-    if (message.contains('BOOKED_SLOT_CANCEL_NOT_SUPPORTED')) {
-      return 'Alınmış randevular için iptal akışı henüz açılmadı.';
+    if (message.contains('BOOKED_SLOT_CANCELLATION_REASON_REQUIRED')) {
+      return 'Randevu iptal açıklaması zorunludur.';
+    }
+    if (message.contains('PAST_BOOKED_APPOINTMENT_CANNOT_BE_CANCELLED')) {
+      return 'Geçmiş randevular iptal edilemez.';
+    }
+    if (message.contains('PAST_APPOINTMENT_SLOT_CREATION_NOT_ALLOWED')) {
+      return 'Geçmiş tarih veya saat için randevu slotu oluşturulamaz.';
     }
     if (message.contains('VETERINARIAN_CLAIM_APPROVAL_REQUIRED')) {
       return 'Klinik onayı olmadan takvim görüntülenemez.';
+    }
+    if (message.contains('APPOINTMENT_SLOT_NOT_BOOKED')) {
+      return 'Bu randevu zaten iptal edilmiş veya aktif değil.';
     }
     return 'Takvim verileri alınamadı. Lütfen tekrar dene.';
   }

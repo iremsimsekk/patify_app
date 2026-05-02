@@ -55,4 +55,30 @@ public class EmailService {
     );
     mailSender.send(message);
   }
+
+  public void sendVeterinarianCancelledAppointmentEmail(
+      String to,
+      String clinicName,
+      String appointmentDate,
+      String appointmentTime,
+      String reason
+  ) {
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setFrom(from);
+    message.setTo(to);
+    message.setSubject("Patify randevunuz veteriner tarafindan iptal edildi");
+    message.setText(
+        clinicName
+            + " icin "
+            + appointmentDate
+            + " "
+            + appointmentTime
+            + " tarihli randevunuz veteriner tarafindan iptal edilmistir.\n\n"
+            + "Iptal aciklamasi: "
+            + reason
+            + "\n\n"
+            + "Lutfen Patify uzerinden baska bir uygun randevu seciniz."
+    );
+    mailSender.send(message);
+  }
 }

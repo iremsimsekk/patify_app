@@ -270,6 +270,18 @@ class _VeterinarianCreateSlotsScreenState
       _showMessage('Bitiş saati başlangıç saatinden sonra olmalı.', true);
       return;
     }
+    if (_selectedDate.isBefore(DateUtils.dateOnly(DateTime.now()))) {
+      _showMessage('Geçmiş tarih veya saat için randevu açılamaz.', true);
+      return;
+    }
+    if (_mode == _SlotCreateMode.singleDay &&
+        !_isStartTimeInFuture(_selectedDate)) {
+      _showMessage(
+        'Bugün için yalnızca mevcut saatten sonraki randevular oluşturulabilir.',
+        true,
+      );
+      return;
+    }
     if (_mode == _SlotCreateMode.weekly && _selectedWeekdays.isEmpty) {
       _showMessage('Haftalık modda en az bir gün seçmelisiniz.', true);
       return;
@@ -278,7 +290,7 @@ class _VeterinarianCreateSlotsScreenState
     setState(() => _saving = true);
     try {
       if (_mode == _SlotCreateMode.singleDay) {
-        final createdCount = await AppointmentService.createBulkSlots(
+        final result = await AppointmentService.createBulkSlots(
           date: _selectedDate,
           startTime: _formatTimeApi(_startTime),
           endTime: _formatTimeApi(_endTime),
@@ -287,17 +299,28 @@ class _VeterinarianCreateSlotsScreenState
         );
         await widget.onSlotsCreated();
         if (!mounted) return;
-        _showMessage('$createdCount adet slot oluşturuldu.', false);
+        _showMessage(
+          result.message.isNotEmpty
+              ? result.message
+              : '${result.createdCount} adet slot oluşturuldu.',
+          false,
+        );
       } else {
         final result = await _createWeeklySlots();
         await widget.onSlotsCreated();
         if (!mounted) return;
-        if (result.failedDates.isEmpty) {
+        if (result.failedDates.isEmpty && result.messages.isEmpty) {
           _showMessage('Haftalık randevu slotları oluşturuldu.', false);
         } else {
           _showMessage(
-            '${result.totalCreated} slot oluşturuldu. Çakışan günler atlandı: ${result.failedDates.join(', ')}',
-            true,
+            [
+              if (result.totalCreated > 0)
+                '${result.totalCreated} slot oluşturuldu.',
+              ...result.messages,
+              if (result.failedDates.isNotEmpty)
+                'İşlenemeyen günler: ${result.failedDates.join(', ')}',
+            ].join(' '),
+            result.failedDates.isNotEmpty,
           );
         }
       }
@@ -313,18 +336,23 @@ class _VeterinarianCreateSlotsScreenState
     final dates = _weeklyDates();
     var totalCreated = 0;
     final failedDates = <String>[];
+    final messages = <String>[];
 
     for (final date in dates) {
       try {
-        final count = await AppointmentService.createBulkSlots(
+        final result = await AppointmentService.createBulkSlots(
           date: date,
           startTime: _formatTimeApi(_startTime),
           endTime: _formatTimeApi(_endTime),
           slotDurationMinutes: _slotDuration,
           note: _noteController.text,
         );
-        totalCreated += count;
-      } catch (error) {
+        totalCreated += result.createdCount;
+        if (result.message.isNotEmpty &&
+            (result.skippedPastCount > 0 || result.conflictingCount > 0)) {
+          messages.add('${_formatDate(date)}: ${result.message}');
+        }
+      } catch (_) {
         failedDates.add(_formatDate(date));
       }
     }
@@ -332,6 +360,7 @@ class _VeterinarianCreateSlotsScreenState
     return _WeeklyCreateResult(
       totalCreated: totalCreated,
       failedDates: failedDates,
+      messages: messages,
     );
   }
 
@@ -354,6 +383,17 @@ class _VeterinarianCreateSlotsScreenState
     final startMinutes = _startTime.hour * 60 + _startTime.minute;
     final endMinutes = _endTime.hour * 60 + _endTime.minute;
     return endMinutes > startMinutes;
+  }
+
+  bool _isStartTimeInFuture(DateTime date) {
+    final candidate = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      _startTime.hour,
+      _startTime.minute,
+    );
+    return candidate.isAfter(DateTime.now());
   }
 
   String _previewText() {
@@ -386,6 +426,9 @@ class _VeterinarianCreateSlotsScreenState
     }
     if (message.contains('APPOINTMENT_SLOT_CONFLICT')) {
       return 'Seçtiğiniz aralıkta çakışan slotlar var. Farklı bir saat aralığı deneyin.';
+    }
+    if (message.contains('PAST_APPOINTMENT_SLOT_CREATION_NOT_ALLOWED')) {
+      return 'Geçmiş tarih veya saat için randevu slotu oluşturulamaz.';
     }
     if (message.contains('INVALID_SLOT_DURATION')) {
       return 'Slot süresi 15, 30, 45 veya 60 dakika olmalı.';
@@ -579,8 +622,10 @@ class _WeeklyCreateResult {
   const _WeeklyCreateResult({
     required this.totalCreated,
     required this.failedDates,
+    required this.messages,
   });
 
   final int totalCreated;
   final List<String> failedDates;
+  final List<String> messages;
 }
