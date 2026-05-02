@@ -33,4 +33,13 @@ public interface AppointmentSlotRepository extends JpaRepository<AppointmentSlot
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select s from AppointmentSlot s where s.id = :id")
   Optional<AppointmentSlot> findByIdForUpdate(@Param("id") Long id);
+
+  @EntityGraph(attributePaths = {"institution", "bookedByUser", "veterinarian"})
+  List<AppointmentSlot> findAllByBookedByUserIdAndStatusAndStartTimeGreaterThanEqualOrderByStartTimeAsc(
+      Long bookedByUserId,
+      AppointmentSlotStatus status,
+      OffsetDateTime startInclusive
+  );
+
+  long countByInstitutionIdAndStatus(Long institutionId, AppointmentSlotStatus status);
 }

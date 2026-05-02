@@ -22,10 +22,12 @@ class VeterinarianCalendarScreen extends StatefulWidget {
 
 class _VeterinarianCalendarScreenState
     extends State<VeterinarianCalendarScreen> {
+  DateTime _visibleMonth = DateTime(DateTime.now().year, DateTime.now().month);
   DateTime _selectedDate = DateUtils.dateOnly(DateTime.now());
   bool _loading = false;
   String? _error;
   VeterinarianDaySlots? _daySlots;
+  VeterinarianMonthSummary? _monthSummary;
 
   @override
   void initState() {
@@ -47,6 +49,7 @@ class _VeterinarianCalendarScreenState
         _loading = false;
         _error = null;
         _daySlots = null;
+        _monthSummary = null;
       });
       return;
     }
@@ -57,17 +60,42 @@ class _VeterinarianCalendarScreenState
     });
 
     try {
-      final result = await AppointmentService.fetchVeterinarianSlots(
+      final month = await AppointmentService.fetchVeterinarianMonthSummary(
+        month: _visibleMonth,
+      );
+      final day = await AppointmentService.fetchVeterinarianSlots(
         date: _selectedDate,
       );
       if (!mounted) return;
-      setState(() => _daySlots = result);
+      setState(() {
+        _monthSummary = month;
+        _daySlots = day;
+      });
     } catch (error) {
       if (!mounted) return;
       setState(() => _error = _friendlyError(error));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _selectDate(DateTime date) async {
+    setState(() => _selectedDate = DateUtils.dateOnly(date));
+    await _load();
+  }
+
+  void _changeMonth(int offset) {
+    final next = DateTime(_visibleMonth.year, _visibleMonth.month + offset);
+    final newSelected = DateTime(
+      next.year,
+      next.month,
+      _selectedDate.month == next.month ? _selectedDate.day : 1,
+    );
+    setState(() {
+      _visibleMonth = next;
+      _selectedDate = DateUtils.dateOnly(newSelected);
+    });
+    _load();
   }
 
   @override
@@ -87,38 +115,11 @@ class _VeterinarianCalendarScreenState
           Text('Takvim', style: theme.textTheme.headlineSmall),
           const SizedBox(height: PatifyTheme.space8),
           Text(
-            'Seçtiğin gün için açılan slotları ve alınan randevuları yönet.',
+            'Aylık görünüm üzerinden gün seç, slot yoğunluğunu gör ve randevuları güvenle yönet.',
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: PatifyTheme.space20),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(PatifyTheme.space16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Seçili gün', style: theme.textTheme.labelLarge),
-                        const SizedBox(height: PatifyTheme.space4),
-                        Text(
-                          _formatDate(_selectedDate),
-                          style: theme.textTheme.titleLarge,
-                        ),
-                      ],
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _pickDate,
-                    icon: const Icon(Icons.calendar_today_outlined),
-                    label: const Text('Gün seç'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (widget.claimStatus?.isApproved != true) ...[
+          if (widget.claimStatus?.isApproved != true)
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(PatifyTheme.space16),
@@ -126,7 +127,7 @@ class _VeterinarianCalendarScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Klinik onayı gerekiyor',
+                      'Klinik onayı gerekiyor.',
                       style: theme.textTheme.titleMedium,
                     ),
                     const SizedBox(height: PatifyTheme.space8),
@@ -137,21 +138,28 @@ class _VeterinarianCalendarScreenState
                   ],
                 ),
               ),
-            ),
-          ] else if (_loading) ...[
+            )
+          else if (_loading)
             const Padding(
               padding: EdgeInsets.all(PatifyTheme.space24),
               child: Center(child: CircularProgressIndicator()),
-            ),
-          ] else if (_error != null) ...[
+            )
+          else if (_error != null)
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(PatifyTheme.space16),
                 child: Text(_error!, style: theme.textTheme.bodyMedium),
               ),
-            ),
-          ] else ...[
+            )
+          else ...[
+            _buildCalendar(theme),
+            const SizedBox(height: PatifyTheme.space16),
             _buildSummary(theme),
+            const SizedBox(height: PatifyTheme.space16),
+            Text(
+              '${_formatDate(_selectedDate)} günü slotları',
+              style: theme.textTheme.titleMedium,
+            ),
             const SizedBox(height: PatifyTheme.space12),
             ...((_daySlots?.slots ?? const <AppointmentSlot>[])
                 .map(_buildSlotCard)
@@ -172,34 +180,119 @@ class _VeterinarianCalendarScreenState
     );
   }
 
+  Widget _buildCalendar(ThemeData theme) {
+    final month = _monthSummary;
+    final firstDay = DateTime(_visibleMonth.year, _visibleMonth.month, 1);
+    final daysInMonth =
+        DateTime(_visibleMonth.year, _visibleMonth.month + 1, 0).day;
+    final leadingEmpty = (firstDay.weekday + 6) % 7;
+    final cells = <Widget>[];
+    final summaries = {
+      for (final day in month?.days ?? const <VeterinarianCalendarDaySummary>[])
+        DateUtils.dateOnly(day.date): day,
+    };
+
+    for (var i = 0; i < leadingEmpty; i++) {
+      cells.add(const SizedBox.shrink());
+    }
+
+    for (var day = 1; day <= daysInMonth; day++) {
+      final current = DateTime(_visibleMonth.year, _visibleMonth.month, day);
+      final summary = summaries[DateUtils.dateOnly(current)];
+      final selected = DateUtils.isSameDay(current, _selectedDate);
+      cells.add(
+        _CalendarDayCell(
+          date: current,
+          summary: summary,
+          selected: selected,
+          isToday: DateUtils.isSameDay(current, DateTime.now()),
+          onTap: () => _selectDate(current),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(PatifyTheme.space16),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(PatifyTheme.radius24),
+        border: Border.all(color: PatifyTheme.border),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => _changeMonth(-1),
+                icon: const Icon(Icons.chevron_left_rounded),
+              ),
+              Expanded(
+                child: Text(
+                  _formatMonthTitle(_visibleMonth),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge,
+                ),
+              ),
+              IconButton(
+                onPressed: () => _changeMonth(1),
+                icon: const Icon(Icons.chevron_right_rounded),
+              ),
+            ],
+          ),
+          const SizedBox(height: PatifyTheme.space12),
+          const Row(
+            children: [
+              _WeekdayLabel(label: 'Pzt'),
+              _WeekdayLabel(label: 'Sal'),
+              _WeekdayLabel(label: 'Çar'),
+              _WeekdayLabel(label: 'Per'),
+              _WeekdayLabel(label: 'Cum'),
+              _WeekdayLabel(label: 'Cmt'),
+              _WeekdayLabel(label: 'Paz'),
+            ],
+          ),
+          const SizedBox(height: PatifyTheme.space8),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 7,
+            mainAxisSpacing: PatifyTheme.space8,
+            crossAxisSpacing: PatifyTheme.space8,
+            childAspectRatio: 0.82,
+            children: cells,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSummary(ThemeData theme) {
     final summary = _daySlots?.summary;
     if (summary == null) return const SizedBox.shrink();
 
-    return Row(
+    return Wrap(
+      spacing: PatifyTheme.space12,
+      runSpacing: PatifyTheme.space12,
       children: [
-        Expanded(
-          child: _CountCard(
-            title: 'Müsait',
-            value: summary.availableSlots.toString(),
-            accent: PatifyTheme.success,
-          ),
+        _CountCard(
+          title: 'Toplam',
+          value: summary.totalSlots.toString(),
+          accent: PatifyTheme.info,
         ),
-        const SizedBox(width: PatifyTheme.space12),
-        Expanded(
-          child: _CountCard(
-            title: 'Alınmış',
-            value: summary.bookedSlots.toString(),
-            accent: PatifyTheme.primary,
-          ),
+        _CountCard(
+          title: 'Boş',
+          value: summary.availableSlots.toString(),
+          accent: PatifyTheme.success,
         ),
-        const SizedBox(width: PatifyTheme.space12),
-        Expanded(
-          child: _CountCard(
-            title: 'İptal',
-            value: summary.cancelledSlots.toString(),
-            accent: PatifyTheme.danger,
-          ),
+        _CountCard(
+          title: 'Dolu',
+          value: summary.bookedSlots.toString(),
+          accent: PatifyTheme.primary,
+        ),
+        _CountCard(
+          title: 'İptal',
+          value: summary.cancelledSlots.toString(),
+          accent: PatifyTheme.danger,
         ),
       ],
     );
@@ -211,6 +304,11 @@ class _VeterinarianCalendarScreenState
       'BOOKED' => PatifyTheme.primary,
       'CANCELLED' => PatifyTheme.danger,
       _ => PatifyTheme.success,
+    };
+    final label = switch (slot.status) {
+      'BOOKED' => 'Dolu / Randevu Alındı',
+      'CANCELLED' => 'İptal Edildi',
+      _ => 'Boş / Müsait',
     };
 
     return Card(
@@ -237,24 +335,19 @@ class _VeterinarianCalendarScreenState
                     borderRadius: BorderRadius.circular(PatifyTheme.radius16),
                   ),
                   child: Text(
-                    slot.status,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: color,
-                    ),
+                    label,
+                    style: theme.textTheme.labelLarge?.copyWith(color: color),
                   ),
                 ),
               ],
             ),
-            if (slot.note != null && slot.note!.isNotEmpty) ...[
+            if (slot.note?.isNotEmpty == true) ...[
               const SizedBox(height: PatifyTheme.space8),
               Text(slot.note!, style: theme.textTheme.bodyMedium),
             ],
             if (slot.isBooked) ...[
               const SizedBox(height: PatifyTheme.space12),
-              Text(
-                'Randevu sahibi',
-                style: theme.textTheme.labelLarge,
-              ),
+              Text('Randevu sahibi', style: theme.textTheme.labelLarge),
               const SizedBox(height: PatifyTheme.space4),
               Text(
                 slot.bookedByFullName.isNotEmpty
@@ -291,18 +384,6 @@ class _VeterinarianCalendarScreenState
         ),
       ),
     );
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      firstDate: DateTime.now().subtract(const Duration(days: 30)),
-      lastDate: DateTime.now().add(const Duration(days: 180)),
-      initialDate: _selectedDate,
-    );
-    if (picked == null) return;
-    setState(() => _selectedDate = DateUtils.dateOnly(picked));
-    await _load();
   }
 
   Future<void> _cancelSlot(AppointmentSlot slot) async {
@@ -347,6 +428,138 @@ class _VeterinarianCalendarScreenState
     final minute = value.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
+
+  String _formatMonthTitle(DateTime value) {
+    const monthNames = [
+      'Ocak',
+      'Şubat',
+      'Mart',
+      'Nisan',
+      'Mayıs',
+      'Haziran',
+      'Temmuz',
+      'Ağustos',
+      'Eylül',
+      'Ekim',
+      'Kasım',
+      'Aralık',
+    ];
+    return '${monthNames[value.month - 1]} ${value.year}';
+  }
+}
+
+class _CalendarDayCell extends StatelessWidget {
+  const _CalendarDayCell({
+    required this.date,
+    required this.summary,
+    required this.selected,
+    required this.isToday,
+    required this.onTap,
+  });
+
+  final DateTime date;
+  final VeterinarianCalendarDaySummary? summary;
+  final bool selected;
+  final bool isToday;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(PatifyTheme.radius16),
+        child: Ink(
+          padding: const EdgeInsets.all(PatifyTheme.space8),
+          decoration: BoxDecoration(
+            color: selected
+                ? PatifyTheme.primarySoft
+                : isToday
+                    ? PatifyTheme.secondarySoft
+                    : Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(PatifyTheme.radius16),
+            border: Border.all(
+              color: selected
+                  ? PatifyTheme.primary
+                  : isToday
+                      ? PatifyTheme.secondary
+                      : PatifyTheme.border,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${date.day}',
+                style: theme.textTheme.titleMedium,
+              ),
+              const Spacer(),
+              if (summary?.hasSlots == true)
+                Row(
+                  children: [
+                    const _Dot(color: PatifyTheme.success),
+                    const SizedBox(width: 4),
+                    const _Dot(color: PatifyTheme.primary),
+                    if ((summary?.cancelledSlots ?? 0) > 0) ...[
+                      const SizedBox(width: 4),
+                      const _Dot(color: PatifyTheme.danger),
+                    ],
+                  ],
+                ),
+              if (summary?.hasSlots == true) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '${summary!.totalSlots} slot',
+                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WeekdayLabel extends StatelessWidget {
+  const _WeekdayLabel({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Center(
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: PatifyTheme.textSecondary,
+              ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Dot extends StatelessWidget {
+  const _Dot({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 6,
+      height: 6,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
 }
 
 class _CountCard extends StatelessWidget {
@@ -363,6 +576,7 @@ class _CountCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 160,
       padding: const EdgeInsets.all(PatifyTheme.space16),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.1),

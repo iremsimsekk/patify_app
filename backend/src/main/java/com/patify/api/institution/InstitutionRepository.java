@@ -13,6 +13,9 @@ public interface InstitutionRepository extends JpaRepository<Institution, Long> 
   List<Institution> findAllByTypeAndDeletedAtIsNullOrderByNameAsc(String type);
 
   @EntityGraph(attributePaths = "location")
+  List<Institution> findAllByTypeInAndDeletedAtIsNullOrderByNameAsc(List<String> types);
+
+  @EntityGraph(attributePaths = "location")
   Optional<Institution> findByIdAndDeletedAtIsNull(Long id);
 
   Optional<Institution> findByExternalSourceId(String externalSourceId);

@@ -156,6 +156,76 @@ class VeterinarianDaySlots {
   }
 }
 
+class VeterinarianCalendarDaySummary {
+  const VeterinarianCalendarDaySummary({
+    required this.date,
+    required this.totalSlots,
+    required this.availableSlots,
+    required this.bookedSlots,
+    required this.cancelledSlots,
+    required this.hasSlots,
+  });
+
+  final DateTime date;
+  final int totalSlots;
+  final int availableSlots;
+  final int bookedSlots;
+  final int cancelledSlots;
+  final bool hasSlots;
+
+  factory VeterinarianCalendarDaySummary.fromJson(Map<String, dynamic> json) {
+    return VeterinarianCalendarDaySummary(
+      date: DateTime.parse((json['date'] ?? '').toString()),
+      totalSlots: _readInt(json['totalSlots']),
+      availableSlots: _readInt(json['availableSlots']),
+      bookedSlots: _readInt(json['bookedSlots']),
+      cancelledSlots: _readInt(json['cancelledSlots']),
+      hasSlots: json['hasSlots'] == true,
+    );
+  }
+}
+
+class VeterinarianMonthSummary {
+  const VeterinarianMonthSummary({
+    required this.month,
+    required this.days,
+  });
+
+  final String month;
+  final List<VeterinarianCalendarDaySummary> days;
+
+  factory VeterinarianMonthSummary.fromJson(Map<String, dynamic> json) {
+    return VeterinarianMonthSummary(
+      month: (json['month'] ?? '').toString(),
+      days: ((json['days'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(VeterinarianCalendarDaySummary.fromJson)
+          .toList(growable: false),
+    );
+  }
+}
+
+class AppointmentAvailabilityStatus {
+  const AppointmentAvailabilityStatus({
+    required this.institutionId,
+    required this.approvedVeterinarianConnected,
+    required this.hasAvailableSlots,
+  });
+
+  final int institutionId;
+  final bool approvedVeterinarianConnected;
+  final bool hasAvailableSlots;
+
+  factory AppointmentAvailabilityStatus.fromJson(Map<String, dynamic> json) {
+    return AppointmentAvailabilityStatus(
+      institutionId: _readInt(json['institutionId']),
+      approvedVeterinarianConnected:
+          json['approvedVeterinarianConnected'] == true,
+      hasAvailableSlots: json['hasAvailableSlots'] == true,
+    );
+  }
+}
+
 int _readInt(dynamic value) {
   if (value is int) return value;
   if (value is num) return value.toInt();

@@ -39,6 +39,23 @@ class AppointmentService {
     }
   }
 
+  static Future<VeterinarianMonthSummary> fetchVeterinarianMonthSummary({
+    required DateTime month,
+  }) async {
+    try {
+      final res = await ApiClient.dio.get(
+        '/api/veterinarian/appointments/summary',
+        queryParameters: {'month': _formatMonth(month)},
+        options: await _authorizedOptions(),
+      );
+      return VeterinarianMonthSummary.fromJson(
+        res.data as Map<String, dynamic>,
+      );
+    } on DioException catch (error) {
+      throw Exception(_extractMessage(error));
+    }
+  }
+
   static Future<int> createBulkSlots({
     required DateTime date,
     required String startTime,
@@ -93,10 +110,50 @@ class AppointmentService {
     }
   }
 
+  static Future<AppointmentAvailabilityStatus> fetchAvailabilityStatus({
+    required int institutionId,
+  }) async {
+    try {
+      final res = await ApiClient.dio.get(
+        '/api/appointments/veterinarians/$institutionId/availability-status',
+      );
+      return AppointmentAvailabilityStatus.fromJson(
+        res.data as Map<String, dynamic>,
+      );
+    } on DioException catch (error) {
+      throw Exception(_extractMessage(error));
+    }
+  }
+
   static Future<AppointmentSlot> bookSlot(int slotId) async {
     try {
       final res = await ApiClient.dio.post(
         '/api/appointments/slots/$slotId/book',
+        options: await _authorizedOptions(),
+      );
+      return AppointmentSlot.fromJson(res.data as Map<String, dynamic>);
+    } on DioException catch (error) {
+      throw Exception(_extractMessage(error));
+    }
+  }
+
+  static Future<List<AppointmentSlot>> fetchMyAppointments() async {
+    try {
+      final res = await ApiClient.dio.get(
+        '/api/appointments/my',
+        options: await _authorizedOptions(),
+      );
+      final rows = (res.data as List).cast<Map<String, dynamic>>();
+      return rows.map(AppointmentSlot.fromJson).toList(growable: false);
+    } on DioException catch (error) {
+      throw Exception(_extractMessage(error));
+    }
+  }
+
+  static Future<AppointmentSlot> cancelMyBooking(int slotId) async {
+    try {
+      final res = await ApiClient.dio.patch(
+        '/api/appointments/slots/$slotId/cancel-booking',
         options: await _authorizedOptions(),
       );
       return AppointmentSlot.fromJson(res.data as Map<String, dynamic>);
@@ -136,5 +193,11 @@ class AppointmentService {
     final month = local.month.toString().padLeft(2, '0');
     final day = local.day.toString().padLeft(2, '0');
     return '${local.year}-$month-$day';
+  }
+
+  static String _formatMonth(DateTime value) {
+    final local = value.toLocal();
+    final month = local.month.toString().padLeft(2, '0');
+    return '${local.year}-$month';
   }
 }

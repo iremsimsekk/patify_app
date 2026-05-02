@@ -1,6 +1,8 @@
 package com.patify.api.appointment;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/veterinarian/appointments")
@@ -29,10 +32,20 @@ public class VeterinarianAppointmentController {
   }
 
   @GetMapping("/summary")
-  public AppointmentSlotService.VeterinarianSummaryResponse getSummary(
+  public Object getSummary(
       @RequestHeader("Authorization") String authorizationHeader,
-      @RequestParam LocalDate date
+      @RequestParam(required = false) LocalDate date,
+      @RequestParam(required = false) String month
   ) {
+    if (month != null && !month.isBlank()) {
+      return appointmentSlotService.getVeterinarianMonthSummary(
+          authorizationHeader,
+          YearMonth.parse(month.trim())
+      );
+    }
+    if (date == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "DATE_OR_MONTH_REQUIRED");
+    }
     return appointmentSlotService.getVeterinarianSummary(authorizationHeader, date);
   }
 

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,11 +28,33 @@ public class AppointmentController {
     return appointmentSlotService.getAvailableSlots(institutionId, date);
   }
 
+  @GetMapping("/veterinarians/{institutionId}/availability-status")
+  public AppointmentSlotService.AvailabilityStatusResponse getAvailabilityStatus(
+      @PathVariable long institutionId
+  ) {
+    return appointmentSlotService.getAvailabilityStatus(institutionId);
+  }
+
   @PostMapping("/slots/{slotId}/book")
   public AppointmentSlotService.AppointmentSlotResponse bookSlot(
       @RequestHeader("Authorization") String authorizationHeader,
       @PathVariable long slotId
   ) {
     return appointmentSlotService.bookSlot(authorizationHeader, slotId);
+  }
+
+  @GetMapping("/my")
+  public List<AppointmentSlotService.AppointmentSlotResponse> getMyAppointments(
+      @RequestHeader("Authorization") String authorizationHeader
+  ) {
+    return appointmentSlotService.getMyAppointments(authorizationHeader);
+  }
+
+  @PatchMapping("/slots/{slotId}/cancel-booking")
+  public AppointmentSlotService.AppointmentSlotResponse cancelBooking(
+      @RequestHeader("Authorization") String authorizationHeader,
+      @PathVariable long slotId
+  ) {
+    return appointmentSlotService.cancelBooking(authorizationHeader, slotId);
   }
 }

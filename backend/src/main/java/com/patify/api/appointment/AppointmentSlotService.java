@@ -7,10 +7,10 @@ import com.patify.api.institution.Institution;
 import com.patify.api.veterinarian.VeterinaryClaimRequest;
 import com.patify.api.veterinarian.VeterinaryClaimRequestRepository;
 import com.patify.api.veterinarian.VeterinaryClaimStatus;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -71,6 +71,40 @@ public class AppointmentSlotService {
             startOfDay(date.plusDays(1))
         );
     return toSummary(slots, date);
+  }
+
+  public VeterinarianMonthSummaryResponse getVeterinarianMonthSummary(
+      String authorizationHeader,
+      YearMonth month
+  ) {
+    VeterinaryContext context = requireApprovedVeterinarianContext(authorizationHeader);
+    OffsetDateTime rangeStart = startOfDay(month.atDay(1));
+    OffsetDateTime rangeEnd = startOfDay(month.plusMonths(1).atDay(1));
+    List<AppointmentSlot> slots = appointmentSlots
+        .findAllByVeterinarianIdAndStartTimeBetweenOrderByStartTimeAsc(
+            context.user().id,
+            rangeStart,
+            rangeEnd
+        );
+
+    List<CalendarDaySummaryResponse> days = month.atDay(1).datesUntil(month.plusMonths(1).atDay(1))
+        .map(day -> {
+          List<AppointmentSlot> dailySlots = slots.stream()
+              .filter(slot -> slot.getStartTime().toLocalDate().equals(day))
+              .toList();
+          VeterinarianSummaryResponse summary = toSummary(dailySlots, day);
+          return new CalendarDaySummaryResponse(
+              day,
+              summary.totalSlots(),
+              summary.availableSlots(),
+              summary.bookedSlots(),
+              summary.cancelledSlots(),
+              !dailySlots.isEmpty()
+          );
+        })
+        .toList();
+
+    return new VeterinarianMonthSummaryResponse(month.toString(), days);
   }
 
   @Transactional
@@ -156,6 +190,23 @@ public class AppointmentSlotService {
     );
   }
 
+  public AvailabilityStatusResponse getAvailabilityStatus(long institutionId) {
+    boolean approvedVeterinarianConnected = claimRequests.existsByInstitutionIdAndStatus(
+        institutionId,
+        VeterinaryClaimStatus.APPROVED
+    );
+    long availableSlotCount = appointmentSlots.countByInstitutionIdAndStatus(
+        institutionId,
+        AppointmentSlotStatus.AVAILABLE
+    );
+
+    return new AvailabilityStatusResponse(
+        institutionId,
+        approvedVeterinarianConnected,
+        availableSlotCount > 0
+    );
+  }
+
   @Transactional
   public AppointmentSlotResponse bookSlot(String authorizationHeader, long slotId) {
     User user = authContextService.requireStandardUser(authorizationHeader);
@@ -177,6 +228,40 @@ public class AppointmentSlotService {
     } catch (DataIntegrityViolationException ex) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "APPOINTMENT_SLOT_NOT_AVAILABLE");
     }
+  }
+
+  public List<AppointmentSlotResponse> getMyAppointments(String authorizationHeader) {
+    User user = authContextService.requireStandardUser(authorizationHeader);
+    return toSlotResponses(
+        appointmentSlots.findAllByBookedByUserIdAndStatusAndStartTimeGreaterThanEqualOrderByStartTimeAsc(
+            user.id,
+            AppointmentSlotStatus.BOOKED,
+            OffsetDateTime.now()
+        ),
+        false
+    );
+  }
+
+  @Transactional
+  public AppointmentSlotResponse cancelBooking(String authorizationHeader, long slotId) {
+    User user = authContextService.requireStandardUser(authorizationHeader);
+    AppointmentSlot slot = appointmentSlots.findByIdForUpdate(slotId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "APPOINTMENT_SLOT_NOT_FOUND"));
+
+    if (slot.getStatus() != AppointmentSlotStatus.BOOKED) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "APPOINTMENT_SLOT_NOT_BOOKED");
+    }
+    if (slot.getBookedByUser() == null || !slot.getBookedByUser().id.equals(user.id)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "APPOINTMENT_SLOT_BOOKING_ACCESS_DENIED");
+    }
+
+    slot.setStatus(AppointmentSlotStatus.AVAILABLE);
+    slot.setBookedByUser(null);
+    slot.setBookedByFirstName(null);
+    slot.setBookedByLastName(null);
+    slot.setBookedByEmail(null);
+
+    return toSlotResponse(appointmentSlots.save(slot), false);
   }
 
   private VeterinaryContext requireApprovedVeterinarianContext(String authorizationHeader) {
@@ -330,6 +415,26 @@ public class AppointmentSlotService {
       long availableSlots,
       long bookedSlots,
       long cancelledSlots
+  ) {}
+
+  public record VeterinarianMonthSummaryResponse(
+      String month,
+      List<CalendarDaySummaryResponse> days
+  ) {}
+
+  public record CalendarDaySummaryResponse(
+      LocalDate date,
+      long totalSlots,
+      long availableSlots,
+      long bookedSlots,
+      long cancelledSlots,
+      boolean hasSlots
+  ) {}
+
+  public record AvailabilityStatusResponse(
+      long institutionId,
+      boolean approvedVeterinarianConnected,
+      boolean hasAvailableSlots
   ) {}
 
   public record InstitutionCompactResponse(

@@ -28,6 +28,7 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
   late final InstitutionRepository _repo;
   late Future<List<PlaceSummary>> _future;
 
+  String _searchQuery = '';
   String _selectedDistrict = "Tümü";
   _StarRange? _selectedStarRange;
   bool _isRefreshing = false;
@@ -75,6 +76,19 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
 
     final rating = place.rating ?? 0.0;
     return rating >= range.minInclusive && rating < range.maxExclusive;
+  }
+
+  bool _matchesSearch(PlaceSummary place) {
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return true;
+
+    final haystack = [
+      place.name,
+      place.address ?? '',
+      _districtLabelOf(place),
+    ].join(' ').toLowerCase();
+
+    return haystack.contains(query);
   }
 
   String get _selectedRatingLabel =>
@@ -267,7 +281,9 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
           } else {
             final raw = snapshot.data ?? [];
             final filtered = raw.where((place) {
-              return _matchesDistrict(place) && _matchesStars(place);
+              return _matchesDistrict(place) &&
+                  _matchesStars(place) &&
+                  _matchesSearch(place);
             }).toList();
 
             if (filtered.isEmpty) {
@@ -314,7 +330,18 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
                       districtLabel: _selectedDistrict == "Tümü"
                           ? "Tüm ilçeler"
                           : _selectedDistrict,
-                      ratingLabel: _selectedRatingLabel,
+                      ratingLabel: _searchQuery.trim().isEmpty
+                          ? _selectedRatingLabel
+                          : 'Arama: $_searchQuery',
+                    ),
+                    const SizedBox(height: PatifyTheme.space16),
+                    TextField(
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
+                      decoration: const InputDecoration(
+                        hintText: 'Barınak adı, adres veya ilçe ara',
+                        prefixIcon: Icon(Icons.search_rounded),
+                      ),
                     ),
                     const SizedBox(height: PatifyTheme.space20),
                     Text(

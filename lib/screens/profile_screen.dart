@@ -5,6 +5,7 @@ import '../theme/patify_theme.dart';
 import 'history_screen.dart';
 import 'login_screen.dart';
 import 'my_pets_screen.dart';
+import 'appointments_screen.dart';
 import 'settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -105,6 +106,14 @@ class ProfileScreen extends StatelessWidget {
             subtitle: 'Geçmiş işlemlerini düzenli bir görünüm içinde incele.',
             color: PatifyTheme.accent,
             onTap: () => _navigateToScreen(context, const HistoryScreen()),
+          ),
+          _buildProfileItem(
+            context,
+            icon: Icons.calendar_month_rounded,
+            title: 'Randevularım',
+            subtitle: 'Aldığın veteriner randevularını görüntüle ve iptal et.',
+            color: PatifyTheme.primary,
+            onTap: () => _navigateToScreen(context, const AppointmentsScreen()),
           ),
           _buildProfileItem(
             context,

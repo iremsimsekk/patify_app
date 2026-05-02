@@ -24,4 +24,6 @@ public interface VeterinaryClaimRequestRepository
 
   @EntityGraph(attributePaths = {"institution", "institution.location", "user"})
   Optional<VeterinaryClaimRequest> findById(Long id);
+
+  boolean existsByInstitutionIdAndStatus(Long institutionId, VeterinaryClaimStatus status);
 }
