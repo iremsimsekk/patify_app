@@ -8,6 +8,7 @@ import '../theme/patify_theme.dart';
 import 'main_wrapper.dart';
 import 'shelter_dashboard_screen.dart';
 import 'signup_screen.dart';
+import 'veterinarian_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -179,6 +180,13 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(
             builder: (_) => ShelterDashboardScreen(shelterUser: user),
+          ),
+        );
+      } else if (user.type == UserType.veterinarian) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VeterinarianDashboardScreen(user: user),
           ),
         );
       } else {

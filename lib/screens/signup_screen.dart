@@ -142,7 +142,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       const SizedBox(height: PatifyTheme.space12),
                       _AccountTypeCard(
-                        title: 'Evcil Hayvan Sahibi',
+                        title: 'Hayvansever Girişi',
                         subtitle:
                             'Patify\'ı günlük kullanım, keşif ve bakım takibi için kullan.',
                         icon: Icons.pets_outlined,
