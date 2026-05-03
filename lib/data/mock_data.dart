@@ -19,6 +19,7 @@ class AppUser {
   final UserType type;
   final String? photoUrl;
   final String? address;
+  final String? district;
   final String? phoneNumber;
   final String? website;
   final String? workingHours;
@@ -36,6 +37,7 @@ class AppUser {
     this.lastName,
     this.photoUrl,
     this.address,
+    this.district,
     this.phoneNumber,
     this.website,
     this.workingHours,
@@ -54,6 +56,7 @@ class AppUser {
     UserType? type,
     String? photoUrl,
     String? address,
+    String? district,
     String? phoneNumber,
     String? website,
     String? workingHours,
@@ -71,6 +74,7 @@ class AppUser {
       type: type ?? this.type,
       photoUrl: photoUrl ?? this.photoUrl,
       address: address ?? this.address,
+      district: district ?? this.district,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       website: website ?? this.website,
       workingHours: workingHours ?? this.workingHours,

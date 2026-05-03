@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/ankara_districts.dart';
 import '../data/mock_data.dart';
 import '../main.dart';
 import '../services/auth_service.dart';
@@ -187,6 +188,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
+  String? _district;
   bool _saving = false;
   String? _error;
 
@@ -199,6 +201,9 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
     _lastNameController = TextEditingController(
       text: widget.user.lastName ?? '',
     );
+    _district = ankaraDistricts.contains(widget.user.district)
+        ? widget.user.district
+        : null;
   }
 
   @override
@@ -233,12 +238,14 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
         email: widget.user.email,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
+        district: _district,
       );
 
       if (!mounted) return;
 
       final firstName = auth.firstName?.trim();
       final lastName = auth.lastName?.trim();
+      final district = auth.district?.trim();
       final displayName = [firstName, lastName]
           .whereType<String>()
           .where((entry) => entry.isNotEmpty)
@@ -250,6 +257,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
         widget.user.copyWith(
           firstName: firstName,
           lastName: lastName,
+          district: district?.isEmpty == true ? null : district,
           name: displayName.isNotEmpty ? displayName : widget.user.name,
         ),
       );
@@ -286,7 +294,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                 ),
                 const SizedBox(height: PatifyTheme.space8),
                 Text(
-                  "Ad ve soyad bilgilerini güncelleyebilirsin.",
+                  "Ad, soyad ve semt bilgilerini güncelleyebilirsin.",
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: PatifyTheme.space20),
@@ -316,6 +324,23 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: PatifyTheme.space12),
+                DropdownButtonFormField<String>(
+                  initialValue: _district,
+                  decoration: const InputDecoration(
+                    labelText: "Semt",
+                    prefixIcon: Icon(Icons.location_on_outlined),
+                  ),
+                  items: ankaraDistricts
+                      .map(
+                        (district) => DropdownMenuItem(
+                          value: district,
+                          child: Text(district),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) => setState(() => _district = value),
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: PatifyTheme.space16),

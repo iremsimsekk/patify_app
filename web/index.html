@@ -33,24 +33,41 @@
   <link rel="manifest" href="manifest.json">
   <script src="maps_config.js"></script>
   <script>
-    (function () {
+    window.patifyLoadGoogleMaps = function () {
       var key =
         window.PATIFY_GOOGLE_MAPS_API_KEY ||
         'PATIFY_GOOGLE_MAPS_API_KEY';
+
       if (!key || key === 'PATIFY_GOOGLE_MAPS_API_KEY') {
         console.warn('Google Maps Web key is not configured. Create web/maps_config.js locally.');
-        return;
+        return Promise.resolve();
       }
 
-      var script = document.createElement('script');
-      script.src =
-        'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key);
-      script.async = true;
-      document.head.appendChild(script);
-    })();
+      if (window.google && window.google.maps) {
+        return Promise.resolve();
+      }
+
+      return new Promise(function (resolve, reject) {
+        var script = document.createElement('script');
+        script.src =
+          'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key);
+        script.async = true;
+        script.defer = true;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    };
   </script>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <script>
+    window.patifyLoadGoogleMaps().finally(function () {
+      var script = document.createElement('script');
+      script.src = 'flutter_bootstrap.js';
+      script.async = true;
+      document.body.appendChild(script);
+    });
+  </script>
 </body>
 </html>

@@ -10,6 +10,7 @@ class AuthResponse {
   final String email;
   final String? firstName;
   final String? lastName;
+  final String? district;
 
   AuthResponse({
     required this.token,
@@ -17,6 +18,7 @@ class AuthResponse {
     required this.email,
     this.firstName,
     this.lastName,
+    this.district,
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> j) {
@@ -26,6 +28,7 @@ class AuthResponse {
       email: (j['email'] ?? '') as String,
       firstName: j['firstName'] as String?,
       lastName: j['lastName'] as String?,
+      district: j['district'] as String?,
     );
   }
 }
@@ -129,6 +132,7 @@ class AuthService {
     required String email,
     required String firstName,
     required String lastName,
+    String? district,
   }) async {
     try {
       final res = await ApiClient.dio.post(
@@ -137,6 +141,7 @@ class AuthService {
           "email": email,
           "firstName": firstName,
           "lastName": lastName,
+          "district": district,
         },
       );
       return AuthResponse.fromJson(res.data as Map<String, dynamic>);

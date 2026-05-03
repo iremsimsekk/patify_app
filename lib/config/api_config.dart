@@ -6,6 +6,7 @@ class ApiConfig {
   ApiConfig._();
 
   static const int port = 8080;
+  static const String webDefaultBaseUrl = 'http://localhost:8080';
   static const String defaultBaseUrl = 'http://192.168.1.243:8080';
 
   // Preferred full override, for example:
@@ -27,7 +28,7 @@ class ApiConfig {
     }
 
     if (kIsWeb) {
-      return defaultBaseUrl;
+      return webDefaultBaseUrl;
     }
 
     if (Platform.isAndroid) {

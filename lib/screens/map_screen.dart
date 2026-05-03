@@ -8,16 +8,24 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../data/mock_data.dart';
 import '../services/google_places_service.dart';
 import '../services/institution_api_service.dart';
+import '../services/lost_report_service.dart';
 import '../theme/patify_theme.dart';
+import 'lost_report_detail_screen.dart';
 import 'shelter_detail_screen.dart';
 import 'veterinary_detail_screen.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key, required this.apiKey});
+  const MapScreen({
+    super.key,
+    required this.apiKey,
+    required this.currentUser,
+  });
 
   final String apiKey;
+  final AppUser currentUser;
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -77,17 +85,21 @@ class _MapScreenState extends State<MapScreen> {
     try {
       final clinicsFuture = InstitutionApiService.fetchClinics();
       final sheltersFuture = InstitutionApiService.fetchShelters();
+      final lostReportsFuture = LostReportService.activeReports(
+        email: widget.currentUser.email,
+      );
       final locationFuture = _resolveUserPosition();
 
       final clinics = await clinicsFuture;
       final shelters = await sheltersFuture;
+      final lostReports = await lostReportsFuture;
       final position = await locationFuture;
 
       final validClinics =
           clinics.where(_hasValidCoordinates).toList(growable: false);
       final validShelters =
           shelters.where(_hasValidCoordinates).toList(growable: false);
-      final markers = _buildMarkers(validClinics, validShelters);
+      final markers = _buildMarkers(validClinics, validShelters, lostReports);
       final nearbyClinics = _buildNearbyClinics(
         clinics: validClinics,
         originLat: position.latitude,
@@ -133,6 +145,7 @@ class _MapScreenState extends State<MapScreen> {
   Set<Marker> _buildMarkers(
     List<PlaceSummary> clinics,
     List<PlaceSummary> shelters,
+    List<LostReport> lostReports,
   ) {
     final markers = <Marker>{};
 
@@ -142,8 +155,27 @@ class _MapScreenState extends State<MapScreen> {
     for (final shelter in shelters) {
       markers.add(_markerFor(shelter, hue: BitmapDescriptor.hueAzure));
     }
+    for (final report in lostReports) {
+      if (report.latitude != 0 || report.longitude != 0) {
+        markers.add(_lostReportMarkerFor(report));
+      }
+    }
 
     return markers;
+  }
+
+  Marker _lostReportMarkerFor(LostReport report) {
+    return Marker(
+      markerId: MarkerId('lost_report_${report.id}'),
+      position: LatLng(report.latitude, report.longitude),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+      infoWindow: InfoWindow(
+        title: 'Kayıp ${report.petType}',
+        snippet: report.address ?? report.district ?? 'Ankara',
+        onTap: () => _openLostReportDetail(report),
+      ),
+      onTap: () => _openLostReportSheet(report),
+    );
   }
 
   Marker _markerFor(PlaceSummary place, {required double hue}) {
@@ -176,43 +208,52 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return const _ResolvedPosition(
+          latitude: 39.9334,
+          longitude: 32.8597,
+          isPreciseUserLocation: false,
+          message: 'Konum servisi kapali. Harita Ankara merkezi gosteriyor.',
+        );
+      }
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return const _ResolvedPosition(
+          latitude: 39.9334,
+          longitude: 32.8597,
+          isPreciseUserLocation: false,
+          message: 'Konum izni verilmedi. Harita Ankara merkezi gosteriyor.',
+        );
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+
+      return _ResolvedPosition(
+        latitude: position.latitude,
+        longitude: position.longitude,
+        isPreciseUserLocation: true,
+        message: null,
+      );
+    } catch (_) {
       return const _ResolvedPosition(
         latitude: 39.9334,
         longitude: 32.8597,
         isPreciseUserLocation: false,
-        message: 'Konum servisi kapali. Harita Ankara merkezi gosteriyor.',
+        message: 'Konum alinamadi. Harita Ankara merkezi gosteriyor.',
       );
     }
-
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      return const _ResolvedPosition(
-        latitude: 39.9334,
-        longitude: 32.8597,
-        isPreciseUserLocation: false,
-        message: 'Konum izni verilmedi. Harita Ankara merkezi gosteriyor.',
-      );
-    }
-
-    final position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-      ),
-    );
-
-    return _ResolvedPosition(
-      latitude: position.latitude,
-      longitude: position.longitude,
-      isPreciseUserLocation: true,
-      message: null,
-    );
   }
 
   List<_NearbyClinic> _buildNearbyClinics({
@@ -389,6 +430,79 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  void _openLostReportSheet(LostReport report) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            PatifyTheme.space20,
+            PatifyTheme.space8,
+            PatifyTheme.space20,
+            PatifyTheme.space20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Kayıp ${report.petType}',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: PatifyTheme.space8),
+              Text(report.address ?? report.district ?? 'Adres bilgisi yok'),
+              const SizedBox(height: PatifyTheme.space8),
+              Text(
+                report.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: PatifyTheme.space16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => _launchLostReportDirections(report),
+                      child: const Text('Yol Tarifi'),
+                    ),
+                  ),
+                  const SizedBox(width: PatifyTheme.space8),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _openLostReportDetail(report);
+                      },
+                      child: const Text('Detay'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openLostReportDetail(LostReport report) async {
+    await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LostReportDetailScreen(
+          reportId: report.id,
+          currentUser: widget.currentUser,
+        ),
+      ),
+    );
+    _load();
+  }
+
   Future<void> _launchPhone(String? phone) async {
     if (phone == null || phone.trim().isEmpty) {
       if (!mounted) {
@@ -422,6 +536,20 @@ class _MapScreenState extends State<MapScreen> {
       mode: LaunchMode.externalApplication,
     );
 
+    if (!launched && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Yol tarifi acilamadi.')),
+      );
+    }
+  }
+
+  Future<void> _launchLostReportDirections(LostReport report) async {
+    final url =
+        'https://www.google.com/maps/dir/?api=1&destination=${report.latitude},${report.longitude}';
+    final launched = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
     if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Yol tarifi acilamadi.')),
@@ -592,8 +720,7 @@ class _EmergencyPanel extends StatelessWidget {
                     padding: const EdgeInsets.all(PatifyTheme.space12),
                     decoration: BoxDecoration(
                       color: PatifyTheme.backgroundSoft,
-                      borderRadius:
-                          BorderRadius.circular(PatifyTheme.radius16),
+                      borderRadius: BorderRadius.circular(PatifyTheme.radius16),
                       border: Border.all(color: PatifyTheme.border),
                     ),
                     child: Column(

@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../data/mock_data.dart';
 import 'pati_favoriler_screen.dart';
 import 'pati_keyfi_screen.dart';
 import 'rehber_screen.dart';
 
 class PatiDunyasiScreen extends StatelessWidget {
-  const PatiDunyasiScreen({super.key});
+  const PatiDunyasiScreen({
+    super.key,
+    required this.currentUser,
+  });
+
+  final AppUser currentUser;
 
   @override
   Widget build(BuildContext context) {
