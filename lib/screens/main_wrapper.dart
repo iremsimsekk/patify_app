@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/mock_data.dart';
+import '../services/app_preferences.dart';
 import '../theme/patify_theme.dart';
 import 'ai_chat_screen.dart';
 import 'home_screen.dart';
@@ -13,10 +14,12 @@ class MainWrapper extends StatefulWidget {
     super.key,
     required this.currentUser,
     required this.apiKey,
+    this.initialIndex = 0,
   });
 
   final AppUser currentUser;
   final String apiKey;
+  final int initialIndex;
 
   @override
   State<MainWrapper> createState() => _MainWrapperState();
@@ -59,8 +62,9 @@ class _MainWrapperState extends State<MainWrapper> {
   void initState() {
     super.initState();
     _currentUser = widget.currentUser;
+    _currentIndex = widget.initialIndex;
     _loadedPages = List<Widget?>.filled(_destinations.length, null);
-    _loadedPages[0] = _buildPage(0);
+    _loadedPages[_currentIndex] = _buildPage(_currentIndex);
   }
 
   Widget _buildPage(int index) {
@@ -97,6 +101,7 @@ class _MainWrapperState extends State<MainWrapper> {
   }
 
   void _handleUserUpdated(AppUser user) {
+    AppPreferences.saveCurrentUser(user);
     setState(() {
       _currentUser = user;
       _loadedPages[0] = _buildPage(0);

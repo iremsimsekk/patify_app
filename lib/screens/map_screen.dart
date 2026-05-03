@@ -36,14 +36,21 @@ class _MapScreenState extends State<MapScreen> {
       Completer<GoogleMapController>();
   final Set<Marker> _markers = <Marker>{};
 
-  List<_NearbyClinic> _nearbyClinics = const <_NearbyClinic>[];
+  List<PlaceSummary> _clinics = const <PlaceSummary>[];
+  List<PlaceSummary> _shelters = const <PlaceSummary>[];
+  List<LostReport> _lostReports = const <LostReport>[];
+  List<_NearbyMapItem> _nearbyItems = const <_NearbyMapItem>[];
 
   bool _loading = true;
   bool _isMapReady = false;
   bool _didFitBounds = false;
   bool _myLocationEnabled = false;
+  bool _showVeterinarians = true;
+  bool _showShelters = true;
+  bool _showLostPets = true;
   String? _errorMessage;
   String? _locationMessage;
+  _ResolvedPosition? _resolvedPosition;
 
   static const _ankaraCenter = LatLng(39.9334, 32.8597);
 
@@ -99,9 +106,19 @@ class _MapScreenState extends State<MapScreen> {
           clinics.where(_hasValidCoordinates).toList(growable: false);
       final validShelters =
           shelters.where(_hasValidCoordinates).toList(growable: false);
-      final markers = _buildMarkers(validClinics, validShelters, lostReports);
-      final nearbyClinics = _buildNearbyClinics(
+      final validLostReports =
+          lostReports.where(_hasValidLostReportCoordinates).toList(
+                growable: false,
+              );
+      final markers = _buildFilteredMarkers(
         clinics: validClinics,
+        shelters: validShelters,
+        lostReports: validLostReports,
+      );
+      final nearbyItems = _buildFilteredNearbyItems(
+        clinics: validClinics,
+        shelters: validShelters,
+        lostReports: validLostReports,
         originLat: position.latitude,
         originLng: position.longitude,
       );
@@ -111,12 +128,16 @@ class _MapScreenState extends State<MapScreen> {
       }
 
       setState(() {
-        _nearbyClinics = nearbyClinics.take(5).toList(growable: false);
+        _clinics = validClinics;
+        _shelters = validShelters;
+        _lostReports = validLostReports;
+        _nearbyItems = nearbyItems;
         _markers
           ..clear()
           ..addAll(markers);
         _myLocationEnabled = position.isPreciseUserLocation;
         _locationMessage = position.message;
+        _resolvedPosition = position;
       });
 
       _fitBoundsIfPossible();
@@ -128,7 +149,10 @@ class _MapScreenState extends State<MapScreen> {
       setState(() {
         _errorMessage =
             'Harita ve acil veteriner verileri yuklenemedi. Backend baglantisini kontrol edip tekrar dene.';
-        _nearbyClinics = const <_NearbyClinic>[];
+        _clinics = const <PlaceSummary>[];
+        _shelters = const <PlaceSummary>[];
+        _lostReports = const <LostReport>[];
+        _nearbyItems = const <_NearbyMapItem>[];
         _markers.clear();
       });
     } finally {
@@ -142,33 +166,80 @@ class _MapScreenState extends State<MapScreen> {
     return place.lat != 0 || place.lng != 0;
   }
 
-  Set<Marker> _buildMarkers(
-    List<PlaceSummary> clinics,
-    List<PlaceSummary> shelters,
-    List<LostReport> lostReports,
-  ) {
+  bool _hasValidLostReportCoordinates(LostReport report) {
+    return report.latitude != 0 || report.longitude != 0;
+  }
+
+  Set<Marker> _buildFilteredMarkers({
+    required List<PlaceSummary> clinics,
+    required List<PlaceSummary> shelters,
+    required List<LostReport> lostReports,
+  }) {
     final markers = <Marker>{};
 
-    for (final clinic in clinics) {
-      markers.add(_markerFor(clinic, hue: BitmapDescriptor.hueRed));
+    for (final clinic in _showVeterinarians ? clinics : <PlaceSummary>[]) {
+      markers.add(_markerFor(clinic, hue: BitmapDescriptor.hueRose));
     }
-    for (final shelter in shelters) {
+    for (final shelter in _showShelters ? shelters : <PlaceSummary>[]) {
       markers.add(_markerFor(shelter, hue: BitmapDescriptor.hueAzure));
     }
-    for (final report in lostReports) {
-      if (report.latitude != 0 || report.longitude != 0) {
-        markers.add(_lostReportMarkerFor(report));
-      }
+    for (final report in _showLostPets ? lostReports : <LostReport>[]) {
+      markers.add(_lostReportMarkerFor(report));
     }
 
     return markers;
+  }
+
+  void _applyFilters() {
+    final position = _resolvedPosition;
+    setState(() {
+      _didFitBounds = false;
+      _markers
+        ..clear()
+        ..addAll(
+          _buildFilteredMarkers(
+            clinics: _clinics,
+            shelters: _shelters,
+            lostReports: _lostReports,
+          ),
+        );
+      if (position != null) {
+        _nearbyItems = _buildFilteredNearbyItems(
+          clinics: _clinics,
+          shelters: _shelters,
+          lostReports: _lostReports,
+          originLat: position.latitude,
+          originLng: position.longitude,
+        );
+      }
+    });
+    _fitBoundsIfPossible();
+  }
+
+  void _setFilter(_MapFilter filter, bool selected) {
+    switch (filter) {
+      case _MapFilter.veterinarian:
+        _showVeterinarians = selected;
+      case _MapFilter.shelter:
+        _showShelters = selected;
+      case _MapFilter.lostPet:
+        _showLostPets = selected;
+    }
+    _applyFilters();
+  }
+
+  void _showAllFilters() {
+    _showVeterinarians = true;
+    _showShelters = true;
+    _showLostPets = true;
+    _applyFilters();
   }
 
   Marker _lostReportMarkerFor(LostReport report) {
     return Marker(
       markerId: MarkerId('lost_report_${report.id}'),
       position: LatLng(report.latitude, report.longitude),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
       infoWindow: InfoWindow(
         title: 'Kayıp ${report.petType}',
         snippet: report.address ?? report.district ?? 'Ankara',
@@ -256,15 +327,19 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  List<_NearbyClinic> _buildNearbyClinics({
+  List<_NearbyMapItem> _buildFilteredNearbyItems({
     required List<PlaceSummary> clinics,
+    required List<PlaceSummary> shelters,
+    required List<LostReport> lostReports,
     required double originLat,
     required double originLng,
   }) {
-    final items = clinics
-        .map(
-          (clinic) => _NearbyClinic(
+    final items = <_NearbyMapItem>[
+      if (_showVeterinarians)
+        ...clinics.map(
+          (clinic) => _NearbyMapItem.place(
             place: clinic,
+            type: _MapFilter.veterinarian,
             distanceMeters: Geolocator.distanceBetween(
               originLat,
               originLng,
@@ -272,13 +347,38 @@ class _MapScreenState extends State<MapScreen> {
               clinic.lng,
             ),
           ),
-        )
-        .toList(growable: false);
+        ),
+      if (_showShelters)
+        ...shelters.map(
+          (shelter) => _NearbyMapItem.place(
+            place: shelter,
+            type: _MapFilter.shelter,
+            distanceMeters: Geolocator.distanceBetween(
+              originLat,
+              originLng,
+              shelter.lat,
+              shelter.lng,
+            ),
+          ),
+        ),
+      if (_showLostPets)
+        ...lostReports.map(
+          (report) => _NearbyMapItem.lostReport(
+            report: report,
+            distanceMeters: Geolocator.distanceBetween(
+              originLat,
+              originLng,
+              report.latitude,
+              report.longitude,
+            ),
+          ),
+        ),
+    ];
 
     items.sort(
       (left, right) => left.distanceMeters.compareTo(right.distanceMeters),
     );
-    return items;
+    return items.take(12).toList(growable: false);
   }
 
   Future<void> _fitBoundsIfPossible() async {
@@ -557,18 +657,36 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Future<void> _openNearbyClinicsPage() async {
+  Future<void> _launchNearbyDirections(_NearbyMapItem item) {
+    final place = item.place;
+    if (place != null) {
+      return _launchDirections(place);
+    }
+
+    return _launchLostReportDirections(item.report!);
+  }
+
+  Future<void> _openNearbyDetail(_NearbyMapItem item) {
+    final place = item.place;
+    if (place != null) {
+      return _openDetails(place);
+    }
+
+    return _openLostReportDetail(item.report!);
+  }
+
+  Future<void> _openNearbyItemsPage() async {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => _NearbyClinicsScreen(
-          nearbyClinics: _nearbyClinics,
+        builder: (_) => _NearbyItemsScreen(
+          nearbyItems: _nearbyItems,
           loading: _loading,
           errorMessage: _errorMessage,
           onRetry: _load,
           onCall: _launchPhone,
-          onDirections: _launchDirections,
-          onOpenDetails: _openDetails,
+          onDirections: _launchNearbyDirections,
+          onOpenDetails: _openNearbyDetail,
         ),
       ),
     );
@@ -580,10 +698,13 @@ class _MapScreenState extends State<MapScreen> {
       appBar: AppBar(
         title: const Text('Harita'),
         actions: [
-          IconButton(
-            onPressed: _openNearbyClinicsPage,
-            tooltip: 'Yakindaki veterinerler',
-            icon: const Icon(Icons.local_hospital_outlined),
+          TextButton.icon(
+            onPressed: _openNearbyItemsPage,
+            icon: const Icon(Icons.near_me_outlined),
+            label: const Text('Yakındakiler'),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           IconButton(
             onPressed: _load,
@@ -596,11 +717,11 @@ class _MapScreenState extends State<MapScreen> {
           ? _DesktopFallback(
               errorMessage: _errorMessage,
               locationMessage: _locationMessage,
-              nearbyClinics: _nearbyClinics,
+              nearbyItems: _nearbyItems,
               onRetry: _load,
               onCall: _launchPhone,
-              onDirections: _launchDirections,
-              onOpenDetails: _openDetails,
+              onDirections: _launchNearbyDirections,
+              onOpenDetails: _openNearbyDetail,
             )
           : Stack(
               children: [
@@ -637,19 +758,26 @@ class _MapScreenState extends State<MapScreen> {
                   },
                   onTap: (_) {},
                 ),
+                _MapFilterBar(
+                  showVeterinarians: _showVeterinarians,
+                  showShelters: _showShelters,
+                  showLostPets: _showLostPets,
+                  onChanged: _setFilter,
+                  onShowAll: _showAllFilters,
+                ),
                 if (_errorMessage != null)
                   _StatusBanner(
                     icon: Icons.error_outline_rounded,
                     text: _errorMessage!,
                     toneColor: PatifyTheme.danger,
-                    top: 12,
+                    top: 74,
                   ),
                 if (_loading)
                   const _StatusBanner(
                     icon: Icons.location_searching_rounded,
                     text: 'Noktalar ve acil veterinerler yukleniyor...',
                     toneColor: PatifyTheme.primary,
-                    top: 68,
+                    top: 130,
                   ),
               ],
             ),
@@ -657,9 +785,111 @@ class _MapScreenState extends State<MapScreen> {
   }
 }
 
+enum _MapFilter { veterinarian, shelter, lostPet }
+
+class _MapFilterBar extends StatelessWidget {
+  const _MapFilterBar({
+    required this.showVeterinarians,
+    required this.showShelters,
+    required this.showLostPets,
+    required this.onChanged,
+    required this.onShowAll,
+  });
+
+  final bool showVeterinarians;
+  final bool showShelters;
+  final bool showLostPets;
+  final void Function(_MapFilter filter, bool selected) onChanged;
+  final VoidCallback onShowAll;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      minimum: const EdgeInsets.fromLTRB(
+        PatifyTheme.space12,
+        PatifyTheme.space12,
+        PatifyTheme.space12,
+        0,
+      ),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Card(
+          margin: EdgeInsets.zero,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(
+              horizontal: PatifyTheme.space8,
+              vertical: PatifyTheme.space4,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ActionChip(
+                  avatar: const Icon(Icons.layers_outlined, size: 18),
+                  label: const Text('Tümü'),
+                  onPressed: onShowAll,
+                ),
+                const SizedBox(width: PatifyTheme.space8),
+                _FilterChip(
+                  label: 'Vet',
+                  icon: Icons.local_hospital_outlined,
+                  selected: showVeterinarians,
+                  onSelected: (selected) =>
+                      onChanged(_MapFilter.veterinarian, selected),
+                ),
+                const SizedBox(width: PatifyTheme.space8),
+                _FilterChip(
+                  label: 'Barınak',
+                  icon: Icons.home_work_outlined,
+                  selected: showShelters,
+                  onSelected: (selected) =>
+                      onChanged(_MapFilter.shelter, selected),
+                ),
+                const SizedBox(width: PatifyTheme.space8),
+                _FilterChip(
+                  label: 'Kayıp',
+                  icon: Icons.pets_outlined,
+                  selected: showLostPets,
+                  onSelected: (selected) =>
+                      onChanged(_MapFilter.lostPet, selected),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final ValueChanged<bool> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return FilterChip(
+      selected: selected,
+      label: Text(label),
+      avatar: Icon(icon, size: 18),
+      onSelected: onSelected,
+      showCheckmark: false,
+    );
+  }
+}
+
 class _EmergencyPanel extends StatelessWidget {
   const _EmergencyPanel({
-    required this.nearbyClinics,
+    required this.nearbyItems,
     required this.loading,
     required this.errorMessage,
     required this.onCall,
@@ -668,12 +898,12 @@ class _EmergencyPanel extends StatelessWidget {
     this.showCardChrome = true,
   });
 
-  final List<_NearbyClinic> nearbyClinics;
+  final List<_NearbyMapItem> nearbyItems;
   final bool loading;
   final String? errorMessage;
   final Future<void> Function(String? phone) onCall;
-  final Future<void> Function(PlaceSummary place) onDirections;
-  final Future<void> Function(PlaceSummary place) onOpenDetails;
+  final Future<void> Function(_NearbyMapItem item) onDirections;
+  final Future<void> Function(_NearbyMapItem item) onOpenDetails;
   final bool showCardChrome;
 
   @override
@@ -684,7 +914,7 @@ class _EmergencyPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Acil durumda en yakin veterinerler',
+            'Yakındakiler',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: PatifyTheme.space8),
@@ -701,21 +931,26 @@ class _EmergencyPanel extends StatelessWidget {
                 ),
               ),
             )
-          else if (nearbyClinics.isEmpty)
+          else if (nearbyItems.isEmpty)
             const Expanded(
               child: Center(
-                child: Text('Yakin veteriner bulunamadi.'),
+                child: Text('Yakın oge bulunamadi.'),
               ),
             )
           else
             Expanded(
               child: ListView.separated(
-                itemCount: nearbyClinics.length,
+                itemCount: nearbyItems.length,
                 separatorBuilder: (_, __) =>
                     const SizedBox(height: PatifyTheme.space12),
                 itemBuilder: (context, index) {
-                  final item = nearbyClinics[index];
+                  final item = nearbyItems[index];
                   final place = item.place;
+                  final report = item.report;
+                  final phone = place?.phone?.trim();
+                  final rating = place?.rating;
+                  final ratingCount = place?.userRatingsTotal;
+                  final contactInfo = report?.contactInfo.trim();
                   return Container(
                     padding: const EdgeInsets.all(PatifyTheme.space12),
                     decoration: BoxDecoration(
@@ -727,11 +962,11 @@ class _EmergencyPanel extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          place.name,
+                          item.title,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: PatifyTheme.space4),
-                        Text(place.address ?? 'Adres bilgisi yok'),
+                        Text(item.subtitle),
                         const SizedBox(height: PatifyTheme.space4),
                         Wrap(
                           spacing: PatifyTheme.space8,
@@ -741,17 +976,25 @@ class _EmergencyPanel extends StatelessWidget {
                               label: item.distanceLabel,
                               icon: Icons.near_me_outlined,
                             ),
-                            if (place.phone != null &&
-                                place.phone!.trim().isNotEmpty)
+                            _MetaPill(
+                              label: item.typeLabel,
+                              icon: item.typeIcon,
+                            ),
+                            if (phone != null && phone.isNotEmpty)
                               _MetaPill(
-                                label: place.phone!,
+                                label: phone,
                                 icon: Icons.phone_outlined,
                               ),
-                            if (place.rating != null)
+                            if (contactInfo != null && contactInfo.isNotEmpty)
                               _MetaPill(
-                                label: place.userRatingsTotal != null
-                                    ? '${place.rating!.toStringAsFixed(1)} (${place.userRatingsTotal})'
-                                    : place.rating!.toStringAsFixed(1),
+                                label: contactInfo,
+                                icon: Icons.phone_outlined,
+                              ),
+                            if (rating != null)
+                              _MetaPill(
+                                label: ratingCount != null
+                                    ? '${rating.toStringAsFixed(1)} ($ratingCount)'
+                                    : rating.toStringAsFixed(1),
                                 icon: Icons.star_outline,
                               ),
                           ],
@@ -761,20 +1004,22 @@ class _EmergencyPanel extends StatelessWidget {
                           children: [
                             Expanded(
                               child: OutlinedButton(
-                                onPressed: () => onCall(place.phone),
+                                onPressed: phone == null || phone.isEmpty
+                                    ? null
+                                    : () => onCall(phone),
                                 child: const Text('Ara'),
                               ),
                             ),
                             const SizedBox(width: PatifyTheme.space8),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () => onDirections(place),
+                                onPressed: () => onDirections(item),
                                 child: const Text('Yol Tarifi Al'),
                               ),
                             ),
                             const SizedBox(width: PatifyTheme.space8),
                             TextButton(
-                              onPressed: () => onOpenDetails(place),
+                              onPressed: () => onOpenDetails(item),
                               child: const Text('Detay'),
                             ),
                           ],
@@ -815,7 +1060,7 @@ class _DesktopFallback extends StatelessWidget {
   const _DesktopFallback({
     required this.errorMessage,
     required this.locationMessage,
-    required this.nearbyClinics,
+    required this.nearbyItems,
     required this.onRetry,
     required this.onCall,
     required this.onDirections,
@@ -824,11 +1069,11 @@ class _DesktopFallback extends StatelessWidget {
 
   final String? errorMessage;
   final String? locationMessage;
-  final List<_NearbyClinic> nearbyClinics;
+  final List<_NearbyMapItem> nearbyItems;
   final VoidCallback onRetry;
   final Future<void> Function(String? phone) onCall;
-  final Future<void> Function(PlaceSummary place) onDirections;
-  final Future<void> Function(PlaceSummary place) onOpenDetails;
+  final Future<void> Function(_NearbyMapItem item) onDirections;
+  final Future<void> Function(_NearbyMapItem item) onOpenDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -869,7 +1114,7 @@ class _DesktopFallback extends StatelessWidget {
         ),
         const SizedBox(height: PatifyTheme.space16),
         _EmergencyPanel(
-          nearbyClinics: nearbyClinics,
+          nearbyItems: nearbyItems,
           loading: false,
           errorMessage: errorMessage,
           onCall: onCall,
@@ -881,9 +1126,9 @@ class _DesktopFallback extends StatelessWidget {
   }
 }
 
-class _NearbyClinicsScreen extends StatelessWidget {
-  const _NearbyClinicsScreen({
-    required this.nearbyClinics,
+class _NearbyItemsScreen extends StatelessWidget {
+  const _NearbyItemsScreen({
+    required this.nearbyItems,
     required this.loading,
     required this.errorMessage,
     required this.onRetry,
@@ -892,19 +1137,19 @@ class _NearbyClinicsScreen extends StatelessWidget {
     required this.onOpenDetails,
   });
 
-  final List<_NearbyClinic> nearbyClinics;
+  final List<_NearbyMapItem> nearbyItems;
   final bool loading;
   final String? errorMessage;
   final VoidCallback onRetry;
   final Future<void> Function(String? phone) onCall;
-  final Future<void> Function(PlaceSummary place) onDirections;
-  final Future<void> Function(PlaceSummary place) onOpenDetails;
+  final Future<void> Function(_NearbyMapItem item) onDirections;
+  final Future<void> Function(_NearbyMapItem item) onOpenDetails;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Yakindaki Veterinerler'),
+        title: const Text('Yakindaki Ogeler'),
         actions: [
           IconButton(
             onPressed: onRetry,
@@ -914,7 +1159,7 @@ class _NearbyClinicsScreen extends StatelessWidget {
         ],
       ),
       body: _EmergencyPanel(
-        nearbyClinics: nearbyClinics,
+        nearbyItems: nearbyItems,
         loading: loading,
         errorMessage: errorMessage,
         onCall: onCall,
@@ -1003,14 +1248,80 @@ class _StatusBanner extends StatelessWidget {
   }
 }
 
-class _NearbyClinic {
-  const _NearbyClinic({
-    required this.place,
+class _NearbyMapItem {
+  const _NearbyMapItem._({
+    required this.type,
     required this.distanceMeters,
+    this.place,
+    this.report,
   });
 
-  final PlaceSummary place;
+  factory _NearbyMapItem.place({
+    required PlaceSummary place,
+    required _MapFilter type,
+    required double distanceMeters,
+  }) {
+    return _NearbyMapItem._(
+      type: type,
+      place: place,
+      distanceMeters: distanceMeters,
+    );
+  }
+
+  factory _NearbyMapItem.lostReport({
+    required LostReport report,
+    required double distanceMeters,
+  }) {
+    return _NearbyMapItem._(
+      type: _MapFilter.lostPet,
+      report: report,
+      distanceMeters: distanceMeters,
+    );
+  }
+
+  final _MapFilter type;
+  final PlaceSummary? place;
+  final LostReport? report;
   final double distanceMeters;
+
+  String get title {
+    final place = this.place;
+    if (place != null) {
+      return place.name;
+    }
+    return 'Kayıp ${report!.petType}';
+  }
+
+  String get subtitle {
+    final place = this.place;
+    if (place != null) {
+      return place.address ?? 'Adres bilgisi yok';
+    }
+    final lostReport = report!;
+    return lostReport.address ?? lostReport.district ?? lostReport.description;
+  }
+
+  String get typeLabel {
+    switch (type) {
+      case _MapFilter.veterinarian:
+        return 'Veteriner';
+      case _MapFilter.shelter:
+        return 'Barinak';
+      case _MapFilter.lostPet:
+        return 'Kayip Hayvan';
+    }
+  }
+
+  IconData get typeIcon {
+    switch (type) {
+      case _MapFilter.veterinarian:
+        return Icons.local_hospital_outlined;
+      case _MapFilter.shelter:
+        return Icons.home_work_outlined;
+      case _MapFilter.lostPet:
+        return Icons.pets_outlined;
+    }
+  }
 
   String get distanceLabel {
     if (distanceMeters >= 1000) {

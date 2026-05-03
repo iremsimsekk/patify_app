@@ -32,14 +32,20 @@ public class AuthController {
     this.emailVerificationService = emailVerificationService;
   }
 
-  public record RegisterReq(String email, String password, String firstName, String lastName) {}
+  public record RegisterReq(
+      String email,
+      String password,
+      String firstName,
+      String lastName,
+      Role role
+  ) {}
   public record LoginReq(String email, String password) {}
   public record ResendVerificationReq(String email) {}
   public record UpdateProfileReq(String email, String firstName, String lastName, String district) {}
   public record ChangePasswordReq(String email, String currentPassword, String newPassword) {}
 
   public record AuthRes(String token, String role, String email, String firstName, String lastName, String district) {}
-  public record RegisterRes(String email, String message) {}
+  public record RegisterRes(String email, String role, String message) {}
   public record MessageRes(String message) {}
 
   @Transactional
@@ -55,7 +61,7 @@ public class AuthController {
     User u = new User();
     u.email = email;
     u.passwordHash = encoder.encode(req.password());
-    u.role = Role.USER;
+    u.role = req.role() != null ? req.role() : Role.USER;
     u.firstName = req.firstName() != null ? req.firstName().trim() : null;
     u.lastName = req.lastName() != null ? req.lastName().trim() : null;
     u.district = null;
@@ -70,7 +76,7 @@ public class AuthController {
         u.emailVerified
     );
     emailVerificationService.createAndSend(u);
-    return new RegisterRes(u.email, "VERIFICATION_EMAIL_SENT");
+    return new RegisterRes(u.email, u.role.name(), "VERIFICATION_EMAIL_SENT");
   }
 
   @GetMapping("/verify-email")

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../config/api_keys.dart';
 import '../data/mock_data.dart';
 import '../services/auth_service.dart';
+import '../services/app_preferences.dart';
 import '../theme/patify_theme.dart';
 import 'main_wrapper.dart';
 import 'shelter_dashboard_screen.dart';
 import 'signup_screen.dart';
+import 'veterinarian_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -72,8 +74,19 @@ class _LoginScreenState extends State<LoginScreen> {
       lastName: lastName?.isEmpty == true ? null : lastName,
       district: auth.district?.trim().isEmpty == true ? null : auth.district,
       name: fullName.isNotEmpty ? fullName : resolvedEmail.split('@').first,
-      type: auth.role == 'ADMIN' ? UserType.shelter : UserType.petOwner,
+      type: _mapUserType(auth.role),
     );
+  }
+
+  UserType _mapUserType(String role) {
+    switch (role) {
+      case 'ADMIN':
+        return UserType.shelter;
+      case 'VETERINARIAN':
+        return UserType.veterinarian;
+      default:
+        return UserType.petOwner;
+    }
   }
 
   String _friendlyError(Object error) {
@@ -158,11 +171,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final auth = await AuthService.login(email: email, password: password);
+      await AppPreferences.saveAuthRole(auth.role);
+      await AppPreferences.saveAuthToken(auth.token);
       final user = _buildUserFromAuth(auth, email);
+      await AppPreferences.saveCurrentUser(user);
 
       if (!mounted) return;
 
-      if (auth.role == 'USER') {
+      if (user.type == UserType.shelter) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ShelterDashboardScreen(shelterUser: user),
+          ),
+        );
+      } else if (user.type == UserType.veterinarian) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VeterinarianDashboardScreen(user: user),
+          ),
+        );
+      } else {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -170,13 +200,6 @@ class _LoginScreenState extends State<LoginScreen> {
               currentUser: user,
               apiKey: ApiKeys.googleMaps,
             ),
-          ),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ShelterDashboardScreen(shelterUser: user),
           ),
         );
       }

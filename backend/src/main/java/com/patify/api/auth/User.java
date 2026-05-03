@@ -17,7 +17,7 @@ public class User {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  public Role role;
+  public Role role = Role.USER;
 
   // ✅ Yeni alanlar
   @Column(name = "first_name")

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/patify_theme.dart';
+import '../widgets/patify_user_bottom_nav.dart';
 import '../widgets/category_card.dart';
 import 'shelter_list_screen.dart';
 import 'veterinary_list_screen.dart';
@@ -74,6 +75,9 @@ class PetCareScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Hizmetler')),
+      bottomNavigationBar: const PatifyUserBottomNav(
+        current: PatifyUserNavItem.services,
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           PatifyTheme.space20,
@@ -98,7 +102,6 @@ class PetCareScreen extends StatelessWidget {
                   'Evcil dostun için temel hizmetler',
                   style: theme.textTheme.headlineMedium,
                 ),
-                
               ],
             ),
           ),
@@ -114,23 +117,28 @@ class PetCareScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: PatifyTheme.space12),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: primaryServices.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: PatifyTheme.space16,
-              mainAxisSpacing: PatifyTheme.space16,
-              childAspectRatio: 1.05,
-            ),
-            itemBuilder: (context, index) {
-              final item = primaryServices[index];
-              return CategoryCard(
-                title: item.title,
-                icon: item.icon,
-                color: item.color,
-                onTap: item.onTap,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 420;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: primaryServices.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: compact ? 1 : 2,
+                  crossAxisSpacing: PatifyTheme.space16,
+                  mainAxisSpacing: PatifyTheme.space16,
+                  childAspectRatio: compact ? 2.1 : 1.05,
+                ),
+                itemBuilder: (context, index) {
+                  final item = primaryServices[index];
+                  return CategoryCard(
+                    title: item.title,
+                    icon: item.icon,
+                    color: item.color,
+                    onTap: item.onTap,
+                  );
+                },
               );
             },
           ),

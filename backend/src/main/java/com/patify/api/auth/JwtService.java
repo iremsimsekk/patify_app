@@ -33,4 +33,21 @@ public class JwtService {
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
   }
+
+  public Claims parseToken(String token) {
+    return Jwts.parserBuilder()
+        .setSigningKey(key)
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
+  }
+
+  public String extractEmail(String token) {
+    return parseToken(token).getSubject();
+  }
+
+  public Role extractRole(String token) {
+    String role = parseToken(token).get("role", String.class);
+    return Role.valueOf(role);
+  }
 }
