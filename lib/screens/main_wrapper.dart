@@ -75,11 +75,14 @@ class _MainWrapperState extends State<MainWrapper> {
           apiKey: widget.apiKey,
         );
       case 1:
-        return const PatiDunyasiScreen();
+        return PatiDunyasiScreen(currentUser: _currentUser);
       case 2:
         return const AiChatScreen();
       case 3:
-        return MapScreen(apiKey: widget.apiKey);
+        return MapScreen(
+          apiKey: widget.apiKey,
+          currentUser: _currentUser,
+        );
       case 4:
         return ProfileScreen(
           currentUser: _currentUser,
@@ -102,6 +105,7 @@ class _MainWrapperState extends State<MainWrapper> {
     setState(() {
       _currentUser = user;
       _loadedPages[0] = _buildPage(0);
+      _loadedPages[1] = _buildPage(1);
       _loadedPages[4] = _buildPage(4);
     });
   }

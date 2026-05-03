@@ -23,6 +23,7 @@ dependencies:
   google_maps_flutter: ^2.6.1
   geolocator: ^13.0.2
   url_launcher: ^6.3.1
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -35,3 +36,4 @@ flutter:
   assets:
     - .env
     - assets/animals/
+    - assets/user_placeholder.png

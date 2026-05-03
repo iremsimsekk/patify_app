@@ -1,0 +1,2 @@
+ALTER TABLE lost_reports
+ADD COLUMN IF NOT EXISTS address TEXT;

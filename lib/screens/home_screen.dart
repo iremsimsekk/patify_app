@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../services/google_places_service.dart';
 import '../services/institution_api_service.dart';
+import '../services/lost_report_service.dart';
 import '../theme/patify_theme.dart';
 import '../widgets/category_card.dart';
 import '../widgets/pet_card.dart';
 import 'ai_chat_screen.dart';
 import 'animal_detail_screen.dart';
+import 'lost_pet_network_screen.dart';
 import 'map_screen.dart';
+import 'notifications_screen.dart';
 import 'pet_care_screen.dart';
 import 'shelter_detail_screen.dart';
 import 'shelter_list_screen.dart';
@@ -33,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _searchQuery = '';
 
   Future<List<PlaceSummary>>? _sheltersFuture;
+  bool _checkedNotificationPopup = false;
 
   bool get _isGuest => widget.currentUser.isGuest;
 
@@ -41,6 +45,52 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     if (!_isGuest) {
       _sheltersFuture = InstitutionApiService.fetchShelters();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showNotificationPopupIfNeeded();
+      });
+    }
+  }
+
+  Future<void> _showNotificationPopupIfNeeded() async {
+    if (_checkedNotificationPopup || !mounted || _isGuest) return;
+    _checkedNotificationPopup = true;
+
+    try {
+      final notifications = await LostReportService.notifications(
+        email: widget.currentUser.email,
+        unreadOnly: true,
+      );
+      if (!mounted || notifications.isEmpty) return;
+
+      final latest = notifications.first;
+      await LostReportService.markNotificationRead(
+        id: latest.id,
+        email: widget.currentUser.email,
+      );
+      if (!mounted) return;
+
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Yeni kayıp ilanı'),
+          content: Text(latest.message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Kapat'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _openNotifications();
+              },
+              child: const Text('Bildirimlere git'),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      // Bildirim popup'ı ana ekran açılışını bozmasın.
     }
   }
 
@@ -79,6 +129,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _openNotifications() {
+    if (_isGuest) {
+      _showGuestNotice();
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NotificationsScreen(currentUser: widget.currentUser),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -97,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Patify'),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: _openNotifications,
             tooltip: 'Bildirimler',
             icon: const Icon(Icons.notifications_none_rounded),
           ),
@@ -191,7 +255,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => MapScreen(apiKey: widget.apiKey),
+                      builder: (_) => MapScreen(
+                        apiKey: widget.apiKey,
+                        currentUser: widget.currentUser,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              CategoryCard(
+                title: 'Kayıp Hayvan Ağı',
+                icon: Icons.campaign_rounded,
+                color: PatifyTheme.danger,
+                onTap: () {
+                  if (_isGuest) {
+                    _showGuestNotice();
+                    return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LostPetNetworkScreen(
+                        currentUser: widget.currentUser,
+                      ),
                     ),
                   );
                 },

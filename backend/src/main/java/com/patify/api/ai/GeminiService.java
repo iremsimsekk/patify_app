@@ -24,6 +24,10 @@ public class GeminiService {
     }
 
     public String askQuestion(String question) {
+        if (apiKey == null || apiKey.isBlank()) {
+            return "Şu anda cevap üretilemedi.";
+        }
+
         String prompt = """
         You are an AI pet assistant for an animal support application.
 

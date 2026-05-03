@@ -72,6 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
       password: '',
       firstName: firstName?.isEmpty == true ? null : firstName,
       lastName: lastName?.isEmpty == true ? null : lastName,
+      district: auth.district?.trim().isEmpty == true ? null : auth.district,
       name: fullName.isNotEmpty ? fullName : resolvedEmail.split('@').first,
       type: _mapUserType(auth.role),
     );

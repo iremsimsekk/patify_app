@@ -41,10 +41,10 @@ public class AuthController {
   ) {}
   public record LoginReq(String email, String password) {}
   public record ResendVerificationReq(String email) {}
-  public record UpdateProfileReq(String email, String firstName, String lastName) {}
+  public record UpdateProfileReq(String email, String firstName, String lastName, String district) {}
   public record ChangePasswordReq(String email, String currentPassword, String newPassword) {}
 
-  public record AuthRes(String token, String role, String email, String firstName, String lastName) {}
+  public record AuthRes(String token, String role, String email, String firstName, String lastName, String district) {}
   public record RegisterRes(String email, String role, String message) {}
   public record MessageRes(String message) {}
 
@@ -64,6 +64,7 @@ public class AuthController {
     u.role = req.role() != null ? req.role() : Role.USER;
     u.firstName = req.firstName() != null ? req.firstName().trim() : null;
     u.lastName = req.lastName() != null ? req.lastName().trim() : null;
+    u.district = null;
     u.emailVerified = false;
 
     users.save(u);
@@ -147,6 +148,7 @@ public class AuthController {
 
     String firstName = req.firstName() != null ? req.firstName().trim() : "";
     String lastName = req.lastName() != null ? req.lastName().trim() : "";
+    String district = req.district() != null ? req.district().trim() : "";
 
     if (firstName.isBlank() || lastName.isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NAME_REQUIRED");
@@ -154,6 +156,7 @@ public class AuthController {
 
     u.firstName = firstName;
     u.lastName = lastName;
+    u.district = district.isBlank() ? null : district;
     users.save(u);
 
     return toAuthRes(u);
@@ -208,7 +211,8 @@ public class AuthController {
       user.role.name(),
       user.email,
       user.firstName,
-      user.lastName
+      user.lastName,
+      user.district
     );
   }
 

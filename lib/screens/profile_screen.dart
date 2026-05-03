@@ -79,6 +79,13 @@ class ProfileScreen extends StatelessWidget {
                       Text(fullName, style: theme.textTheme.headlineMedium),
                       const SizedBox(height: PatifyTheme.space4),
                       Text(email, style: theme.textTheme.bodyMedium),
+                      if ((currentUser.district ?? '').isNotEmpty) ...[
+                        const SizedBox(height: PatifyTheme.space4),
+                        Text(
+                          currentUser.district!,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ],
                     ],
                   ),
                 ),
