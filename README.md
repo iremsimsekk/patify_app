@@ -46,7 +46,7 @@ For physical device testing, update the API base URL with your computer's local 
 
 Example:
 
-const String baseUrl = "http://192.168.x.x:8080";
+const String baseUrl = "http://192.x.x.x:8080";
 Project Modules
 Authentication: User registration, login, and token-based access
 Clinics & Shelters: Listing, detail viewing, and map display
